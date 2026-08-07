@@ -18,6 +18,7 @@ const leadSchema = z.object({
 });
 
 const requests = new Map<string, number[]>();
+const recentLeads = new Map<string, number>();
 
 function isRateLimited(ip: string) {
   const now = Date.now();
@@ -89,6 +90,20 @@ export async function POST(request: NextRequest) {
     );
 
   const lead = parsed.data;
+  const duplicateKey = [
+    ip,
+    lead.phone.toLowerCase(),
+    lead.company.toLowerCase(),
+    lead.message.toLowerCase(),
+  ].join("|");
+  const previousAttempt = recentLeads.get(duplicateKey);
+  if (previousAttempt && Date.now() - previousAttempt < 120_000)
+    return NextResponse.json(
+      { ok: false, message: "Эта заявка уже отправлена." },
+      { status: 409 },
+    );
+  recentLeads.set(duplicateKey, Date.now());
+
   const id = crypto.randomUUID();
   const utm =
     Object.entries(lead.utm)
@@ -133,6 +148,7 @@ export async function POST(request: NextRequest) {
       throw new Error(result.description || "Telegram API error");
     return NextResponse.json({ ok: true, id });
   } catch (error) {
+    recentLeads.delete(duplicateKey);
     console.error(
       "Lead delivery failed",
       error instanceof Error ? error.message : "Unknown error",
