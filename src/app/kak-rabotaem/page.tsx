@@ -4,7 +4,6 @@ import {
   FinalCta,
   FormatsSection,
   StepsSection,
-  TrustSection,
   SectionHeading,
 } from "@/components/common-sections";
 import { KeepTeamSection } from "@/components/home-sections";
@@ -55,7 +54,6 @@ export default function Page() {
       </section>
       <FormatsSection />
       <KeepTeamSection />
-      <TrustSection />
       <FinalCta />
     </>
   );

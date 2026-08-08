@@ -213,9 +213,10 @@ export function FormatsSection() {
 export function OwnerResultsSection() {
   const icons = [Gauge, TrendUp, Target, UsersThree, Eye, Sparkle];
   return (
-    <section className="section owner-section">
+    <section className="section owner-section dark-section">
       <div className="container">
         <SectionHeading
+          light
           eyebrow="Результат для собственника"
           title="В итоге собственник должен видеть"
         />
@@ -223,34 +224,16 @@ export function OwnerResultsSection() {
           {ownerResults.map((text, index) => {
             const Icon = icons[index];
             return (
-              <Reveal className="owner-card" key={text}>
+              <Reveal
+                className={`owner-card owner-tone-${index + 1}`}
+                key={text}
+              >
                 <span>0{index + 1}</span>
                 <Icon size={28} weight="duotone" />
                 <p>{text}</p>
               </Reveal>
             );
           })}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-export function TrustSection() {
-  return (
-    <section className="section trust-section dark-section">
-      <div className="container trust-inner">
-        <ShieldCheck size={56} weight="duotone" />
-        <div>
-          <p className="eyebrow">Принцип доверия</p>
-          <h2>Не обещаем результат до изучения данных</h2>
-          <p>
-            Мы не обещаем заранее конкретный процент роста выручки, количество
-            пациентов или снижение стоимости привлечения. Сначала определяем
-            исходные показатели, качество данных, резерв системы и область
-            ответственности. Только после этого согласовываем KPI и коммерческие
-            цели.
-          </p>
         </div>
       </div>
     </section>
@@ -282,7 +265,7 @@ export function FinalCta({
             </span>
             <span>
               <Check size={18} />
-              Без обещаний до данных
+              Понятный следующий шаг
             </span>
           </div>
         </div>

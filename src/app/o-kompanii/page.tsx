@@ -5,7 +5,6 @@ import {
   FinalCta,
   PeopleAiSection,
   TeamSection,
-  TrustSection,
   SectionHeading,
 } from "@/components/common-sections";
 import { pageMetadata } from "@/lib/seo";
@@ -58,7 +57,6 @@ export default function Page() {
       </section>
       <TeamSection />
       <PeopleAiSection />
-      <TrustSection />
       <FinalCta />
     </>
   );

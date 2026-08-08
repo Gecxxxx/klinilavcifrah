@@ -11,7 +11,6 @@ import {
   ClipboardText,
   CreditCard,
   Megaphone,
-  ShieldCheck,
   UserCircle,
 } from "@phosphor-icons/react";
 import { heroStages } from "@/lib/site-data";
@@ -89,30 +88,6 @@ export function Hero() {
             })}
           </div>
         </MotionConfig>
-        <div className="hero-summary">
-          <div>
-            <span>Бюджет</span>
-            <strong>3,2 млн ₽</strong>
-          </div>
-          <ArrowRight size={26} aria-hidden="true" />
-          <div>
-            <strong className="violet-text">128</strong>
-            <span>обращений</span>
-          </div>
-          <ArrowRight size={26} aria-hidden="true" />
-          <div>
-            <strong className="cyan-text">42</strong>
-            <span>оплаты</span>
-          </div>
-        </div>
-        <div className="hero-trust">
-          <ShieldCheck size={26} weight="duotone" />
-          <span>
-            Не обещаем рост
-            <br />
-            до изучения данных.
-          </span>
-        </div>
       </div>
     </section>
   );

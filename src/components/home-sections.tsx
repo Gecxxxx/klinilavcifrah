@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { motion, MotionConfig } from "motion/react";
 import {
+  ArrowLeft,
   ArrowRight,
   CaretDown,
   Check,
@@ -32,7 +34,10 @@ export function ProblemsSection() {
         </div>
         <div className="problem-grid">
           {problemCards.map(([title, text], index) => (
-            <article className="problem-card" key={title}>
+            <article
+              className={`problem-card problem-tone-${index + 1}`}
+              key={title}
+            >
               <span>0{index + 1}</span>
               <h3>{title}</h3>
               <p>{text}</p>
@@ -50,6 +55,14 @@ export function ProblemsSection() {
 
 export function JourneySection() {
   const [active, setActive] = useState(1);
+  const previous = () =>
+    setActive((current) =>
+      current === 0 ? patientJourney.length - 1 : current - 1,
+    );
+  const next = () =>
+    setActive((current) =>
+      current === patientJourney.length - 1 ? 0 : current + 1,
+    );
   return (
     <section className="section journey-section dark-section">
       <div className="container">
@@ -58,11 +71,11 @@ export function JourneySection() {
           <h2>От первого рекламного контакта до повторного пациента</h2>
           <p>Выберите этап, чтобы увидеть ключевые показатели контроля.</p>
         </div>
-        <div className="journey-layout">
-          <div className="journey-list" role="list">
+        <div className="journey-console">
+          <div className="journey-map" role="list" aria-label="Этапы пути пациента">
             {patientJourney.map((stage, index) => (
               <button
-                className={active === index ? "active" : ""}
+                className={`journey-node ${active === index ? "active" : ""}`}
                 onClick={() => {
                   setActive(index);
                   reachGoal("funnel_stage_open", { stage: stage.label });
@@ -71,23 +84,38 @@ export function JourneySection() {
                 key={stage.label}
               >
                 <span>{String(index + 1).padStart(2, "0")}</span>
-                {stage.label}
-                <ArrowRight size={18} />
+                <strong>{stage.label}</strong>
               </button>
             ))}
           </div>
-          <div className="journey-detail">
-            <span>Контроль этапа</span>
-            <h3>{patientJourney[active].label}</h3>
-            <p>{patientJourney[active].kpi}</p>
-            <div className="journey-signal">
-              <i />
-              <i />
-              <i />
-              <i />
-              <i />
-            </div>
-          </div>
+          <MotionConfig reducedMotion="user">
+            <motion.div
+              className="journey-focus"
+              key={patientJourney[active].label}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.28 }}
+            >
+              <div className="journey-index">
+                <span>Этап</span>
+                <b>{String(active + 1).padStart(2, "0")}</b>
+                <small>из {patientJourney.length}</small>
+              </div>
+              <div className="journey-focus-copy">
+                <span>Под контролем</span>
+                <h3>{patientJourney[active].label}</h3>
+                <p>{patientJourney[active].kpi}</p>
+              </div>
+              <div className="journey-controls">
+                <button type="button" onClick={previous} aria-label="Предыдущий этап">
+                  <ArrowLeft size={20} />
+                </button>
+                <button type="button" onClick={next} aria-label="Следующий этап">
+                  <ArrowRight size={20} />
+                </button>
+              </div>
+            </motion.div>
+          </MotionConfig>
         </div>
       </div>
     </section>
@@ -128,10 +156,10 @@ export function CasesPreview() {
       <div className="container">
         <div className="section-heading">
           <p className="eyebrow">Разборы и проекты</p>
-          <h2>Показываем только то, что можно подтвердить</h2>
+          <h2>Разбираем систему по этапам, а не по ощущениям</h2>
           <p>
-            Структура раздела готова. Результаты и цифры появятся после
-            согласования с клиентами.
+            Каждый материал строится по одной логике: что анализировалось, что
+            выявлено, что рекомендовано и на каком этапе находится работа.
           </p>
         </div>
         <div className="case-grid">
@@ -193,7 +221,7 @@ export function FaqSection() {
         <div className="section-heading">
           <p className="eyebrow">FAQ</p>
           <h2>Вопросы до начала работы</h2>
-          <p>Без сложных тарифов и обещаний до изучения данных.</p>
+          <p>Коротко о формате, данных, команде и начале сотрудничества.</p>
         </div>
         <div className="faq-list">
           {faq.map(([question, answer], index) => (

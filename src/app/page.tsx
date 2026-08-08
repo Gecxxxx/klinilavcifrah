@@ -15,7 +15,6 @@ import {
   StepsSection,
   FormatsSection,
   OwnerResultsSection,
-  TrustSection,
   FinalCta,
 } from "@/components/common-sections";
 import { faq, SITE_URL } from "@/lib/site-data";
@@ -54,7 +53,6 @@ export default function Home() {
       <StepsSection />
       <FormatsSection />
       <OwnerResultsSection />
-      <TrustSection />
       <CasesPreview />
       <IndustriesPreview />
       <FaqSection />

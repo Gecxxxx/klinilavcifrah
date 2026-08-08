@@ -21,8 +21,8 @@ test("главный экран содержит утверждённую цеп
   await expect(page.getByRole("heading", { level: 1 })).toContainText("Весь путь пациента");
   await expect(page.getByText("67%", { exact: true })).toBeVisible();
   await expect(page.getByText("24%", { exact: true })).toBeVisible();
-  await expect(page.locator(".hero-trust")).toContainText("Не обещаем рост");
-  await expect(page.locator(".hero-trust")).toContainText("до изучения данных");
+  await expect(page.locator(".hero-summary")).toHaveCount(0);
+  await expect(page.locator(".hero-trust")).toHaveCount(0);
 });
 
 test("мобильное меню и FAQ работают", async ({ page }, testInfo) => {
@@ -32,6 +32,16 @@ test("мобильное меню и FAQ работают", async ({ page }, tes
   await expect(page.locator("#mobile-menu")).toHaveClass(/open/);
   await page.getByRole("button", { name: /Вы заменяете/ }).click();
   await expect(page.getByText(/Если специалист или подрядчик/)).toBeVisible();
+});
+
+test("интерактивная воронка переключает этапы", async ({ page }) => {
+  await page.goto("/");
+  const focus = page.locator(".journey-focus");
+  await expect(focus.getByRole("heading", { level: 3 })).toHaveText("Обращение");
+  await page.locator(".journey-node").filter({ hasText: "Запись" }).click();
+  await expect(focus.getByRole("heading", { level: 3 })).toHaveText("Запись");
+  await focus.getByRole("button", { name: "Следующий этап" }).click();
+  await expect(focus.getByRole("heading", { level: 3 })).toHaveText("Визит");
 });
 
 test("форма валидируется на русском", async ({ page }) => {

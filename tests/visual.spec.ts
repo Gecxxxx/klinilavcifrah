@@ -27,11 +27,39 @@ test("контрольные снимки главного экрана", async 
       const heroBox = await page.locator(".hero").boundingBox();
       expect(heroBox).not.toBeNull();
       expect(Math.ceil((heroBox?.y ?? 0) + (heroBox?.height ?? 0))).toBeLessThanOrEqual(height);
-      await expect(page.locator(".hero-summary")).toBeInViewport();
-      await expect(page.locator(".hero-trust")).toBeInViewport();
+      await expect(page.locator(".hero-chain")).toBeInViewport();
     }
     await page.screenshot({ path: `design-qa/screenshots/home-${width}x${height}.png`, animations: "disabled" });
     expect(consoleErrors).toEqual([]);
     page.off("console", onConsole);
+  }
+});
+
+test("контрольные снимки переработанных секций", async ({ page }, testInfo) => {
+  test.skip(!process.env.VISUAL_QA || testInfo.project.name !== "desktop", "Запускается отдельно для визуального QA");
+  const targets = [
+    [1440, 900, "desktop"],
+    [390, 844, "mobile"],
+  ] as const;
+
+  for (const [width, height, label] of targets) {
+    await page.setViewportSize({ width, height });
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.goto("/");
+    if (label === "desktop") {
+      await page.screenshot({
+        path: "design-qa/screenshots/home-full-desktop.png",
+        fullPage: true,
+        animations: "disabled",
+      });
+    }
+    for (const section of ["problems-section", "journey-section", "directions-section", "owner-section"]) {
+      const locator = page.locator(`.${section}`);
+      await locator.scrollIntoViewIfNeeded();
+      await locator.screenshot({
+        path: `design-qa/screenshots/${section}-${label}.png`,
+        animations: "disabled",
+      });
+    }
   }
 });
