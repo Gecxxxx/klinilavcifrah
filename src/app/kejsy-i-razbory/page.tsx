@@ -3,6 +3,7 @@ import { PageHero } from "@/components/page-hero";
 import { FinalCta, SectionHeading } from "@/components/common-sections";
 import { cases } from "@/lib/site-data";
 import { pageMetadata } from "@/lib/seo";
+import { CasesReviewCta } from "@/components/contextual-ctas";
 
 export const metadata: Metadata = pageMetadata(
   "Кейсы и разборы",
@@ -57,7 +58,11 @@ export default function Page() {
           </div>
         </div>
       </section>
-      <FinalCta title="Получить разбор своей коммерческой цепочки" />
+      <CasesReviewCta />
+      <FinalCta
+        title="Подготовим структуру разбора вашей клиники"
+        lead="Начнём с подтверждаемых данных и заранее определим, по каким показателям оценивать изменения."
+      />
     </>
   );
 }

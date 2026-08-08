@@ -9,6 +9,7 @@ import {
 import { KeepTeamSection } from "@/components/home-sections";
 import { startSteps } from "@/lib/site-data";
 import { pageMetadata } from "@/lib/seo";
+import { WorkStartCta } from "@/components/contextual-ctas";
 
 export const metadata: Metadata = pageMetadata(
   "Как работаем",
@@ -52,9 +53,13 @@ export default function Page() {
           </div>
         </div>
       </section>
+      <WorkStartCta />
       <FormatsSection />
       <KeepTeamSection />
-      <FinalCta />
+      <FinalCta
+        title="Определим безопасный первый шаг"
+        lead="Зафиксируем одну задачу, нужные данные и критерий результата до начала платного этапа."
+      />
     </>
   );
 }

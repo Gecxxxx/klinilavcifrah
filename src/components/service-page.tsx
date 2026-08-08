@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { Fragment } from "react";
 import {
   ArrowRight,
   ArrowUpRight,
@@ -15,7 +16,9 @@ import {
   Wrench,
 } from "@phosphor-icons/react/dist/ssr";
 import type { ServicePageData } from "@/lib/site-data";
+import { directionLinks } from "@/lib/site-data";
 import { jsonLd } from "@/lib/seo";
+import { ServiceInlineCta } from "./contextual-ctas";
 
 const sectionIcons = [Eye, Gauge, Wrench, CheckCircle, Database];
 
@@ -49,8 +52,6 @@ export function ServicePage({ data }: { data: ServicePageData }) {
         <div className="container service-breadcrumbs">
           <Link href="/">Главная</Link>
           <span>→</span>
-          <Link href="/chto-my-delaem">Что мы делаем</Link>
-          <span>→</span>
           <span>{data.title}</span>
         </div>
         <div className="container service-hero-grid">
@@ -65,7 +66,7 @@ export function ServicePage({ data }: { data: ServicePageData }) {
             </p>
             <div className="service-hero-actions">
               <Link className="button button-primary" href="/kontakty#forma">
-                Получить предварительный разбор
+                Получить разбор
               </Link>
               {data.ownerSite && (
                 <a
@@ -74,7 +75,8 @@ export function ServicePage({ data }: { data: ServicePageData }) {
                   target="_blank"
                   rel="noreferrer"
                 >
-                  Обратиться к {data.owner === "Дарья" ? "Дарье" : data.owner + "у"}
+                  Обратиться к{" "}
+                  {data.owner === "Дарья" ? "Дарье" : data.owner + "у"}
                   <ArrowUpRight size={18} />
                 </a>
               )}
@@ -114,21 +116,24 @@ export function ServicePage({ data }: { data: ServicePageData }) {
           {sections.map((section, index) => {
             const Icon = sectionIcons[index];
             return (
-              <article className={`service-panel panel-${index + 1}`} key={section.title}>
-                <header>
-                  <span>{section.number}</span>
-                  <Icon size={29} weight="duotone" />
-                  <h2>{section.title}</h2>
-                </header>
-                <ul>
-                  {section.items.map((item) => (
-                    <li key={item}>
-                      <CheckCircle size={18} weight="duotone" />
-                      <span>{item}</span>
-                    </li>
-                  ))}
-                </ul>
-              </article>
+              <Fragment key={section.title}>
+                <article className={`service-panel panel-${index + 1}`}>
+                  <header>
+                    <span>{section.number}</span>
+                    <Icon size={29} weight="duotone" />
+                    <h2>{section.title}</h2>
+                  </header>
+                  <ul>
+                    {section.items.map((item) => (
+                      <li key={item}>
+                        <CheckCircle size={18} weight="duotone" />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </article>
+                {index === 1 && <ServiceInlineCta data={data} />}
+              </Fragment>
             );
           })}
         </div>
@@ -157,7 +162,11 @@ export function ServicePage({ data }: { data: ServicePageData }) {
                 </div>
                 <strong>{stage}</strong>
                 {index < data.journey.length - 1 && (
-                  <ArrowRight className="journey-arrow" size={18} aria-hidden="true" />
+                  <ArrowRight
+                    className="journey-arrow"
+                    size={18}
+                    aria-hidden="true"
+                  />
                 )}
               </div>
             ))}
@@ -175,7 +184,14 @@ export function ServicePage({ data }: { data: ServicePageData }) {
           <div className="service-role-number">07</div>
           <div>
             <p className="service-kicker">Роль специалиста</p>
-            <h2>Роль {data.owner === "Дарья" ? "Дарьи" : data.owner === "Егор" ? "Егора" : "Рустама"}</h2>
+            <h2>
+              Роль{" "}
+              {data.owner === "Дарья"
+                ? "Дарьи"
+                : data.owner === "Егор"
+                  ? "Егора"
+                  : "Рустама"}
+            </h2>
             <p>{data.ownerRole}</p>
           </div>
           <ul>
@@ -190,11 +206,11 @@ export function ServicePage({ data }: { data: ServicePageData }) {
         <div className="container service-closing-grid">
           <div>
             <p className="service-kicker">Следующий шаг</p>
-            <h2>Разберём этот участок в контексте всей системы клиники</h2>
+            <h2>{data.closingTitle}</h2>
           </div>
           <div className="service-closing-actions">
             <Link className="button button-primary" href="/kontakty#forma">
-              Получить предварительный разбор
+              Получить разбор
             </Link>
             {data.ownerSite && (
               <a
@@ -212,9 +228,16 @@ export function ServicePage({ data }: { data: ServicePageData }) {
 
       <section className="service-related">
         <div className="container service-related-links">
-          <Link href="/chto-my-delaem">Вся система <ArrowRight size={18} /></Link>
-          <Link href="/kak-rabotaem">Как начинаем <ArrowRight size={18} /></Link>
-          <Link href="/dlya-klinik">Для клиник <ArrowRight size={18} /></Link>
+          {directionLinks
+            .filter((link) => link.href !== data.slug)
+            .map((link) => (
+              <Link href={link.href} key={link.href}>
+                {link.label} <ArrowRight size={18} />
+              </Link>
+            ))}
+          <Link href="/kak-rabotaem">
+            Как начинаем <ArrowRight size={18} />
+          </Link>
         </div>
       </section>
     </main>

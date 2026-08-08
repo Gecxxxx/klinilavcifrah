@@ -26,7 +26,7 @@ export function PageHero({
           {actions && (
             <div className="hero-actions">
               <Link className="button button-primary" href="/kontakty#forma">
-                Получить предварительный разбор
+                Получить разбор
               </Link>
               <Link className="text-link light" href="/kak-rabotaem">
                 Как начинаем <ArrowRight size={18} />

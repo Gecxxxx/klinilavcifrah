@@ -47,7 +47,7 @@ export function Hero() {
               href="/kontakty#forma"
               onClick={() => reachGoal("cta_click", { location: "hero" })}
             >
-              Получить предварительный разбор
+              Получить разбор
             </Link>
             <Link className="button button-ghost" href="/kak-rabotaem">
               Как мы работаем

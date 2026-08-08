@@ -3,15 +3,12 @@ import { SITE_URL } from "@/lib/site-data";
 
 const routes = [
   "",
-  "/chto-my-delaem",
   "/marketing-i-privlechenie",
   "/sajt-crm-analitika",
   "/kommercheskaya-sistema",
   "/kak-rabotaem",
-  "/komanda",
   "/kejsy-i-razbory",
   "/dlya-klinik",
-  "/o-kompanii",
   "/kontakty",
   "/soglasheniya",
 ];

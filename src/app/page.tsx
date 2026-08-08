@@ -19,6 +19,7 @@ import {
 } from "@/components/common-sections";
 import { faq, SITE_URL } from "@/lib/site-data";
 import { jsonLd, pageMetadata } from "@/lib/seo";
+import { HomeDiagnosticCta } from "@/components/contextual-ctas";
 
 export const metadata: Metadata = pageMetadata(
   "Внешний коммерческий контур для частных клиник",
@@ -46,6 +47,7 @@ export default function Home() {
       <Hero />
       <ProblemsSection />
       <JourneySection />
+      <HomeDiagnosticCta />
       <DirectionsSection />
       <KeepTeamSection />
       <TeamSection />

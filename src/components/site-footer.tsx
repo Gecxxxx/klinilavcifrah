@@ -12,8 +12,7 @@ export function SiteFooter() {
           <p>Внешний коммерческий контур для частных клиник.</p>
         </div>
         <div>
-          <strong>Система</strong>
-          <Link href="/chto-my-delaem">Что мы делаем</Link>
+          <strong>Направления</strong>
           {directionLinks.map((link) => (
             <Link href={link.href} key={link.href}>
               {link.label}
@@ -23,9 +22,8 @@ export function SiteFooter() {
         <div>
           <strong>Компания</strong>
           <Link href="/kak-rabotaem">Как работаем</Link>
-          <Link href="/komanda">Команда</Link>
           <Link href="/kejsy-i-razbory">Кейсы и разборы</Link>
-          <Link href="/o-kompanii">О компании</Link>
+          <Link href="/kontakty">Контакты</Link>
         </div>
         <div>
           <strong>Для клиник</strong>
@@ -34,7 +32,7 @@ export function SiteFooter() {
             Медицинские клиники
           </Link>
           <Link href="/dlya-klinik#kosmetologiya">Косметология</Link>
-          <Link href="/kontakty">Контакты</Link>
+          <Link href="/kontakty#forma">Получить разбор</Link>
         </div>
       </div>
       <div className="container footer-bottom">

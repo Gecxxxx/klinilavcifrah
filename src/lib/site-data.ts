@@ -3,12 +3,11 @@ export const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
 export const navItems = [
-  { href: "/", label: "Главная" },
-  { href: "/chto-my-delaem", label: "Что мы делаем", dropdown: true },
+  { href: "/marketing-i-privlechenie", label: "Маркетинг" },
+  { href: "/sajt-crm-analitika", label: "Сайты и CRM" },
+  { href: "/kommercheskaya-sistema", label: "Единая система" },
   { href: "/kak-rabotaem", label: "Как работаем" },
-  { href: "/komanda", label: "Команда" },
-  { href: "/kejsy-i-razbory", label: "Кейсы и разборы" },
-  { href: "/o-kompanii", label: "О компании" },
+  { href: "/kejsy-i-razbory", label: "Кейсы" },
   { href: "/kontakty", label: "Контакты" },
 ];
 
@@ -237,6 +236,11 @@ export type ServicePageData = {
   measures: string[];
   journey: string[];
   roleItems: string[];
+  ctaEyebrow: string;
+  ctaTitle: string;
+  ctaLead: string;
+  ctaSteps: string[];
+  closingTitle: string;
 };
 
 export const servicePages: Record<string, ServicePageData> = {
@@ -313,6 +317,12 @@ export const servicePages: Record<string, ServicePageData> = {
       "Анализ рынка",
       "Эффективность маркетинга",
     ],
+    ctaEyebrow: "Не увеличивать бюджет вслепую",
+    ctaTitle: "Покажем, где реклама теряет пациента",
+    ctaLead:
+      "Сопоставим обещание, источник, обращение и визит. На выходе — не общий аудит, а 2–5 гипотез для конкретных каналов клиники.",
+    ctaSteps: ["Канал", "Качество обращения", "Состоявшийся визит"],
+    closingTitle: "Разберём маркетинг по пациентам, а не по кликам",
   },
   digital: {
     slug: "/sajt-crm-analitika",
@@ -392,6 +402,12 @@ export const servicePages: Record<string, ServicePageData> = {
       "Автоматизация",
       "Техническая реализация",
     ],
+    ctaEyebrow: "Найти цифровой разрыв",
+    ctaTitle: "Соберём карту пути от сайта до оплаты",
+    ctaLead:
+      "Проверим, где пропадают данные и обращения: на странице, в форме, телефонии, CRM или отчётности.",
+    ctaSteps: ["Сайт и формы", "CRM и статусы", "Аналитика и оплаты"],
+    closingTitle: "Свяжем сайт, CRM и деньги в один маршрут",
   },
   system: {
     slug: "/kommercheskaya-sistema",
@@ -469,6 +485,12 @@ export const servicePages: Record<string, ServicePageData> = {
       "Взаимодействие с собственником",
       "Ответственность за итоговый результат",
     ],
+    ctaEyebrow: "Собрать целую картину",
+    ctaTitle: "Найдём участок с самым большим резервом",
+    ctaLead:
+      "Разложим коммерческую цепочку клиники по этапам, владельцам и KPI — чтобы выбрать одну приоритетную задачу для старта.",
+    ctaSteps: ["Карта потерь", "Приоритет 30/60/90", "Ответственный и KPI"],
+    closingTitle: "Начнём с одной точки, которая влияет на всю систему",
   },
 };
 
