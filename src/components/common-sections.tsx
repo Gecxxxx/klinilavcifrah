@@ -97,8 +97,8 @@ export function TeamSection() {
                 <Image
                   src={person.image}
                   alt={`${person.name}, ${person.role.toLowerCase()}`}
-                  width={720}
-                  height={900}
+                  width={960}
+                  height={960}
                   sizes="(max-width: 640px) 100vw, (max-width: 980px) 50vw, 33vw"
                 />
               </div>

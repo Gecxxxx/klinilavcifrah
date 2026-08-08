@@ -1,71 +1,63 @@
-# Design QA
+# Design QA — portraits and Rustam role
 
 ## Visual truth
 
-- Source: `/workspace/scratch/efd8bca3fc24/upload/image(20260807-195036).png`
-- Source dimensions: 1672 × 941 px
-- Browser-rendered hero: `design-qa/screenshots/home-1672x941.png`
-- Browser-rendered full page: `design-qa/screenshots/home-full-desktop.png`
-- Same-input comparison: `design-qa/screenshots/comparison-redesign.png`
-- Comparison viewport: hero 1672 × 941 CSS px; sections 1440 × 900 CSS px; DPR 1
-- State: главная страница, меню закрыто, `prefers-reduced-motion: reduce`
+- Source screenshots:
+  - `../upload/ce0bd083-deb0-4cfc-8083-fc63e289a807.png` — marketing Hero, 1907 × 896 px.
+  - `../upload/08270228-9af1-4743-a8bb-3c2a0de72ba8.png` — digital Hero, 1907 × 943 px.
+  - `../upload/64023042-5f4b-4520-8047-4c3e321a9e52.png` — commercial-system Hero, 1907 × 1021 px.
+  - `../upload/e80de100-7b50-4bd2-8c6b-0970a36583df.png` — team cards, 1907 × 788 px.
+- Browser-rendered implementation screenshots:
+  - `design-qa/screenshots/marketing-hero-after.jpg`
+  - `design-qa/screenshots/digital-hero-after.jpg`
+  - `design-qa/screenshots/system-hero-after.jpg`
+  - `design-qa/screenshots/team-after.jpg`
+- Same-input comparisons:
+  - `design-qa/comparisons/digital-before-after.jpg`
+  - `design-qa/comparisons/team-before-after.jpg`
+- Cloud-browser CSS viewport: 1363 × 936 px, DPR 1.
+- Saved implementation screenshots: 1348 × 926 px.
+- State: desktop, routes opened after image loading, menu closed, scroll position at the relevant Hero/team section.
+- Density normalization: comparison inputs were normalized to 760 px height without changing aspect ratio. Browser chrome and the Windows taskbar in the supplied sources were excluded from visual findings.
 
-### Страницы направлений
+## Full-view comparison evidence
 
-- Sources:
-  - `/workspace/scratch/efd8bca3fc24/generated_images/exec-92ce6b30-ab45-497e-afc9-5b9ff4e0e3ef.png`
-  - `/workspace/scratch/efd8bca3fc24/generated_images/exec-bd9cdd78-4e22-4b51-99e9-68aa8eb731ca.png`
-  - `/workspace/scratch/efd8bca3fc24/generated_images/exec-9594bb7c-6d5d-489b-95f1-e60e3a20ddf2.png`
-- Browser-rendered implementations: `design-qa/screenshots/directions/*-desktop.png` and `*-mobile.png`.
-- Same-input comparisons: `design-qa/comparisons/*-side-by-side.png`.
-- Viewports: 1440 × 900 and 390 × 844 CSS px, DPR 1.
-- Source width normalized to 720 px for side-by-side comparison; implementation width normalized to 720 px without cropping.
-- State: each direction page at the top, menu closed, `prefers-reduced-motion: reduce`.
+- Digital Hero: the supplied source showed a narrow portrait with large black side fields. The revised portrait fills its rounded frame, preserves the original face, and keeps a chest-up composition.
+- Marketing and commercial-system Heroes: both portraits fill the same visual frame treatment without exposed container gaps; scale and facial position are consistent with the digital Hero.
+- Team section: all three media regions are rendered at 407 × 407 CSS px in the checked viewport. Each source is a dedicated 960 × 960 WebP, so no card uses `contain` or displays empty side boundaries.
 
-## Focused evidence
+## Focused region evidence
 
-- `design-qa/screenshots/problems-section-desktop.png`
-- `design-qa/screenshots/journey-section-desktop.png`
-- `design-qa/screenshots/directions-section-desktop.png`
-- `design-qa/screenshots/owner-section-desktop.png`
-- Соответствующие mobile-снимки при 390 × 844.
-
-## Comparison history
-
-1. Исходный hero задал визуальный язык: почти чёрный фон, диагональная цепочка, бирюзовые, синие, фиолетовые, розовые, оранжевые и лаймовые акценты.
-2. По новой правке удалены финансовая итоговая строка и trust-message. Цепочка, заголовок, CTA, значения 67% и 24% сохранены.
-3. Первый прогон переработанных секций выявил P2: недостаточный контраст описаний в цветных карточках. Исправлено повышением яркости текста.
-4. Полностраничный прогон выявил P1: reveal-компоненты могли выглядеть почти пустыми вне viewport и при reduced motion. Убрана анимация прозрачности; сохранено короткое движение без сокрытия контента.
-5. Повторный прогон подтвердил видимость всех секций, единый цветовой язык и отсутствие горизонтального overflow.
-6. Первый прогон страниц направлений выявил P2: содержание карточек было заметно короче утверждённых макетов. Дополнены сигналы, проверки, действия, данные и зоны ответственности по ТЗ.
-7. Повторный desktop/mobile прогон подтвердил корректное размещение реальных фотографий, читаемость карточек, отсутствие overflow и работу внешних CTA.
+- The portrait regions are large and fully readable in the full-view comparisons, so separate close-up crops were not required.
+- DOM image checks confirmed all three team assets loaded successfully, each with equal natural width and height and equal rendered width and height.
+- The rendered copy and image alt text both use `Проджект-менеджер` for Rustam.
 
 ## Required fidelity surfaces
 
-- Typography: Roboto Condensed, масштаб и строгая иерархия исходного hero сохранены.
-- Spacing: desktop и mobile-секции проверены отдельно; карточки и интерактивная воронка не пересекаются.
-- Colors: новые блоки используют ту же шестицветную палитру, что и коммерческая цепочка.
-- Assets: исходный поток данных и библиотечные Phosphor Icons сохранены; заглушки не добавлялись.
-- Copy: удалены указанные цифры, trust-блок и повторяющиеся формулировки; новые результаты и факты не придуманы.
-- Direction typography: крупные condensed-заголовки, плотность и контраст соответствуют выбранным макетам; на 390 px переносы не обрезают слова.
-- Direction spacing: асимметричная сетка desktop перестраивается в один столбец на mobile; все CTA и портреты остаются в видимой области.
-- Direction colors: для трёх направлений сохранены индивидуальные акценты — pink/violet, cyan/blue и lime/orange/cyan.
-- Direction assets: используются реальный логотип и фотографии Дарьи, Егора и Рустама; заглушек и сгенерированных портретов в коде нет.
-- Direction copy: внешние сайты указаны только для Дарьи и Егора; для Рустама адрес не выдуман.
+- Fonts and typography: existing Roboto Condensed family, weights, wrapping, hierarchy, and text scale were preserved. Only Rustam's requested role copy changed.
+- Spacing and layout rhythm: the existing Hero and card grids were preserved. Portrait fill behavior changed without moving the copy, CTAs, orbit icons, or card text.
+- Colors and visual tokens: existing dark, cyan, pink, violet, lime, and orange tokens remain unchanged.
+- Image quality and asset fidelity: original supplied portraits were retained. Dedicated 960 × 960 WebP crops were produced for team cards; no faces were regenerated, stretched, or replaced.
+- Copy and content: `Продукт менеджер` was replaced in both central data locations with the exact requested `Проджект-менеджер`.
 
 ## Interaction and browser checks
 
-- Все 12 маршрутов, 404, sitemap и robots.
-- Мобильное меню, FAQ, CTA и русская валидация формы.
-- Переключение этапов воронки, кнопки предыдущего и следующего этапа.
-- Клавиатурный фокус и `prefers-reduced-motion`.
-- Ошибки browser console при визуальном прогоне: 0.
-- Три страницы направлений проверены при 1440 × 900 и 390 × 844; внешние и внутренние CTA доступны с клавиатуры.
+- Desktop navigation to `/komanda` was clicked and completed successfully.
+- All three team images completed loading and rendered as 407 × 407 px squares.
+- Marketing, digital, commercial-system, and team routes were opened in the cloud browser.
+- Application console errors across the checked routes: 0. A browser-extension metadata error was excluded because it is outside the application.
+
+## Comparison history
+
+1. Initial evidence identified P1 empty side fields in Egor's Hero caused by `object-fit: contain`, plus P2 inconsistent non-square team photography and the outdated Rustam role.
+2. Hero portraits were unified on `cover` with per-person focal positioning. Dedicated square WebP files replaced runtime card cropping, and Rustam's role was updated centrally.
+3. Post-fix browser evidence confirmed filled Hero frames, equal square team media, preserved faces, successful image loads, working navigation, and no application console errors.
 
 ## Findings
 
 - P0: 0
 - P1: 0
 - P2: 0
+- P3: 0
 
 final result: passed
