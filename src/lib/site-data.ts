@@ -96,7 +96,7 @@ export const directions = [
 export const team = [
   {
     name: "Рустам",
-    role: "Основатель и коммерческий руководитель",
+    role: "Продукт менеджер",
     initials: "Р",
     tone: "cyan",
     image: "/assets/team/rustam.webp",
@@ -399,7 +399,7 @@ export const servicePages: Record<string, ServicePageData> = {
     title: "Управление коммерческой системой клиники",
     lead: "Находим точки потерь, соединяем обработку обращений, пациентскую базу, команду и подрядчиков в единый контур управления.",
     owner: "Рустам",
-    ownerRole: "Основатель и коммерческий руководитель",
+    ownerRole: "Продукт менеджер",
     ownerImage: "/assets/team/rustam.webp",
     tone: "system",
     when: [
