@@ -1,6 +1,8 @@
 import Link from "next/link";
+import Image from "next/image";
 import {
   ArrowRight,
+  ArrowUpRight,
   Brain,
   Check,
   CirclesThreePlus,
@@ -91,11 +93,32 @@ export function TeamSection() {
               key={person.name}
               className={`team-card tone-${person.tone}`}
             >
-              <div className="team-avatar">{person.initials}</div>
-              <div>
+              <div className="team-photo">
+                <Image
+                  src={person.image}
+                  alt={`${person.name}, ${person.role.toLowerCase()}`}
+                  width={720}
+                  height={900}
+                  sizes="(max-width: 640px) 100vw, (max-width: 980px) 50vw, 33vw"
+                />
+              </div>
+              <div className="team-card-copy">
                 <h3>{person.name}</h3>
                 <strong>{person.role}</strong>
                 <p>{person.text}</p>
+                <Link
+                  className="team-card-link"
+                  href={person.href}
+                  target={person.href.startsWith("http") ? "_blank" : undefined}
+                  rel={person.href.startsWith("http") ? "noreferrer" : undefined}
+                >
+                  {person.href.startsWith("http") ? "Перейти на сайт" : "О направлении"}
+                  {person.href.startsWith("http") ? (
+                    <ArrowUpRight size={17} />
+                  ) : (
+                    <ArrowRight size={17} />
+                  )}
+                </Link>
               </div>
             </Reveal>
           ))}

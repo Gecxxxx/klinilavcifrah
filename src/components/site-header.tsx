@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { CaretDown, List, X } from "@phosphor-icons/react";
 import { useState } from "react";
@@ -18,7 +19,15 @@ export function SiteHeader() {
           href="/"
           aria-label="Клиника в цифрах — главная"
         >
-          КЛИНИКА В ЦИФРАХ
+          <Image
+            className="brand-logo"
+            src="/assets/logo.webp"
+            alt=""
+            width={38}
+            height={38}
+            priority
+          />
+          <span>КЛИНИКА В ЦИФРАХ</span>
         </Link>
         <nav className="desktop-nav" aria-label="Основная навигация">
           {navItems.slice(1).map((item) =>

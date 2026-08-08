@@ -1,60 +1,35 @@
+import Image from "next/image";
+import Link from "next/link";
 import {
   ArrowRight,
-  Check,
+  ArrowUpRight,
+  Browser,
+  ChartLineUp,
+  CheckCircle,
   Database,
   Eye,
   Gauge,
+  Megaphone,
+  Path,
+  PhoneCall,
   Wrench,
 } from "@phosphor-icons/react/dist/ssr";
-import Link from "next/link";
 import type { ServicePageData } from "@/lib/site-data";
-import { PageHero } from "./page-hero";
-import { FinalCta, SectionHeading } from "./common-sections";
-import { Reveal } from "./reveal";
 import { jsonLd } from "@/lib/seo";
+
+const sectionIcons = [Eye, Gauge, Wrench, CheckCircle, Database];
 
 export function ServicePage({ data }: { data: ServicePageData }) {
   const sections = [
-    {
-      eyebrow: "Когда это требуется",
-      title: "Сигналы, что участок требует управления",
-      items: data.when,
-      icon: Eye,
-    },
-    {
-      eyebrow: "Что проверяем",
-      title: "Сначала — фактическое состояние системы",
-      items: data.checks,
-      icon: Gauge,
-    },
-    {
-      eyebrow: "Что делаем",
-      title: "Работа строится вокруг измеримой задачи",
-      items: data.actions,
-      icon: Wrench,
-    },
-    {
-      eyebrow: "Результат для собственника",
-      title: "Не отдельный отчёт, а управленческая картина",
-      items: data.outcomes,
-      icon: Check,
-    },
-    {
-      eyebrow: "Какие данные нужны",
-      title: "Минимальный набор зависит от задачи",
-      items: data.data,
-      icon: Database,
-    },
-    {
-      eyebrow: "Как измеряем",
-      title: "Показатели связываются с коммерческим результатом",
-      items: data.measures,
-      icon: Gauge,
-    },
+    { number: "01", title: "Когда это требуется", items: data.when },
+    { number: "02", title: "Что проверяем", items: data.checks },
+    { number: "03", title: "Что делаем", items: data.actions },
+    { number: "04", title: "Что получает собственник", items: data.outcomes },
+    { number: "05", title: "Какие данные нужны", items: data.data },
   ];
+
   return (
-    <>
-      <PageHero eyebrow={data.eyebrow} title={data.title} lead={data.lead} />
+    <main className={`service-page service-tone-${data.tone}`}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -68,58 +43,180 @@ export function ServicePage({ data }: { data: ServicePageData }) {
           }),
         }}
       />
-      <section className="section service-intro">
-        <div className="container service-owner">
+
+      <section className="service-hero">
+        <div className="service-stream" aria-hidden="true" />
+        <div className="container service-breadcrumbs">
+          <Link href="/">Главная</Link>
+          <span>→</span>
+          <Link href="/chto-my-delaem">Что мы делаем</Link>
+          <span>→</span>
+          <span>{data.title}</span>
+        </div>
+        <div className="container service-hero-grid">
+          <div className="service-hero-copy">
+            <p className="service-kicker">{data.eyebrow}</p>
+            <h1>{data.title}</h1>
+            <p className="service-lead">{data.lead}</p>
+            <p className="service-owner-line">
+              <strong>{data.owner}</strong>
+              <span>—</span>
+              {data.ownerRole}
+            </p>
+            <div className="service-hero-actions">
+              <Link className="button button-primary" href="/kontakty#forma">
+                Получить предварительный разбор
+              </Link>
+              {data.ownerSite && (
+                <a
+                  className="button service-external"
+                  href={data.ownerSite}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Обратиться к {data.owner === "Дарья" ? "Дарье" : data.owner + "у"}
+                  <ArrowUpRight size={18} />
+                </a>
+              )}
+            </div>
+            {data.ownerSiteLabel && (
+              <a
+                className="service-site-link"
+                href={data.ownerSite}
+                target="_blank"
+                rel="noreferrer"
+              >
+                {data.ownerSiteLabel} <ArrowUpRight size={15} />
+              </a>
+            )}
+          </div>
+          <div className="service-portrait-wrap">
+            <div className="service-portrait-orbit" aria-hidden="true">
+              <Browser size={30} weight="duotone" />
+              <PhoneCall size={30} weight="duotone" />
+              <ChartLineUp size={30} weight="duotone" />
+            </div>
+            <Image
+              className="service-portrait"
+              src={data.ownerImage}
+              alt={`${data.owner}, ${data.ownerRole.toLowerCase()}`}
+              width={900}
+              height={1100}
+              priority
+              sizes="(max-width: 760px) 92vw, 44vw"
+            />
+          </div>
+        </div>
+      </section>
+
+      <section className="service-content">
+        <div className="container service-section-grid">
+          {sections.map((section, index) => {
+            const Icon = sectionIcons[index];
+            return (
+              <article className={`service-panel panel-${index + 1}`} key={section.title}>
+                <header>
+                  <span>{section.number}</span>
+                  <Icon size={29} weight="duotone" />
+                  <h2>{section.title}</h2>
+                </header>
+                <ul>
+                  {section.items.map((item) => (
+                    <li key={item}>
+                      <CheckCircle size={18} weight="duotone" />
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </article>
+            );
+          })}
+        </div>
+      </section>
+
+      <section className="service-journey-section">
+        <div className="container">
+          <div className="service-section-title">
+            <span>06</span>
+            <div>
+              <p>Как измеряется результат</p>
+              <h2>Один маршрут — общие показатели</h2>
+            </div>
+          </div>
+          <div className="service-journey" aria-label="Коммерческий путь">
+            {data.journey.map((stage, index) => (
+              <div className="service-journey-stage" key={stage}>
+                <div>
+                  {index === 0 ? (
+                    <Megaphone size={27} weight="duotone" />
+                  ) : index === data.journey.length - 1 ? (
+                    <ChartLineUp size={27} weight="duotone" />
+                  ) : (
+                    <Path size={27} weight="duotone" />
+                  )}
+                </div>
+                <strong>{stage}</strong>
+                {index < data.journey.length - 1 && (
+                  <ArrowRight className="journey-arrow" size={18} aria-hidden="true" />
+                )}
+              </div>
+            ))}
+          </div>
+          <div className="service-metrics">
+            {data.measures.map((item) => (
+              <span key={item}>{item}</span>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="service-role-section">
+        <div className="container service-role-card">
+          <div className="service-role-number">07</div>
           <div>
-            <p className="eyebrow">Зона ответственности</p>
-            <h2>{data.owner}</h2>
+            <p className="service-kicker">Роль специалиста</p>
+            <h2>Роль {data.owner === "Дарья" ? "Дарьи" : data.owner === "Егор" ? "Егора" : "Рустама"}</h2>
             <p>{data.ownerRole}</p>
           </div>
-          <p>
-            Работа ведётся внутри общего коммерческого плана. Ответственный
-            руководитель соединяет данные, решения, исполнителей и сроки.
-          </p>
+          <ul>
+            {data.roleItems.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
         </div>
       </section>
-      {sections.map((section, index) => {
-        const Icon = section.icon;
-        return (
-          <section
-            className={`section service-detail ${index % 2 ? "soft-section" : ""}`}
-            key={section.eyebrow}
-          >
-            <div className="container service-detail-grid">
-              <SectionHeading eyebrow={section.eyebrow} title={section.title} />
-              <div className="detail-list">
-                {section.items.map((item, i) => (
-                  <Reveal className="detail-item" key={item}>
-                    <span>{String(i + 1).padStart(2, "0")}</span>
-                    <Icon size={23} weight="duotone" />
-                    <p>{item}</p>
-                  </Reveal>
-                ))}
-              </div>
-            </div>
-          </section>
-        );
-      })}
-      <section className="section next-direction">
-        <div className="container">
-          <p className="eyebrow">Связанные направления</p>
-          <div className="next-links">
-            <Link href="/chto-my-delaem">
-              Вся система <ArrowRight size={18} />
+
+      <section className="service-closing">
+        <div className="container service-closing-grid">
+          <div>
+            <p className="service-kicker">Следующий шаг</p>
+            <h2>Разберём этот участок в контексте всей системы клиники</h2>
+          </div>
+          <div className="service-closing-actions">
+            <Link className="button button-primary" href="/kontakty#forma">
+              Получить предварительный разбор
             </Link>
-            <Link href="/kak-rabotaem">
-              Как начинаем <ArrowRight size={18} />
-            </Link>
-            <Link href="/dlya-klinik">
-              Для клиник <ArrowRight size={18} />
-            </Link>
+            {data.ownerSite && (
+              <a
+                className="button service-external"
+                href={data.ownerSite}
+                target="_blank"
+                rel="noreferrer"
+              >
+                Обратиться к специалисту <ArrowUpRight size={18} />
+              </a>
+            )}
           </div>
         </div>
       </section>
-      <FinalCta title={`Разберём задачу: ${data.title.toLowerCase()}`} />
-    </>
+
+      <section className="service-related">
+        <div className="container service-related-links">
+          <Link href="/chto-my-delaem">Вся система <ArrowRight size={18} /></Link>
+          <Link href="/kak-rabotaem">Как начинаем <ArrowRight size={18} /></Link>
+          <Link href="/dlya-klinik">Для клиник <ArrowRight size={18} /></Link>
+        </div>
+      </section>
+    </main>
   );
 }

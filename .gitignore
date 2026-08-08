@@ -15,6 +15,7 @@
 /playwright-report/
 /test-results/
 /design-qa/screenshots/
+/design-qa/comparisons/
 
 # next.js
 /.next/
