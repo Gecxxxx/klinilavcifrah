@@ -15,6 +15,7 @@ test("контрольные снимки страниц направлений"
   for (const [route, name] of routes) {
     for (const [width, height, label] of [
       [1440, 900, "desktop"],
+      [945, 844, "mobile-wide"],
       [390, 844, "mobile"],
     ] as const) {
       const consoleErrors: string[] = [];
