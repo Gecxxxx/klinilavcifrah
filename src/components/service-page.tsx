@@ -6,21 +6,15 @@ import {
   ArrowUpRight,
   Browser,
   ChartLineUp,
-  CheckCircle,
-  Database,
-  Eye,
-  Gauge,
   Megaphone,
   Path,
   PhoneCall,
-  Wrench,
 } from "@phosphor-icons/react/dist/ssr";
 import type { ServicePageData } from "@/lib/site-data";
 import { directionLinks } from "@/lib/site-data";
 import { jsonLd } from "@/lib/seo";
 import { ServiceInlineCta } from "./contextual-ctas";
-
-const sectionIcons = [Eye, Gauge, Wrench, CheckCircle, Database];
+import { ServicePanel } from "./service-panel";
 
 export function ServicePage({ data }: { data: ServicePageData }) {
   const sections = [
@@ -114,24 +108,14 @@ export function ServicePage({ data }: { data: ServicePageData }) {
       <section className="service-content">
         <div className="container service-section-grid">
           {sections.map((section, index) => {
-            const Icon = sectionIcons[index];
             return (
               <Fragment key={section.title}>
-                <article className={`service-panel panel-${index + 1}`}>
-                  <header>
-                    <span>{section.number}</span>
-                    <Icon size={29} weight="duotone" />
-                    <h2>{section.title}</h2>
-                  </header>
-                  <ul>
-                    {section.items.map((item) => (
-                      <li key={item}>
-                        <CheckCircle size={18} weight="duotone" />
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </article>
+                <ServicePanel
+                  index={index}
+                  number={section.number}
+                  title={section.title}
+                  items={section.items}
+                />
                 {index === 1 && <ServiceInlineCta data={data} />}
               </Fragment>
             );
