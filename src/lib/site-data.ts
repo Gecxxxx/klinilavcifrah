@@ -94,16 +94,16 @@ export const directions = [
 
 export const team = [
   {
-    name: "Рустам",
+    name: "Тимур Памарин",
     role: "Проджект-менеджер",
-    initials: "Р",
+    initials: "Т",
     tone: "cyan",
-    image: "/assets/team/rustam-square.webp",
+    image: "/assets/team/timur-square.webp",
     href: "/kommercheskaya-sistema",
     text: "Коммерческая диагностика · экономика проекта · приоритеты · KPI · управление командой · взаимодействие с собственником · ответственность за итоговый результат.",
   },
   {
-    name: "Дарья",
+    name: "Дарья Каминскене",
     role: "Руководитель маркетингового направления",
     initials: "Д",
     tone: "violet",
@@ -112,7 +112,7 @@ export const team = [
     text: "Стратегия · позиционирование · привлечение · рекламная логика · контент · анализ рынка · эффективность маркетинга.",
   },
   {
-    name: "Егор",
+    name: "Егор Гецевич",
     role: "Руководитель digital- и технического направления",
     initials: "Е",
     tone: "pink",
@@ -223,6 +223,8 @@ export type ServicePageData = {
   title: string;
   lead: string;
   owner: string;
+  ownerDative: string;
+  ownerGenitive: string;
   ownerRole: string;
   ownerImage: string;
   ownerSite?: string;
@@ -249,7 +251,9 @@ export const servicePages: Record<string, ServicePageData> = {
     eyebrow: "Направление 01",
     title: "Маркетинговая стратегия и привлечение",
     lead: "Связываем позиционирование и каналы привлечения с качеством обращений, визитами и фактическим коммерческим результатом.",
-    owner: "Дарья",
+    owner: "Дарья Каминскене",
+    ownerDative: "Дарье Каминскене",
+    ownerGenitive: "Дарьи Каминскене",
     ownerRole: "Руководитель маркетингового направления",
     ownerImage: "/assets/team/daria-square.webp",
     ownerSite: "https://daria-kamins.marketing/",
@@ -329,7 +333,9 @@ export const servicePages: Record<string, ServicePageData> = {
     eyebrow: "Направление 02",
     title: "Сайт, CRM и коммерческая аналитика",
     lead: "Собираем сайт, обращения, CRM и аналитику в один измеримый цифровой маршрут — от источника до оплаты.",
-    owner: "Егор",
+    owner: "Егор Гецевич",
+    ownerDative: "Егору Гецевичу",
+    ownerGenitive: "Егора Гецевича",
     ownerRole: "Руководитель digital- и технического направления",
     ownerImage: "/assets/team/egor-square.webp",
     ownerSite: "https://egordigital.site/",
@@ -414,9 +420,11 @@ export const servicePages: Record<string, ServicePageData> = {
     eyebrow: "Направление 03",
     title: "Управление коммерческой системой клиники",
     lead: "Находим точки потерь, соединяем обработку обращений, пациентскую базу, команду и подрядчиков в единый контур управления.",
-    owner: "Рустам",
+    owner: "Тимур Памарин",
+    ownerDative: "Тимуру Памарину",
+    ownerGenitive: "Тимура Памарина",
     ownerRole: "Проджект-менеджер",
-    ownerImage: "/assets/team/rustam-square.webp",
+    ownerImage: "/assets/team/timur-square.webp",
     tone: "system",
     when: [
       "Обращения есть, но пациенты не доходят до лечения",

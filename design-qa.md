@@ -1,4 +1,4 @@
-# Design QA — portraits and Rustam role
+# Design QA — portraits and Timur role
 
 ## Visual truth
 
@@ -30,11 +30,11 @@
 
 - The portrait regions are large and fully readable in the full-view comparisons, so separate close-up crops were not required.
 - DOM image checks confirmed all three team assets loaded successfully, each with equal natural width and height and equal rendered width and height.
-- The rendered copy and image alt text both use `Проджект-менеджер` for Rustam.
+- The rendered copy and image alt text both use `Проджект-менеджер` for Timur.
 
 ## Required fidelity surfaces
 
-- Fonts and typography: existing Roboto Condensed family, weights, wrapping, hierarchy, and text scale were preserved. Only Rustam's requested role copy changed.
+- Fonts and typography: existing Roboto Condensed family, weights, wrapping, hierarchy, and text scale were preserved. Only Timur's requested role copy changed.
 - Spacing and layout rhythm: the existing Hero and card grids were preserved. Portrait fill behavior changed without moving the copy, CTAs, orbit icons, or card text.
 - Colors and visual tokens: existing dark, cyan, pink, violet, lime, and orange tokens remain unchanged.
 - Image quality and asset fidelity: original supplied portraits were retained. Dedicated 960 × 960 WebP crops were produced for team cards; no faces were regenerated, stretched, or replaced.
@@ -49,8 +49,8 @@
 
 ## Comparison history
 
-1. Initial evidence identified P1 empty side fields in Egor's Hero caused by `object-fit: contain`, plus P2 inconsistent non-square team photography and the outdated Rustam role.
-2. Hero portraits were unified on `cover` with per-person focal positioning. Dedicated square WebP files replaced runtime card cropping, and Rustam's role was updated centrally.
+1. Initial evidence identified P1 empty side fields in Egor's Hero caused by `object-fit: contain`, plus P2 inconsistent non-square team photography and the outdated Timur role.
+2. Hero portraits were unified on `cover` with per-person focal positioning. Dedicated square WebP files replaced runtime card cropping, and Timur's role was updated centrally.
 3. Post-fix browser evidence confirmed filled Hero frames, equal square team media, preserved faces, successful image loads, working navigation, and no application console errors.
 
 ## Findings

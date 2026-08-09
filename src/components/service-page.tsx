@@ -69,8 +69,7 @@ export function ServicePage({ data }: { data: ServicePageData }) {
                   target="_blank"
                   rel="noreferrer"
                 >
-                  Обратиться к{" "}
-                  {data.owner === "Дарья" ? "Дарье" : data.owner + "у"}
+                  Обратиться к {data.ownerDative}
                   <ArrowUpRight size={18} />
                 </a>
               )}
@@ -169,12 +168,7 @@ export function ServicePage({ data }: { data: ServicePageData }) {
           <div>
             <p className="service-kicker">Роль специалиста</p>
             <h2>
-              Роль{" "}
-              {data.owner === "Дарья"
-                ? "Дарьи"
-                : data.owner === "Егор"
-                  ? "Егора"
-                  : "Рустама"}
+              Роль {data.ownerGenitive}
             </h2>
             <p>{data.ownerRole}</p>
           </div>

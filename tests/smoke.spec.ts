@@ -132,7 +132,7 @@ test("страницы направлений используют реальн�
   await page.goto("/kommercheskaya-sistema");
   await expect(page.locator(".service-portrait")).toHaveAttribute(
     "src",
-    /rustam/,
+    /timur/,
   );
   await expect(page.getByRole("link", { name: /Обратиться к/ })).toHaveCount(0);
 });
