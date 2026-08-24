@@ -8,5 +8,11 @@
     "directory": ".open-next/assets",
     "binding": "ASSETS"
   },
+  "kv_namespaces": [
+    {
+      "binding": "TELEGRAM_SUBSCRIBERS",
+      "id": "e79683650cc04b0f866f0386d4d6d7ac"
+    }
+  ],
   "observability": { "enabled": true }
 }
