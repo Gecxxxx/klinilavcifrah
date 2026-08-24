@@ -45,6 +45,7 @@ const allowedOrigins = new Set([
   "https://klinikavcifrah.ru",
   "https://www.klinikavcifrah.ru",
   "https://klinilavcifrah.pages.dev",
+  "https://klinilavcifrah-site.pages.dev",
 ]);
 
 function corsHeaders(request: Request) {
