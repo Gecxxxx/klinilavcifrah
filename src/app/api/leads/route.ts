@@ -48,7 +48,9 @@ function escapeHtml(value: string) {
 
 async function validateTurnstile(token: string, ip: string) {
   const secret = process.env.TURNSTILE_SECRET_KEY;
-  if (!secret) return process.env.NODE_ENV !== "production";
+  // Turnstile is optional. Honeypot, schema validation and rate limiting remain
+  // active when no Turnstile widget/secret has been configured for the site.
+  if (!secret) return true;
   if (!token) return false;
   const body = new FormData();
   body.append("secret", secret);
