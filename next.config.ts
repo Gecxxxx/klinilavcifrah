@@ -12,7 +12,12 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
   turbopack: { root: process.cwd() },
-  images: { formats: ["image/avif", "image/webp"] },
+  images: {
+    formats: ["image/avif", "image/webp"],
+    // A static Pages export has no `/_next/image` runtime endpoint.
+    // Serve files from `public` directly when building the Pages site.
+    unoptimized: process.env.CLOUDFLARE_PAGES_STATIC === "true",
+  },
   async headers() {
     return [{
       source: "/(.*)",
