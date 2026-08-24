@@ -1,4 +1,3 @@
-$ tsc --noEmit
 interface KvNamespace {
   delete(key: string): Promise<void>;
   get(key: string): Promise<string | null>;
