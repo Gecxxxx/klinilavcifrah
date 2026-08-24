@@ -1,3 +1,4 @@
+$ tsc --noEmit
 interface KvNamespace {
   delete(key: string): Promise<void>;
   get(key: string): Promise<string | null>;
@@ -250,8 +251,16 @@ const worker = {
     const url = new URL(request.url);
     if (request.method === "OPTIONS")
       return new Response(null, { status: 204, headers: corsHeaders(request) });
-    if (url.pathname === "/health")
-      return Response.json({ ok: true, service: "klinilavcifrah-api" });
+    if (url.pathname === "/health") {
+      const ids = await subscriberIds(env).catch(() => []);
+      return Response.json({
+        ok: true,
+        service: "klinilavcifrah-api",
+        telegramTokenConfigured: Boolean(env.TELEGRAM_BOT_TOKEN),
+        webhookSecretConfigured: Boolean(env.TELEGRAM_WEBHOOK_SECRET),
+        subscribers: ids.length,
+      });
+    }
     if (url.pathname === "/api/leads" && request.method === "POST")
       return handleLead(request, env);
     if (url.pathname === "/telegram/webhook" && request.method === "POST")
