@@ -32,6 +32,7 @@ pnpm dev
 | `TURNSTILE_SECRET_KEY` | Секретный ключ Turnstile |
 | `TELEGRAM_BOT_TOKEN` | Токен Telegram-бота |
 | `TELEGRAM_CHAT_ID` | ID чата для заявок |
+| `TELEGRAM_WEBHOOK_SECRET` | Секрет проверки входящих webhook-запросов Telegram |
 
 Секреты нельзя добавлять в Git или клиентский код. Для локальной разработки используйте `.env.local`, для Wrangler — `.dev.vars`.
 
@@ -53,9 +54,12 @@ pnpm exec playwright install chromium
 ## Telegram
 
 1. Создайте бота через BotFather и получите токен.
-2. Добавьте бота в нужный чат.
-3. Определите `TELEGRAM_CHAT_ID` через Bot API `getUpdates` или служебного бота.
-4. Добавьте `TELEGRAM_BOT_TOKEN` и `TELEGRAM_CHAT_ID` только как серверные секреты.
+2. Создайте KV namespace и привяжите его к Worker как `TELEGRAM_SUBSCRIBERS`.
+3. Добавьте `TELEGRAM_BOT_TOKEN` и `TELEGRAM_WEBHOOK_SECRET` как серверные секреты.
+4. Установите webhook на `https://klinikavcifrah.ru/api/telegram/webhook`, передав тот же `secret_token`.
+5. Отправьте боту `/start`. Любой пользователь, сделавший это, будет получать заявки; `/stop` отключает уведомления.
+
+`TELEGRAM_CHAT_ID` оставлен как необязательный резервный получатель и для новой схемы не требуется.
 
 Endpoint `/api/leads` валидирует запрос через Zod, проверяет honeypot и Turnstile, ограничивает частоту запросов, добавляет ID заявки, страницу, referrer и UTM, затем подтверждает успешный ответ Telegram Bot API.
 
@@ -74,6 +78,7 @@ pnpm deploy:cf
 ```bash
 pnpm wrangler secret put TELEGRAM_BOT_TOKEN
 pnpm wrangler secret put TELEGRAM_CHAT_ID
+pnpm wrangler secret put TELEGRAM_WEBHOOK_SECRET
 pnpm wrangler secret put TURNSTILE_SECRET_KEY
 ```
 

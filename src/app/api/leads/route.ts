@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import {
+  getSubscriberChatIds,
+  sendTelegramMessage,
+} from "@/lib/telegram";
 
 export const runtime = "nodejs";
 
@@ -81,9 +85,7 @@ export async function POST(request: NextRequest) {
       { status: 400 },
     );
 
-  const token = process.env.TELEGRAM_BOT_TOKEN;
-  const chatId = process.env.TELEGRAM_CHAT_ID;
-  if (!token || !chatId)
+  if (!process.env.TELEGRAM_BOT_TOKEN)
     return NextResponse.json(
       { ok: false, message: "Канал заявок ещё не подключён." },
       { status: 503 },
@@ -126,26 +128,13 @@ export async function POST(request: NextRequest) {
   ].join("\n");
 
   try {
-    const response = await fetch(
-      `https://api.telegram.org/bot${token}/sendMessage`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          chat_id: chatId,
-          text: message,
-          parse_mode: "HTML",
-          disable_web_page_preview: true,
-        }),
-        signal: AbortSignal.timeout(7000),
-      },
+    const chatIds = await getSubscriberChatIds();
+    if (chatIds.length === 0) throw new Error("No Telegram subscribers");
+    const results = await Promise.allSettled(
+      chatIds.map((chatId) => sendTelegramMessage(chatId, message)),
     );
-    const result = (await response.json()) as {
-      ok?: boolean;
-      description?: string;
-    };
-    if (!response.ok || result.ok !== true)
-      throw new Error(result.description || "Telegram API error");
+    if (!results.some((result) => result.status === "fulfilled"))
+      throw new Error("Telegram delivery failed for every subscriber");
     return NextResponse.json({ ok: true, id });
   } catch (error) {
     recentLeads.delete(duplicateKey);
