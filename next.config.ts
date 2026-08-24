@@ -6,6 +6,9 @@ if (process.env.CLOUDFLARE_DEV === "true") {
 }
 
 const nextConfig: NextConfig = {
+  ...(process.env.CLOUDFLARE_PAGES_STATIC === "true"
+    ? { output: "export" as const }
+    : {}),
   poweredByHeader: false,
   reactStrictMode: true,
   turbopack: { root: process.cwd() },

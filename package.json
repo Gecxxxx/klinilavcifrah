@@ -12,6 +12,8 @@
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "preview:cf": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "build:cf": "opennextjs-cloudflare build",
+    "build:pages": "CLOUDFLARE_PAGES_STATIC=true NEXT_PUBLIC_LEADS_API_URL=https://klinilavcifrah-api.eggetsevich.workers.dev/api/leads node scripts/build-pages.mjs",
+    "deploy:api": "wrangler deploy --config worker/wrangler.jsonc",
     "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
     "deploy:cf": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
     "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts"

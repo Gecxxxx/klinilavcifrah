@@ -1,0 +1,13 @@
+{
+  "$schema": "../node_modules/wrangler/config-schema.json",
+  "name": "klinilavcifrah-api",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-08-07",
+  "observability": { "enabled": true },
+  "kv_namespaces": [
+    {
+      "binding": "TELEGRAM_SUBSCRIBERS",
+      "id": "e79683650cc04b0f866f0386d4d6d7ac"
+    }
+  ]
+}

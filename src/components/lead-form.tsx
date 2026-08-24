@@ -73,7 +73,9 @@ export function LeadForm({ compact = false }: { compact?: boolean }) {
       utm = JSON.parse(sessionStorage.getItem("klinika_utm") || "{}");
     } catch {}
     try {
-      const response = await fetch("/api/leads", {
+      const leadsApiUrl =
+        process.env.NEXT_PUBLIC_LEADS_API_URL || "/api/leads";
+      const response = await fetch(leadsApiUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

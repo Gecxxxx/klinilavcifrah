@@ -86,6 +86,24 @@ pnpm wrangler secret put TURNSTILE_SECRET_KEY
 
 Для подключения репозитория в Cloudflare выберите **Workers & Pages → Create → Import a repository**, укажите этот репозиторий, команду сборки `pnpm build:cf` и Worker entrypoint `.open-next/worker.js`. Альтернатива — выполнить `pnpm wrangler login`, затем `pnpm deploy:cf`.
 
+## Раздельный production: Pages + API Worker
+
+Статический сайт собирается отдельно:
+
+```bash
+pnpm build:pages
+```
+
+Для Cloudflare Pages используйте команду `pnpm build:pages` и каталог результата `out`. Форма в этой сборке отправляет заявки на отдельный Worker `klinilavcifrah-api`.
+
+Worker с Telegram webhook и API формы находится в `worker/`:
+
+```bash
+pnpm deploy:api
+```
+
+Ему нужны binding `TELEGRAM_SUBSCRIBERS` и secrets `TELEGRAM_BOT_TOKEN`, `TELEGRAM_WEBHOOK_SECRET`. После его публикации Telegram webhook должен указывать на `https://klinilavcifrah-api.eggetsevich.workers.dev/telegram/webhook`.
+
 ## Будущий деплой на VPS
 
 Проект сохраняет стандартный Node.js runtime и не связывает бизнес-логику формы с Cloudflare. На VPS:
