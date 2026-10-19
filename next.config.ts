@@ -1,5 +1,9 @@
 import type { NextConfig } from "next";
 import { initOpenNextCloudflareForDev } from "@opennextjs/cloudflare";
+import { resolveSiteUrl } from "./src/lib/site-url";
+
+// Fail before generating any output when a production origin is misconfigured.
+resolveSiteUrl();
 
 if (process.env.CLOUDFLARE_DEV === "true") {
   initOpenNextCloudflareForDev();

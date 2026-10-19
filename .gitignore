@@ -22,6 +22,8 @@
 /out/
 /.open-next/
 /.wrangler/
+/.pages-api-disabled/
+/release-artifacts/
 
 # production
 /build

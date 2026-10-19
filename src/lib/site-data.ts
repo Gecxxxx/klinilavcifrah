@@ -1,6 +1,5 @@
 export const SITE_NAME = "Клиника в цифрах";
-export const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+export { SITE_URL } from "./site-url";
 
 export const navItems = [
   { href: "/marketing-i-privlechenie", label: "Маркетинг" },
