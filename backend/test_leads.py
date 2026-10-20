@@ -111,6 +111,43 @@ class RegistryTest(unittest.TestCase):
         self.assertEqual(self.call(fixture())[0], 503)
         self.assertEqual(self.store.stats()["leads"], 0)
 
+    def test_attribution_metadata_is_saved_with_the_lead_and_in_notification(self):
+        metadata = {"product": "preliminary_review", "direction": "digital", "ctaPage": "/sajt-crm-analitika", "ctaLocation": "service_hero"}
+        status, result = self.call(fixture(requestId=str(uuid.uuid4()), **metadata))
+        self.assertEqual(status, 200)
+        with self.store.connection() as con:
+            saved = json.loads(con.execute("SELECT payload FROM leads WHERE id=?", (result["id"],)).fetchone()[0])
+        for key, value in metadata.items(): self.assertEqual(saved[key], value)
+        text = notification_text(self.store.claim())
+        self.assertIn("Сайт, CRM и аналитика", text)
+        self.assertIn("/sajt-crm-analitika", text)
+
+    def test_legacy_replays_keep_original_fingerprint_without_injected_metadata(self):
+        values = fixture(requestId=str(uuid.uuid4()))
+        _, first = self.call(values)
+        self.app = Application(self.config)
+        _, again = self.call(values)
+        self.assertEqual(first["id"], again["id"]); self.assertTrue(again["duplicate"])
+        with self.store.connection() as con:
+            saved = json.loads(con.execute("SELECT payload FROM leads LIMIT 1").fetchone()[0])
+        self.assertNotIn("direction", saved); self.assertNotIn("product", saved)
+
+    def test_invalid_attribution_is_rejected_without_saving(self):
+        for metadata in [{"direction": []}, {"direction": "unknown"}, {"product": "invented"}, {"ctaPage": "x" * 301}, {"ctaLocation": "x" * 81}]:
+            self.assertEqual(self.call(fixture(**metadata))[0], 400)
+        self.assertEqual(self.store.stats()["leads"], 0)
+
+    def test_metadata_extension_keeps_legacy_identity_and_original_source_on_replay(self):
+        values = fixture(requestId=str(uuid.uuid4()))
+        _, first = self.call({**values, "direction": "digital", "product": "preliminary_review", "ctaLocation": "service_hero"})
+        _, legacy = self.call(values)
+        _, changed_source = self.call({**values, "direction": "marketing"})
+        self.assertEqual(legacy["id"], first["id"]); self.assertTrue(legacy["duplicate"])
+        self.assertEqual(changed_source["id"], first["id"])
+        with self.store.connection() as con:
+            saved = json.loads(con.execute("SELECT payload FROM leads LIMIT 1").fetchone()[0])
+        self.assertEqual(saved["direction"], "digital")
+
     def test_rate_limit_is_persistent_but_does_not_block_committed_replay(self):
         first = fixture(requestId=str(uuid.uuid4()))
         for index in range(10):

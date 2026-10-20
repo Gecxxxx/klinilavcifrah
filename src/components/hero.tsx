@@ -14,7 +14,6 @@ import {
   UserCircle,
 } from "@phosphor-icons/react";
 import { heroStages } from "@/lib/site-data";
-import { reachGoal } from "./analytics";
 
 const iconMap = {
   browser: Browser,
@@ -44,7 +43,7 @@ export function Hero() {
             <Link
               className="button button-primary"
               href="/kontakty#forma"
-              onClick={() => reachGoal("cta_click", { location: "hero" })}
+              data-lead-cta="hero"
             >
               Получить предварительный разбор
             </Link>

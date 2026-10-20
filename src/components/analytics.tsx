@@ -1,47 +1,60 @@
 "use client";
 
 import Script from "next/script";
-import { useEffect } from "react";
-
-const metrikaId = process.env.NEXT_PUBLIC_YANDEX_METRIKA_ID;
+import { useEffect, useRef } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
+import {
+  attributionTracker,
+  browserAttribution,
+  safePage,
+} from "@/lib/lead-attribution";
+import { metrikaId, reachGoal, trackPage } from "@/lib/analytics";
+export { reachGoal } from "@/lib/analytics";
 
 export function Analytics() {
+  const pathname = usePathname();
+  const search = useSearchParams();
+  const last = useRef("");
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const values: Record<string, string> = {};
-    [
-      "utm_source",
-      "utm_medium",
-      "utm_campaign",
-      "utm_content",
-      "utm_term",
-    ].forEach((key) => {
-      const value = params.get(key);
-      if (value) values[key] = value;
-    });
-    try {
-      if (!sessionStorage.getItem("klinika_landing_page"))
-        sessionStorage.setItem(
-          "klinika_landing_page",
-          window.location.pathname,
-        );
-      if (Object.keys(values).length)
-        sessionStorage.setItem("klinika_utm", JSON.stringify(values));
-    } catch {
-      // Storage may be disabled; reading the site and submitting remain available.
+    browserAttribution();
+    const route = pathname + "?" + search.toString();
+    if (last.current !== route) {
+      last.current = route;
+      trackPage(safePage(pathname));
     }
+  }, [pathname, search]);
+  useEffect(() => {
+    const handler = (event: MouseEvent) => {
+      const link = (event.target as Element | null)?.closest?.(
+        "a[data-lead-cta]",
+      ) as HTMLAnchorElement | null;
+      if (!link) return;
+      let storage: Storage | undefined;
+      try {
+        storage = window.sessionStorage;
+      } catch {}
+      const source = attributionTracker.selectCta(
+        new URL(window.location.href),
+        link.dataset.leadCta || "",
+        document.referrer,
+        storage,
+      );
+      reachGoal("cta_click", {
+        page: source.page,
+        location: source.ctaLocation,
+        direction: source.direction,
+        product: source.product,
+      });
+    };
+    document.addEventListener("click", handler, true);
+    return () => document.removeEventListener("click", handler, true);
   }, []);
-
   if (!metrikaId) return null;
   return (
-    <Script id="yandex-metrika" strategy="afterInteractive">
-      {`(function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};m[i].l=1*new Date();for(var j=0;j<document.scripts.length;j++){if(document.scripts[j].src===r){return;}}k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})(window,document,'script','https://mc.yandex.ru/metrika/tag.js?id=${metrikaId}','ym');ym(${metrikaId},'init',{ssr:true,webvisor:true,clickmap:true,accurateTrackBounce:true,trackLinks:true});`}
-    </Script>
+    <Script
+      id="yandex-metrika"
+      src="https://mc.yandex.ru/metrika/tag.js"
+      strategy="afterInteractive"
+    />
   );
-}
-
-export function reachGoal(goal: string, params?: Record<string, unknown>) {
-  if (typeof window === "undefined" || !metrikaId) return;
-  const ym = (window as unknown as { ym?: (...args: unknown[]) => void }).ym;
-  ym?.(Number(metrikaId), "reachGoal", goal, params);
 }

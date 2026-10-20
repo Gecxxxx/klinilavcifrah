@@ -25,7 +25,11 @@ export function PageHero({
           <p>{lead}</p>
           {actions && (
             <div className="hero-actions">
-              <Link className="button button-primary" href="/kontakty#forma">
+              <Link
+                className="button button-primary"
+                data-lead-cta="page_hero"
+                href="/kontakty#forma"
+              >
                 Получить разбор
               </Link>
               <Link className="text-link light" href="/kak-rabotaem">

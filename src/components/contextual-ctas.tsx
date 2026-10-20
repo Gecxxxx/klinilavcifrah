@@ -31,7 +31,11 @@ export function ServiceInlineCta({ data }: { data: ServicePageData }) {
         <p>{data.ctaEyebrow}</p>
         <h2>{data.ctaTitle}</h2>
         <span>{data.ctaLead}</span>
-        <Link className="button button-primary" href="/kontakty#forma">
+        <Link
+          className="button button-primary"
+          data-lead-cta="service_inline"
+          href="/kontakty#forma"
+        >
           Получить разбор <ArrowRight size={18} />
         </Link>
       </div>
@@ -66,7 +70,11 @@ export function HomeDiagnosticCta() {
             открытых данных и определим, что потребуется проверить внутри
             клиники.
           </p>
-          <Link className="button button-primary" href="/kontakty#forma">
+          <Link
+            className="button button-primary"
+            data-lead-cta="home_diagnostic"
+            href="/kontakty#forma"
+          >
             Получить разбор <ArrowRight size={18} />
           </Link>
         </div>
@@ -99,7 +107,11 @@ export function WorkStartCta() {
         <div className="work-start-heading">
           <p className="eyebrow">Безопасный старт</p>
           <h2>Первый этап не требует перестраивать всю клинику</h2>
-          <Link className="button button-primary" href="/kontakty#forma">
+          <Link
+            className="button button-primary"
+            data-lead-cta="work_start"
+            href="/kontakty#forma"
+          >
             Начать с разбора <ArrowRight size={18} />
           </Link>
         </div>
@@ -152,7 +164,11 @@ export function MethodologyReviewCta() {
               </span>
             ))}
           </div>
-          <Link className="button button-primary" href="/kontakty#forma">
+          <Link
+            className="button button-primary"
+            data-lead-cta="methodology"
+            href="/kontakty#forma"
+          >
             Разобрать мою клинику <ArrowRight size={18} />
           </Link>
         </div>

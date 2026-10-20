@@ -32,7 +32,9 @@ export function SiteFooter() {
             Медицинские клиники
           </Link>
           <Link href="/dlya-klinik#kosmetologiya">Косметология</Link>
-          <Link href="/kontakty#forma">Получить разбор</Link>
+          <Link data-lead-cta="footer" href="/kontakty#forma">
+            Получить разбор
+          </Link>
         </div>
       </div>
       <div className="container footer-bottom">

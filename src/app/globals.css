@@ -3229,3 +3229,15 @@ p {
 @media (max-width: 640px) {
   .methodology-card { padding: 24px; }
 }
+
+/* Form controls keep their values during delivery; focus stays below the sticky header. */
+.lead-form-fields { min-width: 0; margin: 0; padding: 0; border: 0; display: grid; gap: 0; }
+.form-requirements { margin: 0 0 18px; color: #526371; font-size: 15px; }
+.lead-form input, .lead-form textarea, .form-status { scroll-margin-block: 120px; }
+.form-field input[aria-invalid="true"], .form-field textarea[aria-invalid="true"] { border-color: #b42318; }
+.lead-form-fields:disabled input, .lead-form-fields:disabled textarea { cursor: wait; }
+.form-status:focus-visible { outline: 2px solid var(--cyan-dark); outline-offset: 6px; }
+.turnstile-widget { min-width: 0; max-width: 100%; }
+
+.lead-form .form-field small, .lead-form .form-note { color: #526371; }
+.lead-form :is(input, textarea, button):focus-visible { outline: 2px solid #087c78; outline-offset: 3px; }

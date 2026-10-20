@@ -5,6 +5,10 @@ export type Attribution = {
   referrer: string;
   landingPage: string;
   utm: Record<string, string>;
+  product?: string;
+  direction?: string;
+  ctaPage?: string;
+  ctaLocation?: string;
 };
 type StorageLike = Pick<Storage, "getItem" | "setItem" | "removeItem">;
 type Pending = { fingerprint: string; id: string; attribution: Attribution };
