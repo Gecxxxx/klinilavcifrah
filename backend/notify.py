@@ -47,6 +47,10 @@ def notification_text(job):
              f"Страница: {lead['page'] or 'не определена'}", f"Источник: {lead['referrer'] or 'не определён'}",
              f"Первая страница: {lead['landingPage'] or 'не определена'}",
              "UTM: " + json.dumps(lead['utm'], ensure_ascii=False)]
+    direction = {"marketing": "Маркетинг и привлечение", "digital": "Сайт, CRM и аналитика",
+                 "commercial": "Коммерческая система", "general": "Предварительный разбор"}
+    parts += ["Продукт: Предварительный разбор", f"Направление: {direction.get(lead.get('direction'), 'Не уточнено')}",
+              f"Переход к форме: {lead.get('ctaPage', lead['page'])}"]
     # Telegram's size limit is in UTF-16 units; leave space for service text.
     text = "\n".join(parts)
     return text.encode("utf-16-le")[:7000].decode("utf-16-le", errors="ignore")

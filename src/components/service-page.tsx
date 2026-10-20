@@ -59,7 +59,11 @@ export function ServicePage({ data }: { data: ServicePageData }) {
               {data.ownerRole}
             </p>
             <div className="service-hero-actions">
-              <Link className="button button-primary" href="/kontakty#forma">
+              <Link
+                className="button button-primary"
+                data-lead-cta="service_hero"
+                href="/kontakty#forma"
+              >
                 Получить разбор
               </Link>
               {data.ownerSite && (
@@ -167,9 +171,7 @@ export function ServicePage({ data }: { data: ServicePageData }) {
           <div className="service-role-number">07</div>
           <div>
             <p className="service-kicker">Роль специалиста</p>
-            <h2>
-              Роль {data.ownerGenitive}
-            </h2>
+            <h2>Роль {data.ownerGenitive}</h2>
             <p>{data.ownerRole}</p>
           </div>
           <ul>
@@ -187,7 +189,11 @@ export function ServicePage({ data }: { data: ServicePageData }) {
             <h2>{data.closingTitle}</h2>
           </div>
           <div className="service-closing-actions">
-            <Link className="button button-primary" href="/kontakty#forma">
+            <Link
+              className="button button-primary"
+              data-lead-cta="service_footer"
+              href="/kontakty#forma"
+            >
               Получить разбор
             </Link>
             {data.ownerSite && (

@@ -13,7 +13,11 @@ export default function NotFound() {
           <Link className="button button-primary" href="/">
             На главную
           </Link>
-          <Link className="button button-ghost" href="/kontakty#forma">
+          <Link
+            className="button button-ghost"
+            data-lead-cta="not_found"
+            href="/kontakty#forma"
+          >
             Получить разбор
           </Link>
         </div>

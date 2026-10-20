@@ -78,6 +78,19 @@ def validated(value):
             if not isinstance(utm[key], str) or len(utm[key]) > 200:
                 raise Rejected(400, "Проверьте данные источника.")
             lead["utm"][key] = utm[key]
+    # Optional metadata is added only when supplied: legacy in-flight request IDs
+    # must retain their original normalized payload/fingerprint on replay.
+    for key, allowed in (("product", {"preliminary_review"}),
+                         ("direction", {"general", "marketing", "digital", "commercial"})):
+        if key in value:
+            if not isinstance(value[key], str) or value[key] not in allowed:
+                raise Rejected(400, "Проверьте данные источника.")
+            lead[key] = value[key]
+    for key, maximum in (("ctaPage", 300), ("ctaLocation", 80)):
+        if key in value:
+            if not isinstance(value[key], str) or len(value[key]) > maximum or "\x00" in value[key]:
+                raise Rejected(400, "Проверьте данные источника.")
+            lead[key] = value[key]
     lead["consent"] = True
     request_id = value.get("requestId")
     if request_id is not None and (not isinstance(request_id, str) or not re.fullmatch(r"[A-Za-z0-9_-]{20,80}", request_id)):

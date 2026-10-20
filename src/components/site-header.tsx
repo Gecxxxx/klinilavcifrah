@@ -42,6 +42,7 @@ export function SiteHeader() {
         </nav>
         <Link
           className="button button-outline header-cta"
+          data-lead-cta="header"
           href="/kontakty#forma"
         >
           Получить разбор
@@ -65,6 +66,7 @@ export function SiteHeader() {
         ))}
         <Link
           className="button button-primary"
+          data-lead-cta="mobile_menu"
           href="/kontakty#forma"
           onClick={() => setOpen(false)}
         >

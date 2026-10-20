@@ -124,7 +124,11 @@ class Store:
     def save(self, lead, request_id, ip_key, policy_version, now=None):
         now = int(time.time()) if now is None else now
         payload = json.dumps(lead, sort_keys=True, ensure_ascii=False, separators=(",", ":"))
-        fingerprint = hashlib.sha256(payload.encode()).hexdigest()
+        # New optional attribution must not change the identity understood by
+        # the previous API release. Keep retries valid even during a code rollback;
+        # the originally committed metadata stays attached to the existing lead.
+        identity = {key: value for key, value in lead.items() if key not in {"product", "direction", "ctaPage", "ctaLocation"}}
+        fingerprint = hashlib.sha256(json.dumps(identity, sort_keys=True, ensure_ascii=False, separators=(",", ":")).encode()).hexdigest()
         if shutil.disk_usage(self.path.parent).free < 20 * 1024 * 1024:
             raise Rejected(503, "Сервис временно недоступен. Попробуйте позже.")
         with self.connection(write=True) as con:

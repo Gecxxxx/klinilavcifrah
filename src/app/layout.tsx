@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
@@ -46,7 +47,9 @@ export default function RootLayout({
         <SiteHeader />
         <main id="main">{children}</main>
         <SiteFooter />
-        <Analytics />
+        <Suspense fallback={null}>
+          <Analytics />
+        </Suspense>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: jsonLd(organization) }}
