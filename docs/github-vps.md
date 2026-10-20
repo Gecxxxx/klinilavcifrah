@@ -6,7 +6,7 @@ VPS: `89.124.104.188`, каталог `/var/www/klinikavcifrah`.
 ## Что уже подготовлено
 
 `.github/workflows/vps.yml` проверяет pull requests и изменения `main`: lint, тесты origin,
-десять тестов публикации, чистая статическая сборка, typecheck и SEO экспорта.
+тесты публикации и изменения Nginx, чистая статическая сборка, typecheck и SEO экспорта.
 Обработчик формы явно задан как `/api/leads`; существующий Nginx proxy в Worker сохраняется.
 Артефакт сборки хранится в Actions 14 дней. Секреты VPS доступны только отдельному job
 публикации из `main`. Изменения API Worker требуют отдельного выпуска и этим workflow не публикуются.
@@ -116,3 +116,29 @@ Workflow и локальные сценарии проверены отдель�
 Дополнительно локально распакован фактический архив VPS, поверх отдельного каталога установлен
 проверенный новый артефакт, выполнены реальные GET/OPTIONS через временный HTTP-сервер и
 проверен возврат на исходный снимок. Это не проверка восстановления конфигурации реального Nginx/TLS.
+
+## Одноразовый www → основной домен
+
+Пользователь подтвердил через `openssl x509`: сертификат действует до 22.11.2026,
+SAN содержит `klinikavcifrah.ru` и `www.klinikavcifrah.ru`.
+`deploy/configure-canonical.py` запускается отдельно от Actions через личный root SSH.
+Он принимает только известную структуру HTTPS-конфига этого сайта, сохраняет резервную
+копию в отдельном каталоге `/root/backups/kvc-nginx-*`, разрешает symlink sites-enabled
+и добавляет 308 с сохранением пути и query. Конфиг API и TLS сохраняется.
+Перед reload выполняется `nginx -t`; при ошибке проверки или reload возвращается исходный
+файл и выполняется проверка/reload. При неожиданной структуре конфигурации скрипт останавливается.
+Повторный запуск с уже установленным правилом ничего не меняет.
+
+Из PowerShell на личном компьютере, заменив `COMMIT_SHA` на проверенный полный commit:
+
+```powershell
+ssh -4 -o ConnectTimeout=15 -i "$env:USERPROFILE\.ssh\id_ed25519_kvc" root@89.124.104.188 "curl -fLo /tmp/kvc-canonical.py https://raw.githubusercontent.com/Gecxxxx/klinilavcifrah/COMMIT_SHA/deploy/configure-canonical.py && python3 /tmp/kvc-canonical.py"
+```
+
+Сохраните напечатанный путь backup. После установки проверьте GET
+`https://www.klinikavcifrah.ru/kontakty?utm_source=kvc_verify`: ожидается 308 с Location
+`https://klinikavcifrah.ru/kontakty?utm_source=kvc_verify`. Основной адрес должен отвечать
+200, OPTIONS `/api/leads` — 204. HTTP www может сначала перейти на HTTPS www, затем на apex.
+Локальные тесты проверяют точечное изменение, повторный запуск, отказ от неизвестной
+структуры, сохранность symlink/прав и восстановление при отказе проверки/reload.
+Настоящую конфигурацию проверяет Nginx на VPS; локального Nginx нет.
