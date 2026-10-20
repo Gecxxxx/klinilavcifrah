@@ -67,7 +67,9 @@ def switch(root, target):
 
 
 def response(url, method="GET", origin=None):
-    headers = {"Cache-Control": "no-cache"}
+    # The API's Cloudflare edge rejects Python-urllib's default signature (1010).
+    # Identify this client explicitly; keep the same public endpoint and checks.
+    headers = {"Cache-Control": "no-cache", "User-Agent": "kvc-deploy-health/1.0"}
     if origin:
         headers["Origin"] = origin
         headers["Access-Control-Request-Method"] = "POST"
@@ -90,8 +92,9 @@ def health(origin, commit, attempts=3):
                     raise ValueError("HTTP check failed: " + path)
             if response(origin + "/__kvc_nonexistent_" + commit)[0] != 404:
                 raise ValueError("Unknown page does not return 404")
-            if response(origin + "/api/leads", "OPTIONS", origin)[0] != 204:
-                raise ValueError("Existing API proxy OPTIONS check failed")
+            api_status = response(origin + "/api/leads", "OPTIONS", origin)[0]
+            if api_status != 204:
+                raise ValueError(f"Existing API proxy OPTIONS check failed: HTTP {api_status}")
             return
         except Exception:
             if attempt + 1 == attempts:

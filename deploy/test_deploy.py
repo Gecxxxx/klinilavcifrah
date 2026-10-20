@@ -139,7 +139,8 @@ class HealthTests(unittest.TestCase):
                 self.wfile.write(data)
             def do_OPTIONS(self):
                 requests.append(("OPTIONS", self.path))
-                self.send_response(204)
+                # Regression: Cloudflare rejects the default Python-urllib UA.
+                self.send_response(204 if self.headers.get("User-Agent") == "kvc-deploy-health/1.0" else 403)
                 self.end_headers()
         server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
         thread = threading.Thread(target=server.serve_forever, daemon=True)
