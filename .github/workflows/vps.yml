@@ -1,0 +1,96 @@
+name: Check and deploy VPS
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: kvc-vps-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      NEXT_TELEMETRY_DISABLED: '1'
+      NEXT_PUBLIC_SITE_URL: https://klinikavcifrah.ru
+      NEXT_PUBLIC_LEADS_API_URL: /api/leads
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - run: npm install --global pnpm@11.25.0
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm test:site-url
+      - run: python3 -m unittest discover -s deploy -p 'test_*.py' -v
+      - run: pnpm build:static
+      - run: pnpm typecheck
+      - run: pnpm check:seo
+      - run: python3 deploy/package-release.py "$GITHUB_SHA"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: kvc-static-${{ github.sha }}
+          path: release-artifacts/vps/
+          if-no-files-found: error
+          retention-days: 14
+
+  deploy:
+    needs: build
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && vars.KVC_DEPLOY_ENABLED == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: kvc-static-${{ github.sha }}
+          path: release
+      - name: Check current main head
+        id: head
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          latest=$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/main" --jq .object.sha)
+          if [[ "$latest" == "$GITHUB_SHA" ]]; then
+            echo 'current=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'Newer source is available; this deployment is skipped.'
+          fi
+      - name: Upload and activate verified release
+        if: steps.head.outputs.current == 'true'
+        env:
+          DEPLOY_KEY: ${{ secrets.KVC_SSH_PRIVATE_KEY }}
+          KNOWN_HOSTS: ${{ secrets.KVC_SSH_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          test -n "$DEPLOY_KEY" && test -n "$KNOWN_HOSTS"
+          ssh_dir=$(mktemp -d)
+          trap 'rm -rf "$ssh_dir"' EXIT
+          chmod 700 "$ssh_dir"
+          printf '%s\n' "$DEPLOY_KEY" | tr -d '\r' > "$ssh_dir/key"
+          printf '%s\n' "$KNOWN_HOSTS" | tr -d '\r' > "$ssh_dir/known_hosts"
+          chmod 600 "$ssh_dir/key" "$ssh_dir/known_hosts"
+          ssh_options=(-4 -i "$ssh_dir/key" -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=yes -o "UserKnownHostsFile=$ssh_dir/known_hosts" -o ConnectTimeout=15 -o ConnectionAttempts=3 -o ServerAliveInterval=15 -o ServerAliveCountMax=3)
+          remote=kvc-deploy@89.124.104.188
+          deploy_id="$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          remote_dir="/home/kvc-deploy/incoming/$GITHUB_SHA-$deploy_id"
+          (cd release && sha256sum -c site.sha256)
+          digest=$(cut -d ' ' -f 1 release/site.sha256)
+          ssh "${ssh_options[@]}" "$remote" "mkdir -m 700 '$remote_dir'"
+          scp "${ssh_options[@]}" release/site.tar.gz release/deploy-release.py "$remote:$remote_dir/"
+          ssh "${ssh_options[@]}" "$remote" "python3 '$remote_dir/deploy-release.py' '$remote_dir/site.tar.gz' '$digest' '$GITHUB_SHA' '$deploy_id'"
+          if ! ssh "${ssh_options[@]}" "$remote" "rm -f '$remote_dir/site.tar.gz' '$remote_dir/deploy-release.py' && rmdir '$remote_dir'"; then
+            echo '::warning::Release is live, but temporary upload cleanup failed.'
+          fi

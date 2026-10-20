@@ -13,6 +13,8 @@ const eslintConfig = defineConfig([
     ".wrangler/**",
     "out/**",
     "build/**",
+    "release-artifacts/**",
+    ".pages-api-disabled/**",
     "playwright-report/**",
     "test-results/**",
     "design-qa/screenshots/**",
