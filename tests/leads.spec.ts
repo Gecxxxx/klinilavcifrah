@@ -73,14 +73,17 @@ for (const route of routes) {
         () => document.documentElement.scrollWidth - innerWidth,
       ),
     ).toBeLessThanOrEqual(1);
-    if (route === "/kontakty")
-      await form.screenshot({ path: testInfo.outputPath("saved-form.png") });
     expect(
       await form.evaluate((element) => {
         const box = element.getBoundingClientRect();
-        return box.left >= -1 && box.right <= innerWidth + 1;
+        return (
+          box.left >= -1 &&
+          box.right <= document.documentElement.clientWidth + 1
+        );
       }),
     ).toBe(true);
+    if (route === "/kontakty")
+      await form.screenshot({ path: testInfo.outputPath("saved-form.png") });
     const saved = record(payload.id);
     expect(saved.page).toBe(route);
     expect(saved.utm.utm_source).toBe("qa");
