@@ -1315,6 +1315,10 @@ p {
 .form-status svg {
   flex: none;
 }
+.form-status span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
 .honeypot {
   position: absolute !important;
   left: -10000px !important;

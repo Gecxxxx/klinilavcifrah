@@ -11,6 +11,7 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "playwright test",
+    "test:lead-request": "node --experimental-strip-types --test scripts/lead-request.test.mjs",
     "test:site-url": "node --experimental-strip-types --test scripts/site-url.test.mjs",
     "check:seo": "node scripts/check-seo.mjs",
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",

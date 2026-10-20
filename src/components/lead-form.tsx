@@ -8,6 +8,7 @@ import Script from "next/script";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { reachGoal } from "./analytics";
+import { prepareLeadRequest, acknowledgeLead } from "@/lib/lead-request";
 
 const schema = z.object({
   name: z.string().trim().min(2, "Введите имя"),
@@ -35,6 +36,9 @@ export function LeadForm({ compact = false }: { compact?: boolean }) {
   const [turnstileToken, setTurnstileToken] = useState("");
   const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
   const started = useRef(false);
+  const inFlight = useRef(false);
+  const [leadId, setLeadId] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
   const {
     register,
     handleSubmit,
@@ -66,42 +70,100 @@ export function LeadForm({ compact = false }: { compact?: boolean }) {
   }, []);
 
   async function onSubmit(values: FormData) {
+    if (inFlight.current) return;
+    inFlight.current = true;
     setStatus("idle");
+    setErrorMessage("");
     reachGoal("form_submit");
-    let utm = {};
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 15_000);
+    let storage: Storage | undefined;
+    let utm: Record<string, string> = {};
+    let landingPage = window.location.pathname;
     try {
-      utm = JSON.parse(sessionStorage.getItem("klinika_utm") || "{}");
+      storage = window.sessionStorage;
+      const stored = JSON.parse(storage.getItem("klinika_utm") || "{}");
+      if (stored && typeof stored === "object" && !Array.isArray(stored)) {
+        utm = Object.fromEntries(
+          Object.entries(stored)
+            .filter(
+              ([key, value]) =>
+                /^utm_(source|medium|campaign|term|content)$/.test(key) &&
+                typeof value === "string",
+            )
+            .map(([key, value]) => [key, String(value).slice(0, 200)]),
+        );
+      }
+      landingPage = storage.getItem("klinika_landing_page") || landingPage;
     } catch {}
     try {
-      const leadsApiUrl =
-        process.env.NEXT_PUBLIC_LEADS_API_URL || "/api/leads";
+      const body = await prepareLeadRequest(
+        values,
+        {
+          page: window.location.pathname,
+          referrer: document.referrer.slice(0, 500),
+          landingPage: landingPage.slice(0, 300),
+          utm,
+        },
+        storage,
+      );
+      const leadsApiUrl = process.env.NEXT_PUBLIC_LEADS_API_URL || "/api/leads";
       const response = await fetch(leadsApiUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...values,
-          turnstileToken,
-          page: window.location.pathname,
-          referrer: document.referrer,
-          utm,
-        }),
+        signal: controller.signal,
+        body: JSON.stringify({ ...body, turnstileToken }),
       });
       const payload = await response.json().catch(() => ({}));
-      if (!response.ok || !payload.ok)
-        throw new Error(payload.message || "Не удалось отправить заявку");
+      if (
+        !response.ok ||
+        payload.ok !== true ||
+        payload.saved !== true ||
+        typeof payload.id !== "string"
+      ) {
+        if (
+          response.status === 400 ||
+          response.status === 429 ||
+          response.status === 409
+        ) {
+          setErrorMessage(
+            typeof payload.message === "string"
+              ? payload.message
+              : "Проверьте данные и повторите отправку.",
+          );
+        }
+        throw new Error("Save not confirmed");
+      }
+      setLeadId(payload.id);
       setStatus("success");
-      reachGoal("form_success");
+      if (acknowledgeLead(payload.id, storage)) {
+        reachGoal("lead_saved");
+        reachGoal("form_success");
+      }
       reset();
+      setTurnstileToken("");
+      (
+        window as unknown as { turnstile?: { reset(): void } }
+      ).turnstile?.reset();
     } catch {
       setStatus("error");
       reachGoal("form_error");
+      setTurnstileToken("");
+      (
+        window as unknown as { turnstile?: { reset(): void } }
+      ).turnstile?.reset();
+    } finally {
+      clearTimeout(timer);
+      inFlight.current = false;
     }
   }
 
   return (
     <form
       className={`lead-form ${compact ? "compact" : ""}`}
-      onSubmit={handleSubmit(onSubmit)}
+      onSubmit={(event) => {
+        void handleSubmit(onSubmit)(event);
+      }}
       noValidate
       data-lead-form
     >
@@ -180,8 +242,9 @@ export function LeadForm({ compact = false }: { compact?: boolean }) {
         )}
       </button>
       <p className="form-note">
-        Изучим открытые данные и свяжемся для уточнения задачи. Без обязательств
-        на дальнейшее сотрудничество.
+        Не указывайте сведения о пациентах и их здоровье. Изучим открытые данные
+        и свяжемся для уточнения задачи. Без обязательств на дальнейшее
+        сотрудничество.
       </p>
       <div
         className={`form-status ${status}`}
@@ -190,14 +253,20 @@ export function LeadForm({ compact = false }: { compact?: boolean }) {
       >
         {status === "success" && (
           <>
-            <CheckCircle size={22} weight="fill" /> Заявка отправлена. Свяжемся
-            после предварительного изучения данных.
+            <CheckCircle size={22} weight="fill" />
+            <span>
+              Заявка принята. Номер: {leadId}. Свяжемся после предварительного
+              изучения данных.
+            </span>
           </>
         )}
         {status === "error" && (
           <>
-            <WarningCircle size={22} weight="fill" /> Не получилось отправить
-            заявку. Проверьте соединение и попробуйте ещё раз.
+            <WarningCircle size={22} weight="fill" />
+            <span>
+              {errorMessage ||
+                "Не удалось подтвердить приём заявки. Проверьте соединение и повторите отправку с теми же данными."}
+            </span>
           </>
         )}
       </div>
