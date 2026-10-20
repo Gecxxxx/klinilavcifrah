@@ -13,13 +13,7 @@ import {
   Stethoscope,
   UsersThree,
 } from "@phosphor-icons/react";
-import {
-  faq,
-  industries,
-  patientJourney,
-  problemCards,
-  cases,
-} from "@/lib/site-data";
+import { faq, industries, patientJourney, problemCards } from "@/lib/site-data";
 import { reachGoal } from "./analytics";
 
 export function ProblemsSection() {
@@ -72,7 +66,11 @@ export function JourneySection() {
           <p>Выберите этап, чтобы увидеть ключевые показатели контроля.</p>
         </div>
         <div className="journey-console">
-          <div className="journey-map" role="list" aria-label="Этапы пути пациента">
+          <div
+            className="journey-map"
+            role="list"
+            aria-label="Этапы пути пациента"
+          >
             {patientJourney.map((stage, index) => (
               <button
                 className={`journey-node ${active === index ? "active" : ""}`}
@@ -107,10 +105,18 @@ export function JourneySection() {
                 <p>{patientJourney[active].kpi}</p>
               </div>
               <div className="journey-controls">
-                <button type="button" onClick={previous} aria-label="Предыдущий этап">
+                <button
+                  type="button"
+                  onClick={previous}
+                  aria-label="Предыдущий этап"
+                >
                   <ArrowLeft size={20} />
                 </button>
-                <button type="button" onClick={next} aria-label="Следующий этап">
+                <button
+                  type="button"
+                  onClick={next}
+                  aria-label="Следующий этап"
+                >
                   <ArrowRight size={20} />
                 </button>
               </div>
@@ -145,36 +151,6 @@ export function KeepTeamSection() {
             работу внутри единой системы.
           </p>
         </div>
-      </div>
-    </section>
-  );
-}
-
-export function CasesPreview() {
-  return (
-    <section className="section cases-section">
-      <div className="container">
-        <div className="section-heading">
-          <p className="eyebrow">Разборы и проекты</p>
-          <h2>Разбираем систему по этапам, а не по ощущениям</h2>
-          <p>
-            Каждый материал строится по одной логике: что анализировалось, что
-            выявлено, что рекомендовано и на каком этапе находится работа.
-          </p>
-        </div>
-        <div className="case-grid">
-          {cases.map((item) => (
-            <article className="case-card" key={item.type}>
-              <span>{item.type}</span>
-              <h3>{item.title}</h3>
-              <p>{item.text}</p>
-              <small>{item.status}</small>
-            </article>
-          ))}
-        </div>
-        <Link className="text-link" href="/kejsy-i-razbory">
-          Все разборы <ArrowRight size={18} />
-        </Link>
       </div>
     </section>
   );

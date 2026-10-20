@@ -33,13 +33,12 @@ export function Hero() {
       <div className="hero-background" aria-hidden="true" />
       <div className="container hero-inner">
         <div className="hero-copy">
-          <p className="eyebrow">От бюджета до фактической оплаты</p>
-          <h1>
-            Весь путь пациента —<br />в одной управляемой системе
-          </h1>
+          <p className="eyebrow">От пациентопотока до прибыли</p>
+          <h1>Внешнее коммерческое управление частными клиниками</h1>
           <p className="hero-lead">
-            Сайт, реклама, обращения, запись, визиты, планы лечения, оплаты и
-            повторная работа — в одной системе управления.
+            Выявляем коммерческие ограничения, определяем приоритеты и
+            организуем управление обращениями, записью, началом лечения,
+            повторными визитами, загрузкой врачей и экономикой клиники.
           </p>
           <div className="hero-actions">
             <Link
@@ -47,19 +46,23 @@ export function Hero() {
               href="/kontakty#forma"
               onClick={() => reachGoal("cta_click", { location: "hero" })}
             >
-              Получить разбор
+              Получить предварительный разбор
             </Link>
             <Link className="button button-ghost" href="/kak-rabotaem">
               Как мы работаем
             </Link>
           </div>
+          <p className="hero-note">
+            Первичная оценка по открытым данным. Без обязательств на дальнейшее
+            сотрудничество.
+          </p>
         </div>
         <MotionConfig reducedMotion="user">
-          <div className="hero-chain" aria-label="Путь пациента">
+          <ol className="hero-chain" aria-label="Путь пациента">
             {heroStages.map((stage, index) => {
               const Icon = iconMap[stage.icon as keyof typeof iconMap];
               return (
-                <motion.div
+                <motion.li
                   className={`hero-stage stage-${index + 1} tone-${stage.tone}`}
                   key={stage.label}
                   initial={{ opacity: 0, y: 22 }}
@@ -70,12 +73,6 @@ export function Hero() {
                     <Icon size={34} weight="duotone" aria-hidden="true" />
                     <strong>{stage.label}</strong>
                   </div>
-                  {stage.value && (
-                    <div className="stage-metric">
-                      <b>{stage.value}</b>
-                      <span>конверсия</span>
-                    </div>
-                  )}
                   {index < heroStages.length - 1 && (
                     <ArrowRight
                       className="stage-arrow"
@@ -83,10 +80,10 @@ export function Hero() {
                       aria-hidden="true"
                     />
                   )}
-                </motion.div>
+                </motion.li>
               );
             })}
-          </div>
+          </ol>
         </MotionConfig>
       </div>
     </section>

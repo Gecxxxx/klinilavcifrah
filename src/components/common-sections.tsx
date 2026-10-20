@@ -110,9 +110,13 @@ export function TeamSection() {
                   className="team-card-link"
                   href={person.href}
                   target={person.href.startsWith("http") ? "_blank" : undefined}
-                  rel={person.href.startsWith("http") ? "noreferrer" : undefined}
+                  rel={
+                    person.href.startsWith("http") ? "noreferrer" : undefined
+                  }
                 >
-                  {person.href.startsWith("http") ? "Перейти на сайт" : "О направлении"}
+                  {person.href.startsWith("http")
+                    ? "Перейти на сайт"
+                    : "О направлении"}
                   {person.href.startsWith("http") ? (
                     <ArrowUpRight size={17} />
                   ) : (
@@ -264,8 +268,8 @@ export function OwnerResultsSection() {
 }
 
 export function FinalCta({
-  title = "Начнём с предварительного разбора",
-  lead = "Изучим открытые данные и поможем определить, где именно находится резерв системы.",
+  title = "Начните с предварительного коммерческого разбора клиники",
+  lead = "Изучим открытые данные, подготовим первичные наблюдения и определим, какие вопросы требуют дальнейшей проверки.",
 }: {
   title?: string;
   lead?: string;

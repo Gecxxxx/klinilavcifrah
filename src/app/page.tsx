@@ -4,7 +4,6 @@ import {
   ProblemsSection,
   JourneySection,
   KeepTeamSection,
-  CasesPreview,
   IndustriesPreview,
   FaqSection,
 } from "@/components/home-sections";
@@ -22,8 +21,8 @@ import { jsonLd, pageMetadata } from "@/lib/seo";
 import { HomeDiagnosticCta } from "@/components/contextual-ctas";
 
 export const metadata: Metadata = pageMetadata(
-  "Внешний коммерческий контур для частных клиник",
-  "Весь путь пациента — от сайта и рекламы до лечения, оплаты и повторной работы — в одной управляемой системе.",
+  "Внешнее коммерческое управление частными клиниками",
+  "От пациентопотока до прибыли: коммерческие процессы, загрузка врачей и экономика клиники. Начните с предварительного разбора по открытым данным.",
 );
 
 export default function Home() {
@@ -55,7 +54,6 @@ export default function Home() {
       <StepsSection />
       <FormatsSection />
       <OwnerResultsSection />
-      <CasesPreview />
       <IndustriesPreview />
       <FaqSection />
       <FinalCta />

@@ -18,7 +18,7 @@ export default function Image() {
       }}
     >
       <div style={{ color: "#18e0d0", fontSize: 28, letterSpacing: 2 }}>
-        ВНЕШНИЙ КОММЕРЧЕСКИЙ КОНТУР
+        ОТ ПАЦИЕНТОПОТОКА ДО ПРИБЫЛИ
       </div>
       <div
         style={{
@@ -29,7 +29,7 @@ export default function Image() {
           marginTop: 24,
         }}
       >
-        Весь путь пациента — в одной управляемой системе
+        Внешнее коммерческое управление частными клиниками
       </div>
       <div style={{ fontSize: 28, color: "#aeb9c8", marginTop: 34 }}>
         КЛИНИКА В ЦИФРАХ

@@ -62,8 +62,9 @@ export function HomeDiagnosticCta() {
           <p className="eyebrow">С чего начать</p>
           <h2>Не знаете, где именно теряется результат?</h2>
           <p>
-            Выберите участок, который вызывает больше вопросов. На разборе мы
-            проверим его связь с остальной коммерческой цепочкой.
+            Выберите участок, который вызывает больше вопросов. Начнём с
+            открытых данных и определим, что потребуется проверить внутри
+            клиники.
           </p>
           <Link className="button button-primary" href="/kontakty#forma">
             Получить разбор <ArrowRight size={18} />
@@ -123,30 +124,33 @@ export function WorkStartCta() {
   );
 }
 
-export function CasesReviewCta() {
+export function MethodologyReviewCta() {
   return (
     <section className="section cases-review-cta">
       <div className="container cases-review-card">
         <div className="cases-review-mark">
           <Gauge size={52} weight="duotone" />
-          <span>Ваш будущий кейс начинается не с красивой цифры</span>
+          <span>От наблюдений — к проверяемым решениям</span>
         </div>
         <div>
           <p className="eyebrow">Разбор вместо обещаний</p>
           <h2>Сначала зафиксируем исходную точку вашей клиники</h2>
           <p>
-            Покажем, какие данные уже можно связать, чего не хватает и какой
-            результат будет честно измерять прогресс.
+            На предварительном разборе изучим открытые данные. Для дальнейшей
+            диагностики согласуем состав внутренних данных и критерии оценки
+            изменений.
           </p>
           <div className="cases-review-points">
-            {["Исходные данные", "Точка потери", "Измеримый критерий"].map(
-              (item) => (
-                <span key={item}>
-                  <CheckCircle size={18} />
-                  {item}
-                </span>
-              ),
-            )}
+            {[
+              "Исходные данные",
+              "Вопросы для проверки",
+              "Измеримый критерий",
+            ].map((item) => (
+              <span key={item}>
+                <CheckCircle size={18} />
+                {item}
+              </span>
+            ))}
           </div>
           <Link className="button button-primary" href="/kontakty#forma">
             Разобрать мою клинику <ArrowRight size={18} />

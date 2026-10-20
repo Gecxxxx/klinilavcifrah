@@ -40,17 +40,56 @@ for (const route of removedRoutes) {
   });
 }
 
-test("главный экран содержит утверждённую цепочку и значения", async ({
+test("главный экран показывает предложение и маршрут без неподтверждённых цифр", async ({
   page,
 }) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { level: 1 })).toContainText(
-    "Весь путь пациента",
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+    "Внешнее коммерческое управление частными клиниками",
   );
-  await expect(page.getByText("67%", { exact: true })).toBeVisible();
-  await expect(page.getByText("24%", { exact: true })).toBeVisible();
-  await expect(page.locator(".hero-summary")).toHaveCount(0);
-  await expect(page.locator(".hero-trust")).toHaveCount(0);
+  await expect(page.locator(".hero-stage strong")).toHaveText([
+    "Привлечение",
+    "Обращение",
+    "Запись",
+    "Визит",
+    "План лечения",
+    "Начало лечения",
+    "Оплата",
+    "Повторный визит",
+  ]);
+  await expect(page.locator(".hero-chain")).not.toContainText("%");
+  await expect(
+    page.locator(".stage-metric, .cases-section, .case-card"),
+  ).toHaveCount(0);
+  await expect(page.locator(".hero-note")).toContainText("по открытым данным");
+  await page
+    .locator(".hero-actions")
+    .getByRole("link", { name: "Получить предварительный разбор", exact: true })
+    .click();
+  await expect(page).toHaveURL(/\/kontakty\/?#forma$/);
+  await expect(page.locator("#forma form")).toBeInViewport();
+});
+
+test("бывший раздел кейсов объясняет методологию и конфиденциальность", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await page
+    .locator(".site-footer")
+    .getByRole("link", {
+      name: "Методология и конфиденциальность",
+      exact: true,
+    })
+    .click();
+  await expect(page).toHaveURL(/\/kejsy-i-razbory\/?$/);
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+    "Коммерческие данные клиники остаются конфиденциальными",
+  );
+  await expect(page.locator(".methodology-card")).toHaveCount(3);
+  await expect(page.locator(".case-page-card, .case-card")).toHaveCount(0);
+  await expect(page.locator(".methodology-note")).toContainText(
+    "определяются договором",
+  );
 });
 
 test("мобильное меню и FAQ работают", async ({ page }, testInfo) => {

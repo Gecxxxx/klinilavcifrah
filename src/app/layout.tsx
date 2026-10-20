@@ -17,7 +17,7 @@ const robotoCondensed = localFont({
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: `${SITE_NAME} — внешний коммерческий контур для клиник`,
+    default: `${SITE_NAME} — внешнее коммерческое управление клиниками`,
     template: `%s — ${SITE_NAME}`,
   },
   description:
@@ -31,7 +31,7 @@ const organization = {
   "@type": "Organization",
   name: SITE_NAME,
   url: SITE_URL,
-  description: "Внешний коммерческий контур для частных клиник.",
+  description: "Внешнее коммерческое управление частными клиниками.",
 };
 
 export default function RootLayout({

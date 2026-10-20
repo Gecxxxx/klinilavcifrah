@@ -9,7 +9,7 @@ export function SiteFooter() {
           <Link className="brand footer-brand" href="/">
             КЛИНИКА В ЦИФРАХ
           </Link>
-          <p>Внешний коммерческий контур для частных клиник.</p>
+          <p>Внешнее коммерческое управление частными клиниками.</p>
         </div>
         <div>
           <strong>Направления</strong>
@@ -22,7 +22,7 @@ export function SiteFooter() {
         <div>
           <strong>Компания</strong>
           <Link href="/kak-rabotaem">Как работаем</Link>
-          <Link href="/kejsy-i-razbory">Кейсы и разборы</Link>
+          <Link href="/kejsy-i-razbory">Методология и конфиденциальность</Link>
           <Link href="/kontakty">Контакты</Link>
         </div>
         <div>
