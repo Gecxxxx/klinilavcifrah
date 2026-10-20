@@ -34,11 +34,14 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm lint
       - run: pnpm test:site-url
+      - run: pnpm test:lead-request
+      - run: python3 -m unittest backend.test_leads -v
       - run: python3 -m unittest discover -s deploy -p 'test_*.py' -v
       - run: pnpm build:static
       - run: pnpm typecheck
       - run: pnpm check:seo
       - run: python3 deploy/package-release.py "$GITHUB_SHA"
+      - run: python3 deploy/package-api.py "$GITHUB_SHA"
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: kvc-static-${{ github.sha }}
@@ -86,11 +89,14 @@ jobs:
           remote=kvc-deploy@89.124.104.188
           deploy_id="$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
           remote_dir="/home/kvc-deploy/incoming/$GITHUB_SHA-$deploy_id"
-          (cd release && sha256sum -c site.sha256)
+          (cd release && sha256sum -c site.sha256 && sha256sum -c api.sha256)
           digest=$(cut -d ' ' -f 1 release/site.sha256)
+          api_digest=$(cut -d ' ' -f 1 release/api.sha256)
           ssh "${ssh_options[@]}" "$remote" "mkdir -m 700 '$remote_dir'"
-          scp "${ssh_options[@]}" release/site.tar.gz release/deploy-release.py "$remote:$remote_dir/"
+          scp "${ssh_options[@]}" release/site.tar.gz release/deploy-release.py release/api.tar.gz release/deploy-api.py "$remote:$remote_dir/"
+          ssh "${ssh_options[@]}" "$remote" "test -f /opt/kvc-leads/enabled"
+          ssh "${ssh_options[@]}" "$remote" "python3 '$remote_dir/deploy-api.py' '$remote_dir/api.tar.gz' '$api_digest' '$GITHUB_SHA' '$deploy_id'"
           ssh "${ssh_options[@]}" "$remote" "python3 '$remote_dir/deploy-release.py' '$remote_dir/site.tar.gz' '$digest' '$GITHUB_SHA' '$deploy_id'"
-          if ! ssh "${ssh_options[@]}" "$remote" "rm -f '$remote_dir/site.tar.gz' '$remote_dir/deploy-release.py' && rmdir '$remote_dir'"; then
+          if ! ssh "${ssh_options[@]}" "$remote" "rm -f '$remote_dir/site.tar.gz' '$remote_dir/deploy-release.py' '$remote_dir/api.tar.gz' '$remote_dir/deploy-api.py' && rmdir '$remote_dir'"; then
             echo '::warning::Release is live, but temporary upload cleanup failed.'
           fi

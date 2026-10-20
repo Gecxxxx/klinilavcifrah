@@ -19,8 +19,17 @@ export function Analytics() {
       const value = params.get(key);
       if (value) values[key] = value;
     });
-    if (Object.keys(values).length)
-      sessionStorage.setItem("klinika_utm", JSON.stringify(values));
+    try {
+      if (!sessionStorage.getItem("klinika_landing_page"))
+        sessionStorage.setItem(
+          "klinika_landing_page",
+          window.location.pathname,
+        );
+      if (Object.keys(values).length)
+        sessionStorage.setItem("klinika_utm", JSON.stringify(values));
+    } catch {
+      // Storage may be disabled; reading the site and submitting remain available.
+    }
   }, []);
 
   if (!metrikaId) return null;
