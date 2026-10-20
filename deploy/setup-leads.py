@@ -21,6 +21,10 @@ import urllib.error
 import zipfile
 import io
 
+class SetupError(RuntimeError):
+    """Only sanitized operational messages raised by this installer."""
+
+
 BASE = Path('/opt/kvc-leads')
 DATA = Path('/var/lib/kvc-leads')
 ENV = Path('/etc/kvc-leads.env')
@@ -145,7 +149,7 @@ def download(url, maximum):
     with urllib.request.urlopen(request, timeout=30) as response:
         body = response.read(maximum + 1)
     if len(body) > maximum:
-        raise RuntimeError('Download exceeds allowed size')
+        raise SetupError('Download exceeds allowed size')
     return body
 
 
@@ -191,12 +195,49 @@ def health(revision):
         except Exception:
             pass
         time.sleep(1)
-    raise RuntimeError('API did not become ready')
+    raise SetupError('API did not become ready')
+
+
+def public_api_health(revision, attempts=8, pause=time.sleep):
+    # nginx reload returns before all new workers have started accepting traffic.
+    # The first request can still reach the previous upstream. Do not roll back
+    # a healthy new service just because of this brief transition.
+    outcome = 'no response'
+    for attempt in range(attempts):
+        request = urllib.request.Request('https://klinikavcifrah.ru/api/leads?kvc_probe=' + revision,
+            method='OPTIONS', headers={'Origin': 'https://klinikavcifrah.ru',
+                                      'User-Agent': 'kvc-deploy-health/1.0', 'Cache-Control': 'no-cache'})
+        try:
+            with urllib.request.urlopen(request, timeout=5) as response:
+                actual = response.headers.get('X-KVC-API-Revision', '')
+                if response.status == 204 and actual == revision:
+                    return
+                # Only a bounded, public revision identifier is safe to print.
+                label = actual if re.fullmatch(r'[0-9a-f]{40}', actual) else 'missing/invalid'
+                outcome = f'HTTP {response.status}, API revision {label}'
+        except urllib.error.HTTPError as error:
+            outcome = f'HTTP {error.code}'
+        except Exception as error:
+            outcome = type(error).__name__  # Never print URLs, headers, or raw network exceptions.
+        print(f'Public API check {attempt + 1}/{attempts}: {outcome}', flush=True)
+        if attempt + 1 < attempts:
+            pause(1)
+    raise SetupError('Public API proxy was not confirmed: ' + outcome)
+
+
+def failure_description(error):
+    # SetupError messages raised here are fixed operational text. Provider
+    # calls wrap their errors before reaching here; never expose their raw URLs.
+    if isinstance(error, SetupError):
+        return str(error)
+    if isinstance(error, urllib.error.HTTPError):
+        return f'HTTP {error.code}; network response rejected'
+    return type(error).__name__
 
 
 def private_environment():
     if ENV.is_symlink() or ENV.stat().st_uid != 0:
-        raise RuntimeError('Unexpected private environment ownership')
+        raise SetupError('Unexpected private environment ownership')
     return dict(line.split('=', 1) for line in ENV.read_text().splitlines() if line and not line.startswith('#'))
 
 
@@ -212,18 +253,18 @@ def bot_api(token, method, payload=None):
             raise ValueError()
         return result['result']
     except Exception:
-        raise RuntimeError('Telegram configuration request failed; credentials were not printed') from None
+        raise SetupError('Telegram configuration request failed; credentials were not printed') from None
 
 
 def credentials():
     values = private_environment() if ENV.exists() else {}
     token = values.get('TELEGRAM_BOT_TOKEN') or getpass.getpass('Telegram bot token (hidden): ').strip()
     if not re.fullmatch(r'[0-9]{5,20}:[A-Za-z0-9_-]{20,100}', token):
-        raise RuntimeError('Invalid token format; no credentials saved')
+        raise SetupError('Invalid token format; no credentials saved')
     bot_api(token, 'getMe')  # Read-only, no test message.
     secret = values.get('TELEGRAM_WEBHOOK_SECRET') or secrets.token_urlsafe(48)
     if not re.fullmatch(r'[A-Za-z0-9_-]{32,256}', secret):
-        raise RuntimeError('Invalid webhook secret')
+        raise SetupError('Invalid webhook secret')
     values.update(TELEGRAM_BOT_TOKEN=token, TELEGRAM_WEBHOOK_SECRET=secret, TELEGRAM_RECIPIENT_MODE='subscribers')
     values.setdefault('KVC_IP_HASH_KEY', secrets.token_hex(32))
     values.setdefault('KVC_DB', '/var/lib/kvc-leads/leads.sqlite3')
@@ -239,21 +280,21 @@ def connect_bot(revision):
         urllib.request.urlopen(request, timeout=15).close()
     except urllib.error.HTTPError as error:
         if error.code != 403 or error.headers.get('X-KVC-API-Revision') != revision:
-            raise RuntimeError('Public bot handler was not confirmed') from None
+            raise SetupError('Public bot handler was not confirmed') from None
     else:
-        raise RuntimeError('Public bot handler did not reject an unsigned request')
+        raise SetupError('Public bot handler did not reject an unsigned request')
     values = private_environment()
     payload = {'url': url, 'secret_token': values['TELEGRAM_WEBHOOK_SECRET'],
                'allowed_updates': ['message'], 'max_connections': 2, 'drop_pending_updates': False}
     bot_api(values['TELEGRAM_BOT_TOKEN'], 'setWebhook', payload)
     if bot_api(values['TELEGRAM_BOT_TOKEN'], 'getWebhookInfo').get('url') != url:
-        raise RuntimeError('Telegram webhook was not confirmed')
+        raise SetupError('Telegram webhook was not confirmed')
     print('Bot connected to VPS. Existing users must send /start again; /stop unsubscribes.')
 
 
 def setup(revision):
     if os.geteuid() or sys.version_info < (3, 10):
-        raise RuntimeError('Requires root and Python 3.10+')
+        raise SetupError('Requires root and Python 3.10+')
     if not re.fullmatch(r'[0-9a-f]{40}', revision):
         raise ValueError('Expected full reviewed Git commit')
     deploy_user = pwd.getpwnam('kvc-deploy')
@@ -266,18 +307,18 @@ def setup(revision):
     changed = patch_nginx(original.decode()).encode()
     run(['nginx', '-t'])
     if shutil.disk_usage('/opt').free < 100 * 1024 * 1024:
-        raise RuntimeError('Less than 100 MiB free; installation stopped')
+        raise SetupError('Less than 100 MiB free; installation stopped')
     try:
         with socket.create_connection(('127.0.0.1', 3090), timeout=1):
             with urllib.request.urlopen('http://127.0.0.1:3090/health', timeout=2) as response:
                 if json.load(response).get('service') != 'kvc-leads':
-                    raise RuntimeError('Port 3090 belongs to another service')
+                    raise SetupError('Port 3090 belongs to another service')
     except ConnectionRefusedError:
         pass
     for name in UNITS:
         existing = Path('/etc/systemd/system') / name
         if existing.exists() and 'KVC' not in existing.read_text():
-            raise RuntimeError('Refusing to replace an unmanaged unit')
+            raise SetupError('Refusing to replace an unmanaged unit')
     backup_root = Path('/root/backups'); backup_root.mkdir(mode=0o700, exist_ok=True)
     backup = Path(tempfile.mkdtemp(prefix='kvc-leads-bootstrap-', dir=backup_root))
     shutil.copy2(target, backup / 'nginx.conf')
@@ -302,11 +343,11 @@ def setup(revision):
             os.chown(directory, deploy_user.pw_uid, deploy_user.pw_gid)
     wheel = download(WHEEL, 1024 * 1024)
     if hashlib.sha256(wheel).hexdigest() != WHEEL_SHA:
-        raise RuntimeError('Gunicorn distribution checksum mismatch')
+        raise SetupError('Gunicorn distribution checksum mismatch')
     with zipfile.ZipFile(io.BytesIO(wheel)) as package:
         for name in package.namelist():
             if name.startswith('/') or '..' in Path(name).parts:
-                raise RuntimeError('Unsafe dependency archive')
+                raise SetupError('Unsafe dependency archive')
         package.extractall(BASE / 'vendor')
     root = BASE / 'app'
     previous = (root / 'current').resolve() if (root / 'current').is_symlink() else None
@@ -354,14 +395,11 @@ raise SystemExit(subprocess.call(['/usr/sbin/runuser', '-u', 'kvc-leads', '--', 
         health(revision)
         run(['systemctl', 'start', 'kvc-leads-backup.service'])
         if target.read_bytes() != original:
-            raise RuntimeError('Nginx changed concurrently')
+            raise SetupError('Nginx changed concurrently')
         atomic_bytes(target, changed, target.stat().st_mode & 0o777)
         nginx_applied = True
         run(['nginx', '-t']); run(['systemctl', 'reload', 'nginx'])
-        request = urllib.request.Request('https://klinikavcifrah.ru/api/leads', method='OPTIONS', headers={'Origin': 'https://klinikavcifrah.ru', 'User-Agent': 'kvc-bootstrap/1.0'})
-        with urllib.request.urlopen(request, timeout=15) as response:
-            if response.status != 204 or response.headers.get('X-KVC-API-Revision') != revision:
-                raise RuntimeError('Public API proxy was not confirmed')
+        public_api_health(revision)
         run(['systemctl', 'enable', '--now', 'kvc-leads-reload.path', 'kvc-leads-notify.timer', 'kvc-leads-backup.timer'])
         (BASE / 'enabled').write_text('Managed KVC API publication enabled\n')
         (BASE / 'enabled').chmod(0o644)  # Root-owned; the deploy user cannot edit its content.
@@ -392,5 +430,5 @@ if __name__ == '__main__':
         setup(args.revision)
     except Exception as error:
         # In particular, do not print raw urllib exceptions containing the bot token.
-        print(f'Installation stopped: {type(error).__name__}. Check the last successful step; secrets were not printed.', file=sys.stderr)
+        print(f'Installation stopped: {failure_description(error)}. Secrets were not printed.', file=sys.stderr)
         raise SystemExit(1) from None

@@ -7,6 +7,7 @@ import tarfile
 import tempfile
 import unittest
 from unittest.mock import patch
+from unittest.mock import MagicMock
 import urllib.error
 
 
@@ -143,6 +144,26 @@ class ApiOpsTest(unittest.TestCase):
         with patch.object(setup.urllib.request, 'urlopen', side_effect=denied), patch.object(setup, 'bot_api') as api_call:
             with self.assertRaises(RuntimeError): setup.connect_bot(self.revision)
         api_call.assert_not_called()
+
+    def test_public_api_waits_for_old_nginx_worker_to_switch(self):
+        old, current = MagicMock(), MagicMock()
+        old.__enter__.return_value.status = 204
+        old.__enter__.return_value.headers = {}
+        current.__enter__.return_value.status = 204
+        current.__enter__.return_value.headers = {'X-KVC-API-Revision': self.revision}
+        with patch.object(setup.urllib.request, 'urlopen', side_effect=[old, current]):
+            setup.public_api_health(self.revision, pause=lambda _: None)
+
+    def test_failed_public_probe_reports_only_safe_operational_details(self):
+        old = MagicMock(); old.__enter__.return_value.status = 204
+        old.__enter__.return_value.headers = {'X-KVC-API-Revision': 'unsafe provider detail'}
+        with patch.object(setup.urllib.request, 'urlopen', return_value=old):
+            with self.assertRaisesRegex(RuntimeError, 'HTTP 204, API revision missing/invalid') as failure:
+                setup.public_api_health(self.revision, attempts=2, pause=lambda _: None)
+        self.assertNotIn('unsafe provider detail', str(failure.exception))
+        error = urllib.error.HTTPError('https://api.telegram.org/botSECRET/token', 403, 'SECRET', {}, None)
+        self.assertNotIn('SECRET', setup.failure_description(error))
+        self.assertNotIn('SECRET', setup.failure_description(RuntimeError('SECRET')))
 
 
 if __name__ == '__main__': unittest.main()
