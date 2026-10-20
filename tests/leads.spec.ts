@@ -75,6 +75,12 @@ for (const route of routes) {
     ).toBeLessThanOrEqual(1);
     if (route === "/kontakty")
       await form.screenshot({ path: testInfo.outputPath("saved-form.png") });
+    expect(
+      await form.evaluate((element) => {
+        const box = element.getBoundingClientRect();
+        return box.left >= -1 && box.right <= innerWidth + 1;
+      }),
+    ).toBe(true);
     const saved = record(payload.id);
     expect(saved.page).toBe(route);
     expect(saved.utm.utm_source).toBe("qa");

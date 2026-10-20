@@ -1215,6 +1215,8 @@ p {
   color: var(--cyan-dark);
 }
 .lead-form {
+  min-width: 0;
+  width: 100%;
   padding: 32px;
   border: 1px solid #d6e1e5;
   border-radius: var(--radius);
@@ -1227,6 +1229,8 @@ p {
 }
 .form-field > span {
   display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
   justify-content: space-between;
   margin-bottom: 7px;
   font-size: 16px;
