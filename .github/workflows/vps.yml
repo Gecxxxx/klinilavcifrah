@@ -35,7 +35,7 @@ jobs:
       - run: pnpm lint
       - run: pnpm test:site-url
       - run: pnpm test:lead-request
-      - run: python3 -m unittest backend.test_leads -v
+      - run: python3 -m unittest backend.test_leads backend.test_bot -v
       - run: python3 -m unittest discover -s deploy -p 'test_*.py' -v
       - run: pnpm build:static
       - run: pnpm typecheck

@@ -9,7 +9,7 @@ import shutil
 import sys
 import tarfile
 
-FILES = ['backend/__init__.py', 'backend/app.py', 'backend/store.py', 'backend/notify.py', 'backend/cli.py']
+FILES = ['backend/__init__.py', 'backend/app.py', 'backend/store.py', 'backend/notify.py', 'backend/cli.py', 'backend/bot.py']
 
 
 def package(revision, destination):

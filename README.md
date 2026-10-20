@@ -37,6 +37,14 @@ pnpm dev
 
 Сайт откроется на `http://localhost:3000`.
 
+## Подписка на заявки на VPS
+
+Для нового приватного API достаточно токена бота: установщик сам подключает webhook.
+Получатели отправляют боту `/start`, `/stop` отключает подписку, `/status` проверяет её.
+Chat ID вводить не нужно. После переноса с Cloudflare получатели нажимают `/start` заново.
+Любой запустивший бота получает заявки с контактами. Подписки и заявки сохраняются в SQLite.
+Команда установки и статус production: [docs/stage-3-leads.md](docs/stage-3-leads.md).
+
 ## Переменные окружения
 
 | Переменная | Назначение |
@@ -46,7 +54,7 @@ pnpm dev
 | `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Публичный ключ Cloudflare Turnstile |
 | `TURNSTILE_SECRET_KEY` | Секретный ключ Turnstile |
 | `TELEGRAM_BOT_TOKEN` | Токен Telegram-бота |
-| `TELEGRAM_CHAT_ID` | ID чата для заявок |
+| `TELEGRAM_CHAT_ID` | Резервный чат старого Cloudflare/Node API; для VPS не нужен |
 | `TELEGRAM_WEBHOOK_SECRET` | Секрет проверки входящих webhook-запросов Telegram |
 
 Секреты нельзя добавлять в Git или клиентский код. Для локальной разработки используйте `.env.local`, для Wrangler — `.dev.vars`.
