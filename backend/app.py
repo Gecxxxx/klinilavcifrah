@@ -11,6 +11,7 @@ import sqlite3
 import urllib.parse
 import urllib.request
 from backend.store import Rejected, Store
+from backend.bot import webhook
 
 ORIGINS = {"https://klinikavcifrah.ru", "https://www.klinikavcifrah.ru"}
 MAX_BODY = 16384
@@ -25,6 +26,8 @@ class Config:
     turnstile_secret: str = ""
     policy_version: str = "soglasheniya-pending-review-2026-10-20"
     revision: str = "development"
+    recipient_mode: str = "fixed"
+    webhook_secret: str = ""
 
     @classmethod
     def environment(cls):
@@ -34,11 +37,17 @@ class Config:
                      os.environ.get("TURNSTILE_SECRET_KEY", ""),
                      os.environ.get("KVC_POLICY_VERSION", cls.policy_version),
                      Path(__file__).with_name("revision.txt").read_text().strip()
-                     if Path(__file__).with_name("revision.txt").exists() else "development")
+                     if Path(__file__).with_name("revision.txt").exists() else "development",
+                     os.environ.get("TELEGRAM_RECIPIENT_MODE", "fixed"),
+                     os.environ.get("TELEGRAM_WEBHOOK_SECRET", ""))
         if len(config.ip_key) < 32:
             raise RuntimeError("KVC_IP_HASH_KEY must be configured")
-        if len(config.chat_ids) > 5 or any(not re.fullmatch(r"-?[0-9]{1,20}", x) for x in config.chat_ids):
+        if config.recipient_mode == "fixed" and (len(config.chat_ids) > 5 or any(not re.fullmatch(r"-?[0-9]{1,20}", x) for x in config.chat_ids)):
             raise RuntimeError("Invalid Telegram recipient configuration")
+        if config.recipient_mode not in ("fixed", "subscribers"):
+            raise RuntimeError("Invalid Telegram recipient mode")
+        if config.recipient_mode == "subscribers" and not re.fullmatch(r"[A-Za-z0-9_-]{32,256}", config.webhook_secret):
+            raise RuntimeError("Telegram webhook secret must be configured")
         return config
 
 
@@ -123,6 +132,8 @@ class Application:
 
     def handle(self, environ, origin):
         path, method = environ.get("PATH_INFO"), environ.get("REQUEST_METHOD")
+        if path == "/api/telegram/webhook":
+            return webhook(self.config, self.store, environ)
         if path == "/health" and method == "GET":
             if not self.store.ready():
                 raise RuntimeError("Registry not ready")

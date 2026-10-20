@@ -17,6 +17,7 @@ import sys
 import tempfile
 import time
 import urllib.request
+import urllib.error
 import zipfile
 import io
 
@@ -24,7 +25,7 @@ BASE = Path('/opt/kvc-leads')
 DATA = Path('/var/lib/kvc-leads')
 ENV = Path('/etc/kvc-leads.env')
 NGINX = Path('/etc/nginx/sites-enabled/klinikavcifrah.ru')
-FILES = ['__init__.py', 'app.py', 'store.py', 'notify.py', 'cli.py']
+FILES = ['__init__.py', 'app.py', 'store.py', 'notify.py', 'cli.py', 'bot.py']
 WHEEL = 'https://files.pythonhosted.org/packages/fe/85/7522a52e5e2f42faf1a129113ab63e548c42e103e9af395b7bfe65e403e2/gunicorn-26.2.0-py3-none-any.whl'
 WHEEL_SHA = 'bd249d0b3f7972f7432f0a6b6ff3b3ee2d129f70cd1ff6c09a9dd9e29a2b88e3'
 LOCATION = '''    location = /api/leads {
@@ -37,6 +38,18 @@ LOCATION = '''    location = /api/leads {
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_set_header X-Forwarded-For "";
         proxy_set_header CF-Connecting-IP "";
+        proxy_set_header Cookie "";
+        proxy_set_header Authorization "";
+        proxy_connect_timeout 3s;
+        proxy_read_timeout 15s;
+        access_log off;
+    }'''
+BOT_LOCATION = '''    location = /api/telegram/webhook {
+        client_max_body_size 32k;
+        client_body_buffer_size 32k;
+        proxy_pass http://127.0.0.1:3090;
+        proxy_set_header Host $host;
+        proxy_set_header X-Telegram-Bot-Api-Secret-Token $http_x_telegram_bot_api_secret_token;
         proxy_set_header Cookie "";
         proxy_set_header Authorization "";
         proxy_connect_timeout 3s;
@@ -143,13 +156,16 @@ def patch_nginx(text):
     if len(matches) != 1:
         raise ValueError('Expected exactly one leads location')
     block = matches[0]
-    if block.group() == LOCATION:
-        return text
-    if 'proxy_pass https://klinilavcifrah-api.eggetsevich.workers.dev/api/leads;' not in block.group():
-        raise ValueError('Unexpected old handler; no Nginx change')
-    if '{' in block.group().split('{', 1)[1]:
-        raise ValueError('Nested API directives require manual review')
-    return text[:block.start()] + LOCATION + text[block.end():]
+    if block.group() != LOCATION:
+        if 'proxy_pass https://klinilavcifrah-api.eggetsevich.workers.dev/api/leads;' not in block.group():
+            raise ValueError('Unexpected old handler; no Nginx change')
+        if '{' in block.group().split('{', 1)[1]:
+            raise ValueError('Nested API directives require manual review')
+    bots = list(re.finditer(r'    location = /api/telegram/webhook \{\n.*?\n    \}', text, re.S))
+    if bots and (len(bots) != 1 or bots[0].group() != BOT_LOCATION):
+        raise ValueError('Unexpected existing bot handler; no Nginx change')
+    replacement = LOCATION if bots else LOCATION + '\n\n' + BOT_LOCATION
+    return text[:block.start()] + replacement + text[block.end():]
 
 
 def atomic_bytes(target, body, mode=0o644):
@@ -178,29 +194,61 @@ def health(revision):
     raise RuntimeError('API did not become ready')
 
 
-def credentials():
-    if ENV.exists():
-        if ENV.is_symlink() or ENV.stat().st_uid != 0:
-            raise RuntimeError('Unexpected private environment ownership')
-        ENV.chmod(0o600)
-        print('Existing private environment retained')
-        return
-    token = getpass.getpass('Telegram bot token (hidden): ').strip()
-    ids = input('Trusted Telegram chat IDs, comma-separated: ').strip().split(',')
-    ids = list(dict.fromkeys(x.strip() for x in ids))
-    if not re.fullmatch(r'[0-9]{5,20}:[A-Za-z0-9_-]{20,100}', token) or not 1 <= len(ids) <= 5 or any(not re.fullmatch(r'-?[0-9]{1,20}', x) for x in ids):
-        raise RuntimeError('Invalid token or recipient format; no credentials saved')
-    # Read-only verification. Never send a test message during bootstrap.
+def private_environment():
+    if ENV.is_symlink() or ENV.stat().st_uid != 0:
+        raise RuntimeError('Unexpected private environment ownership')
+    return dict(line.split('=', 1) for line in ENV.read_text().splitlines() if line and not line.startswith('#'))
+
+
+def bot_api(token, method, payload=None):
+    # Never print a provider exception: its URL may include the bot token.
     try:
-        for suffix in ['getMe'] + ['getChat?chat_id=' + chat for chat in ids]:
-            result = json.loads(download('https://api.telegram.org/bot' + token + '/' + suffix, 65536))
-            if result.get('ok') is not True:
-                raise ValueError()
+        request = urllib.request.Request('https://api.telegram.org/bot' + token + '/' + method,
+            data=json.dumps(payload).encode() if payload is not None else None,
+            headers={'Content-Type': 'application/json', 'User-Agent': 'kvc-bootstrap/1.0'})
+        with urllib.request.urlopen(request, timeout=15) as response:
+            result = json.loads(response.read(65536))
+        if result.get('ok') is not True:
+            raise ValueError()
+        return result['result']
     except Exception:
-        raise RuntimeError('Telegram read-only verification failed; token was not logged or saved') from None
-    body = f'TELEGRAM_BOT_TOKEN={token}\nTELEGRAM_CHAT_IDS={",".join(ids)}\nKVC_IP_HASH_KEY={secrets.token_hex(32)}\nKVC_DB=/var/lib/kvc-leads/leads.sqlite3\n'
-    atomic_bytes(ENV, body.encode(), 0o600)
-    print('Telegram credentials and recipients verified (read-only)')
+        raise RuntimeError('Telegram configuration request failed; credentials were not printed') from None
+
+
+def credentials():
+    values = private_environment() if ENV.exists() else {}
+    token = values.get('TELEGRAM_BOT_TOKEN') or getpass.getpass('Telegram bot token (hidden): ').strip()
+    if not re.fullmatch(r'[0-9]{5,20}:[A-Za-z0-9_-]{20,100}', token):
+        raise RuntimeError('Invalid token format; no credentials saved')
+    bot_api(token, 'getMe')  # Read-only, no test message.
+    secret = values.get('TELEGRAM_WEBHOOK_SECRET') or secrets.token_urlsafe(48)
+    if not re.fullmatch(r'[A-Za-z0-9_-]{32,256}', secret):
+        raise RuntimeError('Invalid webhook secret')
+    values.update(TELEGRAM_BOT_TOKEN=token, TELEGRAM_WEBHOOK_SECRET=secret, TELEGRAM_RECIPIENT_MODE='subscribers')
+    values.setdefault('KVC_IP_HASH_KEY', secrets.token_hex(32))
+    values.setdefault('KVC_DB', '/var/lib/kvc-leads/leads.sqlite3')
+    atomic_bytes(ENV, ''.join(f'{key}={value}\n' for key, value in values.items()).encode(), 0o600)
+    print('Bot token verified; recipients subscribe with /start (no chat IDs required)')
+
+
+def connect_bot(revision):
+    url = 'https://klinikavcifrah.ru/api/telegram/webhook'
+    # Probe through public Nginx without submitting a command or sending a message.
+    request = urllib.request.Request(url, data=b'{}', headers={'Content-Type': 'application/json', 'User-Agent': 'kvc-bootstrap/1.0'})
+    try:
+        urllib.request.urlopen(request, timeout=15).close()
+    except urllib.error.HTTPError as error:
+        if error.code != 403 or error.headers.get('X-KVC-API-Revision') != revision:
+            raise RuntimeError('Public bot handler was not confirmed') from None
+    else:
+        raise RuntimeError('Public bot handler did not reject an unsigned request')
+    values = private_environment()
+    payload = {'url': url, 'secret_token': values['TELEGRAM_WEBHOOK_SECRET'],
+               'allowed_updates': ['message'], 'max_connections': 2, 'drop_pending_updates': False}
+    bot_api(values['TELEGRAM_BOT_TOKEN'], 'setWebhook', payload)
+    if bot_api(values['TELEGRAM_BOT_TOKEN'], 'getWebhookInfo').get('url') != url:
+        raise RuntimeError('Telegram webhook was not confirmed')
+    print('Bot connected to VPS. Existing users must send /start again; /stop unsubscribes.')
 
 
 def setup(revision):
@@ -235,6 +283,7 @@ def setup(revision):
     shutil.copy2(target, backup / 'nginx.conf')
     (backup / 'nginx-target.txt').write_text(str(target) + '\n')
     print(f'Bootstrap backup: {backup}', flush=True)
+    if ENV.exists(): shutil.copy2(ENV, backup / 'private-env')
     credentials()
     try:
         account = pwd.getpwnam('kvc-leads')
@@ -328,6 +377,11 @@ raise SystemExit(subprocess.call(['/usr/sbin/runuser', '-u', 'kvc-leads', '--', 
             run(['systemctl', 'stop', 'kvc-leads-api.service'])
         print('Previous handler restored; registry data and backups were preserved', flush=True)
         raise
+    # Register only after the API/Nginx transaction is healthy. If Telegram is
+    # unavailable (including a lost setWebhook response), keep the working API and
+    # saved leads in place; rerunning this installer safely retries registration.
+    print('API READY. Connecting Telegram webhook; no test message will be sent.', flush=True)
+    connect_bot(revision)
     print('DURABLE API READY. No test lead or Telegram message was sent.')
     run(['/usr/local/sbin/kvc-leads', 'stats'])
 

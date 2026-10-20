@@ -6,6 +6,8 @@ from pathlib import Path
 import tarfile
 import tempfile
 import unittest
+from unittest.mock import patch
+import urllib.error
 
 
 def module(name, filename):
@@ -97,8 +99,50 @@ class ApiOpsTest(unittest.TestCase):
 '''
         changed = setup.patch_nginx(old)
         self.assertEqual(setup.patch_nginx(changed), changed)
-        self.assertEqual(changed.replace(setup.LOCATION, old[old.index('    location = /api/leads {'):old.index('    location / {')].rstrip()), old)
+        self.assertEqual(changed.replace(setup.LOCATION + '\n\n' + setup.BOT_LOCATION, old[old.index('    location = /api/leads {'):old.index('    location / {')].rstrip()), old)
+        self.assertIn('X-Telegram-Bot-Api-Secret-Token $http_x_telegram_bot_api_secret_token', changed)
+        with self.assertRaises(ValueError): setup.patch_nginx(changed.replace('client_max_body_size 32k;', 'client_max_body_size 64k;'))
         with self.assertRaises(ValueError): setup.patch_nginx(old.replace('proxy_pass https://klinilavcifrah-api.eggetsevich.workers.dev/api/leads;', 'proxy_pass http://unexpected;'))
+
+    def test_bootstrap_needs_only_token_and_generates_private_webhook_secret(self):
+        env = Path(self.temp.name) / 'private-env'
+        token = '123456:' + 't' * 32
+        with patch.object(setup, 'ENV', env), patch.object(setup.getpass, 'getpass', return_value=token), patch('builtins.input', side_effect=AssertionError('Do not ask for chat ID')), patch.object(setup, 'bot_api', return_value={'id': 123456}) as api_call:
+            setup.credentials()
+        api_call.assert_called_once_with(token, 'getMe')
+        values = dict(line.split('=', 1) for line in env.read_text().splitlines())
+        self.assertEqual(values['TELEGRAM_RECIPIENT_MODE'], 'subscribers')
+        self.assertNotIn('TELEGRAM_CHAT_IDS', values)
+        self.assertGreaterEqual(len(values['TELEGRAM_WEBHOOK_SECRET']), 32)
+        self.assertEqual(env.stat().st_mode & 0o777, 0o600)
+
+    def test_existing_config_keeps_token_webhook_secret_and_other_private_settings(self):
+        env = Path(self.temp.name) / 'private-env'; env.touch()
+        original = {'TELEGRAM_BOT_TOKEN': '123456:' + 't' * 32, 'TELEGRAM_WEBHOOK_SECRET': 's' * 64,
+                    'KVC_IP_HASH_KEY': 'k' * 64, 'TURNSTILE_SECRET_KEY': 'preserved', 'TELEGRAM_RECIPIENT_MODE': 'fixed'}
+        with patch.object(setup, 'ENV', env), patch.object(setup, 'private_environment', return_value=dict(original)), patch.object(setup.getpass, 'getpass', side_effect=AssertionError('Retain existing token')), patch.object(setup, 'bot_api', return_value={}):
+            setup.credentials()
+        values = dict(line.split('=', 1) for line in env.read_text().splitlines())
+        for key in original:
+            self.assertEqual(values[key], 'subscribers' if key == 'TELEGRAM_RECIPIENT_MODE' else original[key])
+
+    def test_webhook_registration_is_automatic_and_keeps_pending_updates(self):
+        url = 'https://klinikavcifrah.ru/api/telegram/webhook'
+        denied = urllib.error.HTTPError(url, 403, 'Forbidden', {'X-KVC-API-Revision': self.revision}, None)
+        values = {'TELEGRAM_BOT_TOKEN': 'fake-token', 'TELEGRAM_WEBHOOK_SECRET': 's' * 64}
+        with patch.object(setup.urllib.request, 'urlopen', side_effect=denied), patch.object(setup, 'private_environment', return_value=values), patch.object(setup, 'bot_api', side_effect=[True, {'url': url}]) as api_call:
+            setup.connect_bot(self.revision)
+        self.assertEqual(api_call.call_args_list[0].args[:2], ('fake-token', 'setWebhook'))
+        payload = api_call.call_args_list[0].args[2]
+        self.assertEqual(payload['url'], url); self.assertFalse(payload['drop_pending_updates'])
+        self.assertEqual(payload['secret_token'], values['TELEGRAM_WEBHOOK_SECRET'])
+        self.assertEqual(payload['allowed_updates'], ['message'])
+
+    def test_no_registration_if_public_webhook_is_not_verified(self):
+        denied = urllib.error.HTTPError('https://example.test', 403, 'Forbidden', {}, None)
+        with patch.object(setup.urllib.request, 'urlopen', side_effect=denied), patch.object(setup, 'bot_api') as api_call:
+            with self.assertRaises(RuntimeError): setup.connect_bot(self.revision)
+        api_call.assert_not_called()
 
 
 if __name__ == '__main__': unittest.main()

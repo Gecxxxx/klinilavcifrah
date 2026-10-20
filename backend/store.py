@@ -53,6 +53,19 @@ CREATE TABLE IF NOT EXISTS rate_limits (
     bucket INTEGER NOT NULL,
     count INTEGER NOT NULL
 );
+CREATE TABLE IF NOT EXISTS telegram_subscribers (
+    chat_id TEXT PRIMARY KEY,
+    active INTEGER NOT NULL,
+    generation INTEGER NOT NULL,
+    command_date INTEGER NOT NULL,
+    command_message_id INTEGER NOT NULL
+);
+CREATE TABLE IF NOT EXISTS notification_recipients (
+    lead_id TEXT NOT NULL REFERENCES leads(id),
+    chat_id TEXT NOT NULL REFERENCES telegram_subscribers(chat_id),
+    generation INTEGER NOT NULL,
+    PRIMARY KEY (lead_id, chat_id)
+);
 PRAGMA user_version = 1;
 """
 
@@ -161,6 +174,46 @@ class Store:
         with self.connection() as con:
             return bool(con.execute("SELECT delivered_at FROM deliveries WHERE lead_id=? AND chat_id=? AND delivered_at IS NOT NULL",
                                     (lead_id, chat_id)).fetchone())
+
+    def bot_command(self, chat_id, command, stamp, message_id):
+        with self.connection(write=True) as con:
+            row = con.execute("SELECT * FROM telegram_subscribers WHERE chat_id=?", (chat_id,)).fetchone()
+            if command != "status" and (not row or (stamp, message_id) > (row["command_date"], row["command_message_id"])):
+                active = int(command == "start")
+                generation = (row["generation"] if row else 0) + int(active and (not row or not row["active"]))
+                con.execute("""INSERT INTO telegram_subscribers VALUES (?,?,?,?,?) ON CONFLICT(chat_id) DO UPDATE SET
+                    active=excluded.active,generation=excluded.generation,command_date=excluded.command_date,
+                    command_message_id=excluded.command_message_id""", (chat_id, active, generation, stamp, message_id))
+                if active:
+                    con.execute("UPDATE outbox SET next_at=0 WHERE last_error='waiting_subscribers' AND lease_until=0")
+                return bool(active)
+            return bool(row and row["active"])
+
+    def subscriber_targets(self, job):
+        """Freeze recipients on first send; later subscribers do not receive retries of old leads."""
+        with self.connection(write=True) as con:
+            if not con.execute("SELECT 1 FROM outbox WHERE lead_id=? AND lease_token=?", (job["lead_id"], job["lease_token"])).fetchone():
+                raise RuntimeError("Notification lease was replaced")
+            if not con.execute("SELECT 1 FROM notification_recipients WHERE lead_id=?", (job["lead_id"],)).fetchone():
+                con.execute("""INSERT INTO notification_recipients SELECT ?,chat_id,generation
+                    FROM telegram_subscribers WHERE active=1""", (job["lead_id"],))
+                if not con.execute("SELECT 1 FROM notification_recipients WHERE lead_id=?", (job["lead_id"],)).fetchone():
+                    return None
+            return con.execute("""SELECT r.chat_id,r.generation FROM notification_recipients r
+                JOIN telegram_subscribers s ON s.chat_id=r.chat_id AND s.active=1 AND s.generation=r.generation
+                LEFT JOIN deliveries d ON d.lead_id=r.lead_id AND d.chat_id=r.chat_id
+                WHERE r.lead_id=? AND d.delivered_at IS NULL ORDER BY r.chat_id LIMIT 5""", (job["lead_id"],)).fetchall()
+
+    def subscriber_active(self, chat_id, generation):
+        with self.connection() as con:
+            return bool(con.execute("SELECT 1 FROM telegram_subscribers WHERE chat_id=? AND generation=? AND active=1", (chat_id, generation)).fetchone())
+
+    def defer(self, job, code, now=None):
+        now = int(time.time()) if now is None else now
+        with self.connection(write=True) as con:
+            con.execute("""UPDATE outbox SET status='retry',next_at=?,lease_until=0,lease_token=NULL,
+                attempts=MAX(0,attempts-1),last_error=? WHERE lead_id=? AND lease_token=?""",
+                (now + 60, code, job["lead_id"], job["lease_token"]))
 
     def record_delivery(self, job, chat_id, outcome, code="", message_id=None, now=None):
         now = int(time.time()) if now is None else now

@@ -14,7 +14,7 @@ import urllib.request
 import os
 import fcntl
 
-FILES = {'backend/__init__.py', 'backend/app.py', 'backend/store.py', 'backend/notify.py', 'backend/cli.py', 'backend/revision.txt', 'api-manifest.json'}
+FILES = {'backend/__init__.py', 'backend/app.py', 'backend/store.py', 'backend/notify.py', 'backend/cli.py', 'backend/bot.py', 'backend/revision.txt', 'api-manifest.json'}
 
 
 def unpack(archive, destination, digest, revision):

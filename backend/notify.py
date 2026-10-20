@@ -59,11 +59,18 @@ def drain(config, send=telegram, limit=5, now=None):
         if not job:
             break
         codes, retry_after = [], 0
-        if not config.token or not config.chat_ids:
+        subscribed = config.recipient_mode == "subscribers"
+        if not config.token or (not subscribed and not config.chat_ids):
             store.record_delivery(job, "", "failed", "configuration_missing", now=now)
             store.finish(job, False, "configuration_missing", retry_after=600, now=now)
             continue
-        for chat_id in config.chat_ids:
+        targets = store.subscriber_targets(job) if subscribed else [(x, None) for x in config.chat_ids]
+        if targets is None:
+            store.defer(job, "waiting_subscribers", now=now)
+            continue
+        for chat_id, generation in targets[:4] if subscribed else targets:
+            if subscribed and not store.subscriber_active(chat_id, generation):
+                continue
             if store.delivered(job["lead_id"], chat_id):
                 continue
             try:
@@ -76,4 +83,7 @@ def drain(config, send=telegram, limit=5, now=None):
             except Exception:
                 codes.append("notification_error")
                 store.record_delivery(job, chat_id, "failed", "notification_error", now=now)
-        store.finish(job, not codes, ",".join(sorted(set(codes))), retry_after=retry_after, now=now)
+        if not codes and subscribed and len(targets) > 4:
+            store.defer(job, "recipient_batch", now=now)
+        else:
+            store.finish(job, not codes, ",".join(sorted(set(codes))), retry_after=retry_after, now=now)
