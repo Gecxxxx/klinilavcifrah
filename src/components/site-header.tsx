@@ -4,15 +4,39 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { List, X } from "@phosphor-icons/react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { navItems } from "@/lib/site-data";
 
 export function SiteHeader() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const header = useRef<HTMLElement>(null);
+  const toggle = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    const escape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setOpen(false);
+        toggle.current?.focus();
+      }
+    };
+    const outside = (event: MouseEvent) => {
+      if (
+        event.target instanceof Node &&
+        !header.current?.contains(event.target)
+      )
+        setOpen(false);
+    };
+    document.addEventListener("keydown", escape);
+    document.addEventListener("click", outside);
+    return () => {
+      document.removeEventListener("keydown", escape);
+      document.removeEventListener("click", outside);
+    };
+  }, [open]);
 
   return (
-    <header className="site-header">
+    <header className="site-header" ref={header}>
       <div className="header-inner">
         <Link
           className="brand"
@@ -48,6 +72,7 @@ export function SiteHeader() {
           Получить разбор
         </Link>
         <button
+          ref={toggle}
           className="menu-toggle"
           type="button"
           onClick={() => setOpen(!open)}
@@ -58,7 +83,12 @@ export function SiteHeader() {
           {open ? <X size={25} /> : <List size={27} />}
         </button>
       </div>
-      <div className={`mobile-menu ${open ? "open" : ""}`} id="mobile-menu">
+      <nav
+        className={`mobile-menu ${open ? "open" : ""}`}
+        id="mobile-menu"
+        aria-label="Мобильная навигация"
+        hidden={!open}
+      >
         {navItems.map((item) => (
           <Link href={item.href} key={item.href} onClick={() => setOpen(false)}>
             {item.label}
@@ -72,7 +102,7 @@ export function SiteHeader() {
         >
           Получить разбор
         </Link>
-      </div>
+      </nav>
     </header>
   );
 }

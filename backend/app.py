@@ -2,6 +2,7 @@
 from dataclasses import dataclass
 import hashlib
 import hmac
+import html
 import json
 import logging
 import os
@@ -80,7 +81,7 @@ def validated(value):
             lead["utm"][key] = utm[key]
     # Optional metadata is added only when supplied: legacy in-flight request IDs
     # must retain their original normalized payload/fingerprint on replay.
-    for key, allowed in (("product", {"preliminary_review"}),
+    for key, allowed in (("interest", {"crm_custom"}), ("product", {"preliminary_review"}),
                          ("direction", {"general", "marketing", "digital", "commercial"})):
         if key in value:
             if not isinstance(value[key], str) or value[key] not in allowed:
@@ -120,7 +121,9 @@ class Application:
 
     def __call__(self, environ, start_response):
         origin = environ.get("HTTP_ORIGIN", "")
-        headers = [("Content-Type", "application/json; charset=utf-8"), ("Cache-Control", "no-store"),
+        native = (environ.get("PATH_INFO") == "/api/leads" and environ.get("REQUEST_METHOD") == "POST"
+                  and environ.get("CONTENT_TYPE", "").split(";")[0].lower() == "application/x-www-form-urlencoded")
+        headers = [("Content-Type", "text/html; charset=utf-8" if native else "application/json; charset=utf-8"), ("Cache-Control", "no-store"),
                    ("X-Content-Type-Options", "nosniff"), ("Vary", "Origin"),
                    ("X-KVC-API-Revision", self.config.revision)]
         if origin in ORIGINS:
@@ -138,7 +141,8 @@ class Application:
                         409: "Conflict", 413: "Content Too Large", 415: "Unsupported Media Type", 429: "Too Many Requests", 503: "Service Unavailable"}
         if status == 429:
             headers.append(("Retry-After", "60"))
-        body = b"" if status == 204 else json.dumps(payload, ensure_ascii=False).encode()
+        body = (native_response(status, payload) if native else
+                b"" if status == 204 else json.dumps(payload, ensure_ascii=False).encode())
         headers.append(("Content-Length", str(len(body))))
         start_response(f"{status} {descriptions[status]}", headers)
         return [body]
@@ -161,8 +165,9 @@ class Application:
             return 204, None
         if method != "POST":
             return 404, {"ok": False}
-        if environ.get("CONTENT_TYPE", "").split(";")[0].lower() != "application/json":
-            raise Rejected(415, "Ожидается JSON.")
+        content_type = environ.get("CONTENT_TYPE", "").split(";")[0].lower()
+        if content_type not in ("application/json", "application/x-www-form-urlencoded"):
+            raise Rejected(415, "Ожидается JSON или контактная форма.")
         try:
             length = int(environ.get("CONTENT_LENGTH", "0"))
         except ValueError:
@@ -170,7 +175,25 @@ class Application:
         if length <= 0 or length > MAX_BODY:
             raise Rejected(413, "Превышен размер запроса.")
         try:
-            value = json.loads(environ["wsgi.input"].read(length))
+            raw = environ["wsgi.input"].read(length)
+            if len(raw) != length:
+                raise ValueError()
+            if content_type == "application/json":
+                value = json.loads(raw)
+            else:
+                fields = urllib.parse.parse_qs(raw.decode("utf-8"), keep_blank_values=True, max_num_fields=20, errors="strict")
+                if any(len(items) != 1 for items in fields.values()):
+                    raise ValueError()
+                value = {key: items[0] for key, items in fields.items()}
+                value["consent"] = value.get("consent") in ("on", "true")
+                value["turnstileToken"] = value.get("cf-turnstile-response", "")
+                # Only a non-personal interest marker is recovered from our own
+                # page's referrer. Never store the raw header or its query string.
+                referer = urllib.parse.urlsplit(environ.get("HTTP_REFERER", ""))
+                if (referer.scheme + "://" + referer.netloc in ORIGINS
+                        and urllib.parse.parse_qs(referer.query).get("interest") == ["crm_custom"]):
+                    value["interest"] = "crm_custom"
+                    value["direction"] = "digital"
         except (ValueError, UnicodeError):
             raise Rejected(400, "Проверьте заполненные поля.") from None
         lead, request_id, token = validated(value)
@@ -193,3 +216,17 @@ class Application:
 
 def create_app():
     return Application(Config.environment())
+
+
+def native_response(status, payload):
+    saved = status == 200 and payload.get("saved") is True
+    title = "Заявка принята" if saved else "Заявка не подтверждена"
+    message = ("Заявка сохранена. Номер: " + str(payload["id"]) if saved else
+               payload.get("message", "Проверьте данные или попробуйте позже."))
+    return (f'<!doctype html><html lang="ru"><head><meta charset="utf-8">'
+            f'<meta name="viewport" content="width=device-width,initial-scale=1">'
+            f'<meta name="robots" content="noindex,nofollow"><title>{title} — Клиника в цифрах</title>'
+            '<style>body{font:18px/1.6 system-ui,sans-serif;max-width:640px;margin:10vh auto;padding:24px;color:#101d33}'
+            'h1{font-size:2rem}p{overflow-wrap:anywhere}a{color:#075985}</style></head>'
+            f'<body><main><h1>{title}</h1><p>{html.escape(message)}</p>'
+            '<p><a href="/kontakty#forma">Вернуться на сайт</a></p></main></body></html>').encode()

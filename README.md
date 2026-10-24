@@ -4,24 +4,29 @@
 
 ## Текущая публикация
 
-Основной домен — `https://klinikavcifrah.ru`. Публичная проверка 19.10.2026 показывает серверный IP и Nginx, отдельный API Worker доступен. Размещение основного сайта на Cloudflare Pages не подтверждено. DNS Cloudflare не означает, что сайт размещён на Pages.
+Основной домен — `https://klinikavcifrah.ru`, статика обслуживается Nginx на VPS.
+GitHub Actions собирает main, публикует атомарные релизы статики и приватного API,
+затем проверяет публичные страницы и совпадение версий. Заявки сохраняются в SQLite
+вне релизов, Telegram получает уведомления через очередь.
 
-См. [состояние этапа 1](docs/stage-1-status.md) и [инструкцию публикации и отката](docs/deployment.md). Для статического Nginx используется `pnpm build:static`, для Pages — `pnpm build:pages`: у них разная настройка адреса API. Не выполнять команды deploy до сверки действующей инфраструктуры.
+См. [публикацию и откат](docs/deployment.md), [реестр заявок](docs/stage-3-leads.md)
+и [текущее состояние оставшихся этапов](docs/completion-status.md).
+Для VPS используется `pnpm build:static`. Cloudflare-команды ниже оставлены для прежней
+инфраструктуры; не запускайте их для обновления основного домена.
 
 Production origin по умолчанию — основной HTTPS-домен. Сборка с `NEXT_PUBLIC_SITE_URL=http://localhost:3000` останавливается. Если нужен локальный origin для разработки, задавайте его только в окружении dev. После любой смены `NEXT_PUBLIC_*` production необходимо пересобрать.
 
 ## Реестр заявок на VPS
 
-Этап 3 готовится отдельно: [устойчивое сохранение и подключение](docs/stage-3-leads.md).
-Сначала root-установка приватного API, затем слияние ветки и автодеплой новой формы.
-База хранится вне релизов; Telegram становится очередью уведомлений после записи.
-Описанные ниже Cloudflare/Node варианты — прежняя инфраструктура, у них нет такого реестра.
+Приватный API подключён на VPS. Описание, резервирование и эксплуатация:
+[docs/stage-3-leads.md](docs/stage-3-leads.md). Описанные ниже Cloudflare/Node варианты
+относятся к прежней инфраструктуре и не заменяют действующий реестр.
 
 ## Стек
 
 - Next.js 16 (App Router), React 19.2, TypeScript
 - Tailwind CSS 4 и CSS Variables
-- Motion for React
+- CSS-анимации
 - React Hook Form + Zod
 - Playwright
 - OpenNext + Cloudflare Workers
@@ -127,23 +132,15 @@ pnpm deploy:api
 
 Ему нужны binding `TELEGRAM_SUBSCRIBERS` и secrets `TELEGRAM_BOT_TOKEN`, `TELEGRAM_WEBHOOK_SECRET`. После его публикации Telegram webhook должен указывать на `https://klinilavcifrah-api.eggetsevich.workers.dev/telegram/webhook`.
 
-## Будущий деплой на VPS
+## Оставшиеся материалы и приёмка
 
-Проект сохраняет стандартный Node.js runtime и не связывает бизнес-логику формы с Cloudflare. На VPS:
+Контакты, реквизиты, утверждённые документы и 11 услуг с ценами ожидаются от владельца.
+Метрика отключена до получения ID. Полный список и ограничения проверки:
+[docs/completion-status.md](docs/completion-status.md).
 
-1. установите Node.js 22+, pnpm и Nginx;
-2. выполните `pnpm install --frozen-lockfile && pnpm build`;
-3. добавьте переменные окружения через защищённый файл systemd;
-4. запустите `pnpm start` как systemd service;
-5. проксируйте домен через Nginx на `127.0.0.1:3000` и подключите TLS.
-
-## Материалы, которые нужно добавить позже
-
-- подтверждённые кейсы, компании и результаты;
-- фотографии или утверждённые портреты команды;
-- фактические контакты и ссылки на мессенджеры;
-- реквизиты оператора персональных данных и финальные юридические тексты;
-- production-домен и ID Яндекс Метрики.
+Поисковая карта: [docs/search-page-map.md](docs/search-page-map.md).
+Условия отдельного проекта CRM: [docs/crm-delivery-conditions.md](docs/crm-delivery-conditions.md).
+Три материала до экспертного согласования: [docs/editorial-drafts/README.md](docs/editorial-drafts/README.md).
 
 ## Этап 4: формы и источники
 

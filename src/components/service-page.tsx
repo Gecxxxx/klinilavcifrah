@@ -14,6 +14,7 @@ import type { ServicePageData } from "@/lib/site-data";
 import { directionLinks } from "@/lib/site-data";
 import { jsonLd } from "@/lib/seo";
 import { ServiceInlineCta } from "./contextual-ctas";
+import { CustomCrmSection } from "./crm-section";
 import { ServicePanel } from "./service-panel";
 
 export function ServicePage({ data }: { data: ServicePageData }) {
@@ -26,7 +27,7 @@ export function ServicePage({ data }: { data: ServicePageData }) {
   ];
 
   return (
-    <main className={`service-page service-tone-${data.tone}`}>
+    <div className={`service-page service-tone-${data.tone}`}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -71,7 +72,7 @@ export function ServicePage({ data }: { data: ServicePageData }) {
                   className="button service-external"
                   href={data.ownerSite}
                   target="_blank"
-                  rel="noreferrer"
+                  rel="noopener noreferrer"
                 >
                   Обратиться к {data.ownerDative}
                   <ArrowUpRight size={18} />
@@ -83,7 +84,7 @@ export function ServicePage({ data }: { data: ServicePageData }) {
                 className="service-site-link"
                 href={data.ownerSite}
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener noreferrer"
               >
                 {data.ownerSiteLabel} <ArrowUpRight size={15} />
               </a>
@@ -125,6 +126,8 @@ export function ServicePage({ data }: { data: ServicePageData }) {
           })}
         </div>
       </section>
+
+      {data.tone === "digital" && <CustomCrmSection />}
 
       <section className="service-journey-section">
         <div className="container">
@@ -201,9 +204,17 @@ export function ServicePage({ data }: { data: ServicePageData }) {
                 className="button service-external"
                 href={data.ownerSite}
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener noreferrer"
               >
-                Обратиться к специалисту <ArrowUpRight size={18} />
+                Сайт{" "}
+                {data.tone === "marketing"
+                  ? "Дарьи Каминскене"
+                  : "Егора Гецевича"}{" "}
+                <ArrowUpRight size={18} aria-hidden="true" />
+                <span className="visually-hidden">
+                  {" "}
+                  (откроется в новой вкладке)
+                </span>
               </a>
             )}
           </div>
@@ -224,6 +235,6 @@ export function ServicePage({ data }: { data: ServicePageData }) {
           </Link>
         </div>
       </section>
-    </main>
+    </div>
   );
 }

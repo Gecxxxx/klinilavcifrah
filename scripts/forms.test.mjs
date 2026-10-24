@@ -61,3 +61,12 @@ test('analytics queues initialization before early goals; drops contact paramete
   assert.doesNotThrow(()=>trackPage('/kontakty'));
  } finally { delete globalThis.window; }
 });
+
+test('custom CRM CTA uses the same form and preserves its interest through reload', () => {
+ const store=storage();const tracker=new AttributionTracker();
+ tracker.selectCta(new URL('https://example.test/sajt-crm-analitika'),'crm_custom','',store);
+ const saved=new AttributionTracker().capture(new URL('https://example.test/kontakty?interest=crm_custom'),'https://example.test/sajt-crm-analitika',store);
+ assert.equal(saved.interest,'crm_custom');assert.equal(saved.direction,'digital');assert.equal(saved.product,'preliminary_review');
+ const direct=new AttributionTracker().capture(new URL('https://example.test/kontakty?interest=crm_custom'),'');
+ assert.equal(direct.interest,'crm_custom');assert.equal(direct.direction,'digital');
+});

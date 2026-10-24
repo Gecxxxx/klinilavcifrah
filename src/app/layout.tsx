@@ -9,7 +9,7 @@ import { SITE_NAME, SITE_URL } from "@/lib/site-data";
 import { jsonLd } from "@/lib/seo";
 
 const robotoCondensed = localFont({
-  src: "../../public/fonts/RobotoCondensed-Variable.ttf",
+  src: "../../public/fonts/RobotoCondensed-Variable.woff2",
   variable: "--font-condensed",
   display: "swap",
   weight: "100 900",
@@ -45,7 +45,9 @@ export default function RootLayout({
           Перейти к содержанию
         </a>
         <SiteHeader />
-        <main id="main">{children}</main>
+        <main id="main" tabIndex={-1}>
+          {children}
+        </main>
         <SiteFooter />
         <Suspense fallback={null}>
           <Analytics />

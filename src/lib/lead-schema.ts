@@ -1,23 +1,27 @@
-import { z } from "zod";
+import {
+  object,
+  string,
+  optional,
+  literal,
+  trim,
+  minLength,
+  maxLength,
+  refine,
+} from "zod/mini";
+import type { infer as Infer } from "zod/mini";
 
-// Keep contact formats and bounds aligned with backend.app.validated.
-export const leadSchema = z.object({
-  name: z
-    .string()
-    .trim()
-    .min(2, "Введите имя")
-    .max(100, "Не более 100 символов"),
-  company: z
-    .string()
-    .trim()
-    .min(2, "Укажите клинику или компанию")
-    .max(160, "Не более 160 символов"),
-  phone: z
-    .string()
-    .trim()
-    .min(6, "Введите телефон или удобный контакт")
-    .max(100, "Не более 100 символов")
-    .refine(
+// Functional imports keep the client bundle small; rules match backend.app.validated.
+const bounded = (minimum: number, maximum: number, message: string) =>
+  string({ error: message }).check(
+    trim(),
+    minLength(minimum, message),
+    maxLength(maximum, `Не более ${maximum} символов`),
+  );
+export const leadSchema = object({
+  name: bounded(2, 100, "Введите имя"),
+  company: bounded(2, 160, "Укажите клинику или компанию"),
+  phone: bounded(6, 100, "Введите телефон или удобный контакт").check(
+    refine(
       (value) =>
         (value.match(/\d/g)?.length ?? 0) >= 6 ||
         /^@[A-Za-z0-9_]{5,32}$/.test(value) ||
@@ -25,18 +29,16 @@ export const leadSchema = z.object({
         /^(?:https:\/\/)?t\.me\/[A-Za-z0-9_]{5,32}$/.test(value),
       "Укажите телефон, email или Telegram-контакт",
     ),
-  website: z
-    .string()
-    .trim()
-    .max(300, "Не более 300 символов")
-    .optional()
-    .refine(
+  ),
+  website: optional(bounded(0, 300, "Проверьте адрес сайта")).check(
+    refine(
       (value) => !value || /^(?:https?:\/\/)?[^\s/]+\.[^\s]+$/.test(value),
       "Проверьте адрес сайта",
     ),
-  message: z.string().trim().max(1000, "Не более 1000 символов").optional(),
-  turnstileToken: z.string().optional(),
-  consent: z.literal(true, { error: "Подтвердите согласие" }),
-  website_check: z.string().max(0).optional(),
+  ),
+  message: optional(bounded(0, 1000, "Проверьте описание задачи")),
+  turnstileToken: optional(string()),
+  consent: literal(true, { error: "Подтвердите согласие" }),
+  website_check: optional(string().check(maxLength(0))),
 });
-export type LeadFormData = z.infer<typeof leadSchema>;
+export type LeadFormData = Infer<typeof leadSchema>;

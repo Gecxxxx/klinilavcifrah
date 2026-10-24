@@ -32,7 +32,12 @@ export function PageHero({
               >
                 Получить разбор
               </Link>
-              <Link className="text-link light" href="/kak-rabotaem">
+              <Link
+                className="text-link light"
+                href={
+                  path === "/kak-rabotaem" ? "#etapy" : "/kak-rabotaem#etapy"
+                }
+              >
                 Как начинаем <ArrowRight size={18} />
               </Link>
             </div>

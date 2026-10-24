@@ -1,0 +1,49 @@
+"""Native POST fallback tests: private temporary SQLite, no Telegram/network."""
+import io
+import json
+import unittest
+import urllib.parse
+from backend import test_leads as fixtures
+from backend.test_leads import fixture
+from backend.notify import notification_text
+
+
+class NativeFormTest(unittest.TestCase):
+    setUp = fixtures.RegistryTest.setUp
+    def native(self, value, origin='https://klinikavcifrah.ru', referer=''):
+        raw=urllib.parse.urlencode(value).encode()
+        env={'PATH_INFO':'/api/leads','REQUEST_METHOD':'POST','CONTENT_TYPE':'application/x-www-form-urlencoded',
+             'CONTENT_LENGTH':str(len(raw)),'wsgi.input':io.BytesIO(raw),'HTTP_ORIGIN':origin,'HTTP_X_REAL_IP':'192.0.2.80','HTTP_REFERER':referer}
+        captured={}
+        body=b''.join(self.app(env,lambda status,headers:captured.update(status=int(status.split()[0]),headers=dict(headers))))
+        return captured,body.decode()
+
+    def test_native_success_commits_and_repeat_deduplicates_without_echoing_contact(self):
+        data=fixture(consent='on',name='PRIVATE TEST NAME',message='PRIVATE TEST CONTENT')
+        data.pop('utm')
+        first,body=self.native(data)
+        self.assertEqual(first['status'],200);self.assertTrue(first['headers']['Content-Type'].startswith('text/html'))
+        self.assertIn('Заявка сохранена',body);self.assertNotIn(data['name'],body);self.assertNotIn(data['phone'],body);self.assertNotIn(data['message'],body)
+        self.assertEqual(first['headers']['Cache-Control'],'no-store');self.assertNotIn('Location',first['headers'])
+        self.assertEqual(self.native(data)[0]['status'],200)
+        self.assertEqual(self.store.stats()['leads'],1)
+
+    def test_native_error_origin_and_captcha_do_not_write_leads(self):
+        data=fixture(consent='');data.pop('utm')
+        self.assertEqual(self.native(data)[0]['status'],400)
+        data['consent']='on'
+        self.assertEqual(self.native(data,origin='https://evil.test')[0]['status'],403)
+        self.app.verify=lambda *_:False
+        self.assertEqual(self.native(data)[0]['status'],400)
+        self.assertEqual(self.store.stats()['leads'],0)
+
+    def test_native_crm_interest_and_json_metadata_use_common_registry(self):
+        data=fixture(consent='on');data.pop('utm')
+        status,_=self.native(data,referer='https://klinikavcifrah.ru/kontakty?interest=crm_custom')
+        self.assertEqual(status['status'],200)
+        with self.store.connection() as con:lead=json.loads(con.execute('SELECT payload FROM leads').fetchone()[0])
+        self.assertEqual(lead['interest'],'crm_custom');self.assertEqual(lead['direction'],'digital')
+        self.assertIn('Индивидуальная CRM / интеграции',notification_text(self.store.claim()))
+
+
+if __name__=='__main__':unittest.main()

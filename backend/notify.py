@@ -51,6 +51,7 @@ def notification_text(job):
                  "commercial": "Коммерческая система", "general": "Предварительный разбор"}
     parts += ["Продукт: Предварительный разбор", f"Направление: {direction.get(lead.get('direction'), 'Не уточнено')}",
               f"Переход к форме: {lead.get('ctaPage', lead['page'])}"]
+    if lead.get("interest") == "crm_custom": parts.append("Интерес: Индивидуальная CRM / интеграции")
     # Telegram's size limit is in UTF-16 units; leave space for service text.
     text = "\n".join(parts)
     return text.encode("utf-16-le")[:7000].decode("utf-16-le", errors="ignore")

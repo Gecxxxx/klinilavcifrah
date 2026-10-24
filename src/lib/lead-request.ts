@@ -5,6 +5,7 @@ export type Attribution = {
   referrer: string;
   landingPage: string;
   utm: Record<string, string>;
+  interest?: "crm_custom";
   product?: string;
   direction?: string;
   ctaPage?: string;

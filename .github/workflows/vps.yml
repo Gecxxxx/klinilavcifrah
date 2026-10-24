@@ -38,7 +38,7 @@ jobs:
       - run: pnpm test:site-url
       - run: pnpm test:lead-request
       - run: pnpm test:forms
-      - run: python3 -m unittest backend.test_leads backend.test_bot -v
+      - run: python3 -m unittest backend.test_leads backend.test_bot backend.test_native_form -v
       - run: python3 -m unittest discover -s deploy -p 'test_*.py' -v
       - run: pnpm build:static
       - run: pnpm typecheck
@@ -53,6 +53,8 @@ jobs:
           retention-days: 14
 
   deploy:
+    outputs:
+      deployed: ${{ steps.head.outputs.current }}
     needs: build
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && vars.KVC_DEPLOY_ENABLED == 'true'
     runs-on: ubuntu-24.04
@@ -103,3 +105,15 @@ jobs:
           if ! ssh "${ssh_options[@]}" "$remote" "rm -f '$remote_dir/site.tar.gz' '$remote_dir/deploy-release.py' '$remote_dir/api.tar.gz' '$remote_dir/deploy-api.py' && rmdir '$remote_dir'"; then
             echo '::warning::Release is live, but temporary upload cleanup failed.'
           fi
+
+  verify_public:
+    needs: deploy
+    if: needs.deploy.outputs.deployed == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Check actual public pages and API without creating leads
+        run: python3 scripts/check-live.py --revision "$GITHUB_SHA"

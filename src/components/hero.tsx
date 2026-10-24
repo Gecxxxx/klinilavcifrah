@@ -1,7 +1,5 @@
-"use client";
-
 import Link from "next/link";
-import { motion, MotionConfig } from "motion/react";
+import { preload } from "react-dom";
 import {
   Armchair,
   ArrowRight,
@@ -12,7 +10,7 @@ import {
   CreditCard,
   Megaphone,
   UserCircle,
-} from "@phosphor-icons/react";
+} from "@phosphor-icons/react/dist/ssr";
 import { heroStages } from "@/lib/site-data";
 
 const iconMap = {
@@ -27,6 +25,10 @@ const iconMap = {
 };
 
 export function Hero() {
+  preload("/assets/hero-data-stream.webp", {
+    as: "image",
+    fetchPriority: "high",
+  });
   return (
     <section className="hero">
       <div className="hero-background" aria-hidden="true" />
@@ -56,34 +58,30 @@ export function Hero() {
             сотрудничество.
           </p>
         </div>
-        <MotionConfig reducedMotion="user">
-          <ol className="hero-chain" aria-label="Путь пациента">
-            {heroStages.map((stage, index) => {
-              const Icon = iconMap[stage.icon as keyof typeof iconMap];
-              return (
-                <motion.li
-                  className={`hero-stage stage-${index + 1} tone-${stage.tone}`}
-                  key={stage.label}
-                  initial={{ opacity: 0, y: 22 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.18 + index * 0.07, duration: 0.42 }}
-                >
-                  <div className="stage-card">
-                    <Icon size={34} weight="duotone" aria-hidden="true" />
-                    <strong>{stage.label}</strong>
-                  </div>
-                  {index < heroStages.length - 1 && (
-                    <ArrowRight
-                      className="stage-arrow"
-                      size={18}
-                      aria-hidden="true"
-                    />
-                  )}
-                </motion.li>
-              );
-            })}
-          </ol>
-        </MotionConfig>
+        <ol className="hero-chain" aria-label="Путь пациента">
+          {heroStages.map((stage, index) => {
+            const Icon = iconMap[stage.icon as keyof typeof iconMap];
+            return (
+              <li
+                className={`hero-stage stage-${index + 1} tone-${stage.tone}`}
+                key={stage.label}
+                style={{ animationDelay: `${index * 50}ms` }}
+              >
+                <div className="stage-card">
+                  <Icon size={34} weight="duotone" aria-hidden="true" />
+                  <strong>{stage.label}</strong>
+                </div>
+                {index < heroStages.length - 1 && (
+                  <ArrowRight
+                    className="stage-arrow"
+                    size={18}
+                    aria-hidden="true"
+                  />
+                )}
+              </li>
+            );
+          })}
+        </ol>
       </div>
     </section>
   );
