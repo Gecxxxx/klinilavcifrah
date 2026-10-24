@@ -127,7 +127,7 @@ class Store:
         # New optional attribution must not change the identity understood by
         # the previous API release. Keep retries valid even during a code rollback;
         # the originally committed metadata stays attached to the existing lead.
-        identity = {key: value for key, value in lead.items() if key not in {"product", "direction", "ctaPage", "ctaLocation", "interest"}}
+        identity = {key: value for key, value in lead.items() if key not in {"product", "direction", "ctaPage", "ctaLocation", "interest", "consentVersion"}}
         fingerprint = hashlib.sha256(json.dumps(identity, sort_keys=True, ensure_ascii=False, separators=(",", ":")).encode()).hexdigest()
         if shutil.disk_usage(self.path.parent).free < 20 * 1024 * 1024:
             raise Rejected(503, "Сервис временно недоступен. Попробуйте позже.")

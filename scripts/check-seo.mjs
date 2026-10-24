@@ -50,6 +50,12 @@ for (const location of locations) {
     assert.equal(form.method?.toLowerCase(), "post", `unsafe native form method: ${path}`);
     assert.equal(form.action, "/api/leads", `unsafe native form action: ${path}`);
   }
+  assert(html.includes('https://vk.ru/klinika_v_cifrah'), `missing approved VK contact: ${path}`);
+  if (path === "/soglasheniya") {
+    const visible = html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/g, "").replace(/<[^>]*>/g, " ");
+    assert(!/чернов|до production|заказчик должен предоставить/i.test(visible), "public legal page contains internal instructions");
+    assert(html.includes('data-legal-status="information"'), "informational disclosure must not claim approved legal status");
+  }
   report.push({ path, canonical: location, jsonLdBlocks: structured.length });
 }
 

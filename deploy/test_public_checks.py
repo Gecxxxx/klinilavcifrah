@@ -30,6 +30,7 @@ class PublicChecksTest(unittest.TestCase):
         result,pages=checks.audit('https://example.test',self.revision,self.fetch)
         self.assertEqual(result['errors'],[]);self.assertEqual(result['forms'],5);self.assertEqual(len(pages),9)
         self.assertTrue(result['owner_inputs_pending'])
+        self.assertIn('Approved legal documents and data operator identity', result['owner_inputs_pending'])
     def test_unsafe_native_form_is_a_hard_failure(self):
         self.bad=True
         with self.assertRaisesRegex(ValueError,'unsafe native form'):checks.audit('https://example.test',self.revision,self.fetch)
