@@ -137,7 +137,11 @@ export function LeadForm({ compact = false }: { compact?: boolean }) {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           signal: controller.signal,
-          body: JSON.stringify({ ...body, turnstileToken }),
+          body: JSON.stringify({
+            ...body,
+            turnstileToken,
+            consentVersion: "contact-information-2026-10-24",
+          }),
         },
       );
       const payload = await response.json().catch(() => ({}));
@@ -230,9 +234,14 @@ export function LeadForm({ compact = false }: { compact?: boolean }) {
       }}
     >
       <input type="hidden" name="page" value={pathname} />
+      <input
+        type="hidden"
+        name="consentVersion"
+        value="contact-information-2026-10-24"
+      />
       <input type="hidden" name="product" value="preliminary_review" />
       <p className="form-requirements" id={`${formId}-requirements`}>
-        Имя, компания и контакт — обязательные поля.
+        * Обязательные поля: имя, компания и контакт.
       </p>
       <fieldset
         className="lead-form-fields"
@@ -319,9 +328,13 @@ export function LeadForm({ compact = false }: { compact?: boolean }) {
             {...register("consent")}
           />
           <span>
-            Согласен на обработку персональных данных согласно{" "}
+            Согласен на обработку данных обращения для обратной связи.{" "}
             <a href="/soglasheniya" target="_blank" rel="noopener noreferrer">
-              политике
+              Информация об обработке данных
+              <span className="visually-hidden">
+                {" "}
+                (откроется в новой вкладке)
+              </span>
             </a>
             .
           </span>
@@ -412,6 +425,7 @@ function Field({
     "aria-invalid"?: boolean;
     "aria-describedby"?: string;
     "aria-label"?: string;
+    required?: boolean;
   }>;
 }) {
   const id = useId();
@@ -419,12 +433,14 @@ function Field({
     <label className="form-field" htmlFor={id}>
       <span>
         {label}
+        {children.props.required && <span aria-hidden="true"> *</span>}
         {hint && <small id={`${id}-hint`}>{hint}</small>}
       </span>
       {cloneElement(children, {
         id,
         "aria-invalid": !!error,
-        "aria-label": inputLabel,
+        "aria-label":
+          inputLabel || (children.props.required ? label : undefined),
         "aria-describedby":
           [hint && `${id}-hint`, error && `${id}-error`]
             .filter(Boolean)

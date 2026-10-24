@@ -92,6 +92,10 @@ def validated(value):
             if not isinstance(value[key], str) or len(value[key]) > maximum or "\x00" in value[key]:
                 raise Rejected(400, "Проверьте данные источника.")
             lead[key] = value[key]
+    if "consentVersion" in value:
+        if value["consentVersion"] != "contact-information-2026-10-24":
+            raise Rejected(400, "Обновите страницу формы и повторите отправку.")
+        lead["consentVersion"] = value["consentVersion"]
     lead["consent"] = True
     request_id = value.get("requestId")
     if request_id is not None and (not isinstance(request_id, str) or not re.fullmatch(r"[A-Za-z0-9_-]{20,80}", request_id)):
@@ -206,11 +210,11 @@ class Application:
             with self.store.connection() as con:
                 exists = con.execute("SELECT 1 FROM leads WHERE request_id=?", (request_id,)).fetchone()
             if exists:
-                lead_id, duplicate = self.store.save(lead, request_id, ip_key, self.config.policy_version)
+                lead_id, duplicate = self.store.save(lead, request_id, ip_key, lead.get("consentVersion", self.config.policy_version))
                 return 200, {"ok": True, "saved": True, "id": lead_id, "duplicate": duplicate}
         if not self.verify(self.config.turnstile_secret, token, ip):
             raise Rejected(400, "Не удалось подтвердить защиту формы.")
-        lead_id, duplicate = self.store.save(lead, request_id, ip_key, self.config.policy_version)
+        lead_id, duplicate = self.store.save(lead, request_id, ip_key, lead.get("consentVersion", self.config.policy_version))
         return 200, {"ok": True, "saved": True, "id": lead_id, "duplicate": duplicate}
 
 

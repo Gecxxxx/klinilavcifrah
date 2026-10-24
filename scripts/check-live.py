@@ -16,9 +16,10 @@ PATHS = ['/', '/marketing-i-privlechenie', '/sajt-crm-analitika', '/kommercheska
 
 class Page(HTMLParser):
     def __init__(self):
-        super().__init__(); self.h1 = 0; self.canonical = []; self.ids = set(); self.links = []; self.images = []; self.forms = []; self.title = ''; self.description = ''; self.heading = ''; self._tag = ''; self.jsonld = []; self._json = False; self._text = ''; self.content = []
+        super().__init__(); self.h1 = 0; self.canonical = []; self.ids = set(); self.links = []; self.images = []; self.forms = []; self.title = ''; self.description = ''; self.heading = ''; self._tag = ''; self.jsonld = []; self._json = False; self._text = ''; self.content = []; self.legal_approved = False
     def handle_starttag(self, tag, attributes):
         attrs = dict(attributes); self._tag = tag
+        if attrs.get('data-legal-status') == 'approved': self.legal_approved = True
         if 'id' in attrs: self.ids.add(attrs['id'])
         if tag == 'h1': self.h1 += 1
         if tag == 'link' and attrs.get('rel') == 'canonical': self.canonical.append(attrs.get('href'))
@@ -95,7 +96,7 @@ def audit(origin, revision=None, request=fetch):
     api = next((value for key, value in headers.items() if key.lower() == 'x-kvc-api-revision'), None)
     if status != 204 or api != live: errors.append('API readiness/revision mismatch')
     if not any(href.startswith(('tel:', 'mailto:')) for href in pages['/kontakty'].links): pending.append('Approved direct contact and operator details')
-    if 'чернов' in ''.join(pages['/soglasheniya'].content).lower(): pending.append('Approved legal documents and data operator identity')
+    if not pages['/soglasheniya'].legal_approved: pending.append('Approved legal documents and data operator identity')
     if not any('crm_custom' in href for href in pages['/sajt-crm-analitika'].links): errors.append('CRM interest CTA missing')
     report = {'revision': live, 'api_revision': api, 'pages': len(pages), 'forms': sum(len(p.forms) for p in pages.values()), 'errors': errors, 'owner_inputs_pending': pending,
               'scope': 'Public HTTP, metadata, internal links/anchors, form POST fallback and API revision. No leads created; no Telegram messages sent.'}

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { directionLinks } from "@/lib/site-data";
+import { directionLinks, VK_URL } from "@/lib/site-data";
 
 export function SiteFooter() {
   return (
@@ -10,6 +10,13 @@ export function SiteFooter() {
             КЛИНИКА В ЦИФРАХ
           </Link>
           <p>Внешнее коммерческое управление частными клиниками.</p>
+          <a href={VK_URL} target="_blank" rel="noopener noreferrer">
+            Клиника в цифрах — VK
+            <span className="visually-hidden">
+              {" "}
+              (откроется в новой вкладке)
+            </span>
+          </a>
         </div>
         <div>
           <strong>Направления</strong>

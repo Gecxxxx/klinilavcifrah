@@ -46,4 +46,30 @@ class NativeFormTest(unittest.TestCase):
         self.assertIn('Индивидуальная CRM / интеграции',notification_text(self.store.claim()))
 
 
+
+class ConsentVersionTest(unittest.TestCase):
+    setUp = fixtures.RegistryTest.setUp
+    call = fixtures.RegistryTest.call
+
+    def test_new_wording_version_is_saved_and_old_id_replay_stays_compatible(self):
+        version = 'contact-information-2026-10-24'
+        value = fixture(consentVersion=version, requestId='consent-request-123456789')
+        status, first = self.call(value)
+        self.assertEqual(status, 200)
+        with self.store.connection() as con:
+            row = con.execute('SELECT policy_version,consent_at,payload FROM leads').fetchone()
+        self.assertEqual(row['policy_version'], version)
+        self.assertGreater(row['consent_at'], 0)
+        self.assertEqual(json.loads(row['payload'])['consentVersion'], version)
+        value.pop('consentVersion')
+        status, replay = self.call(value)
+        self.assertEqual(status, 200)
+        self.assertEqual(first['id'], replay['id'])
+        self.assertEqual(self.store.stats()['leads'], 1)
+
+    def test_unknown_wording_version_is_rejected(self):
+        self.assertEqual(self.call(fixture(consentVersion='invented'))[0], 400)
+        self.assertEqual(self.store.stats()['leads'], 0)
+
+
 if __name__=='__main__':unittest.main()

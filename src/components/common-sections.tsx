@@ -74,8 +74,16 @@ export function DirectionsSection({ compact = false }: { compact?: boolean }) {
               "Решение конкретной задачи",
               "Клиника в цифрах — 90 дней",
               "Постоянное внешнее коммерческое управление",
-            ].map((title) => (
-              <li key={title}>{title}</li>
+            ].map((title, index) => (
+              <li key={title}>
+                <Link
+                  href={
+                    index < 2 ? "/kak-rabotaem#etapy" : "/kak-rabotaem#formaty"
+                  }
+                >
+                  {title}
+                </Link>
+              </li>
             ))}
           </ol>
         )}
@@ -249,7 +257,7 @@ export function StepsSection() {
 export function FormatsSection() {
   const icons = [Target, Handshake, CirclesThreePlus];
   return (
-    <section className="section soft-section">
+    <section className="section soft-section" id="formaty">
       <div className="container">
         <SectionHeading
           eyebrow="Форматы сотрудничества"
