@@ -45,6 +45,11 @@ for (const location of locations) {
     JSON.parse(json);
     assert(!/localhost|127\.0\.0\.1|\[::1\]/i.test(json), `local URL in JSON-LD: ${path}`);
   }
+  for (const [, tag] of html.matchAll(/(<form\b[^>]*>)/g)) {
+    const form = attrs(tag);
+    assert.equal(form.method?.toLowerCase(), "post", `unsafe native form method: ${path}`);
+    assert.equal(form.action, "/api/leads", `unsafe native form action: ${path}`);
+  }
   report.push({ path, canonical: location, jsonLdBlocks: structured.length });
 }
 

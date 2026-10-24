@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { motion, MotionConfig } from "motion/react";
 import {
   ArrowLeft,
   ArrowRight,
@@ -22,9 +21,7 @@ export function ProblemsSection() {
       <div className="container">
         <div className="section-heading">
           <p className="eyebrow">Знакомая картина?</p>
-          <h2>
-            У бизнеса может быть всё необходимое — но не быть единой системы
-          </h2>
+          <h2>Где клиника теряет управляемость и коммерческий результат</h2>
         </div>
         <div className="problem-grid">
           {problemCards.map(([title, text], index) => (
@@ -63,17 +60,23 @@ export function JourneySection() {
         <div className="section-heading light">
           <p className="eyebrow">Что берём под управление</p>
           <h2>От первого рекламного контакта до повторного пациента</h2>
-          <p>Выберите этап, чтобы увидеть ключевые показатели контроля.</p>
+          <p>
+            Не каждый коммерческий резерв требует дополнительных расходов на
+            рекламу. Проверяем качество обработки обращений, доходимость,
+            переход к лечению, повторные визиты и использование расписания
+            врачей.
+          </p>
         </div>
         <div className="journey-console">
           <div
             className="journey-map"
-            role="list"
+            role="group"
             aria-label="Этапы пути пациента"
           >
             {patientJourney.map((stage, index) => (
               <button
                 className={`journey-node ${active === index ? "active" : ""}`}
+                aria-pressed={active === index}
                 onClick={() => {
                   setActive(index);
                   reachGoal("funnel_stage_open", { stage: stage.label });
@@ -86,42 +89,30 @@ export function JourneySection() {
               </button>
             ))}
           </div>
-          <MotionConfig reducedMotion="user">
-            <motion.div
-              className="journey-focus"
-              key={patientJourney[active].label}
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.28 }}
-            >
-              <div className="journey-index">
-                <span>Этап</span>
-                <b>{String(active + 1).padStart(2, "0")}</b>
-                <small>из {patientJourney.length}</small>
-              </div>
-              <div className="journey-focus-copy">
-                <span>Под контролем</span>
-                <h3>{patientJourney[active].label}</h3>
-                <p>{patientJourney[active].kpi}</p>
-              </div>
-              <div className="journey-controls">
-                <button
-                  type="button"
-                  onClick={previous}
-                  aria-label="Предыдущий этап"
-                >
-                  <ArrowLeft size={20} />
-                </button>
-                <button
-                  type="button"
-                  onClick={next}
-                  aria-label="Следующий этап"
-                >
-                  <ArrowRight size={20} />
-                </button>
-              </div>
-            </motion.div>
-          </MotionConfig>
+          <div className="journey-focus" key={patientJourney[active].label}>
+            <div className="journey-index">
+              <span>Этап</span>
+              <b>{String(active + 1).padStart(2, "0")}</b>
+              <small>из {patientJourney.length}</small>
+            </div>
+            <div className="journey-focus-copy">
+              <span>Под контролем</span>
+              <h3>{patientJourney[active].label}</h3>
+              <p>{patientJourney[active].kpi}</p>
+            </div>
+            <div className="journey-controls">
+              <button
+                type="button"
+                onClick={previous}
+                aria-label="Предыдущий этап"
+              >
+                <ArrowLeft size={20} />
+              </button>
+              <button type="button" onClick={next} aria-label="Следующий этап">
+                <ArrowRight size={20} />
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -208,12 +199,20 @@ export function FaqSection() {
                   setOpen(open === index ? -1 : index);
                   reachGoal("faq_open", { question });
                 }}
+                id={`faq-question-${index}`}
+                aria-controls={`faq-answer-${index}`}
                 aria-expanded={open === index}
               >
                 <span>{question}</span>
                 <CaretDown size={20} />
               </button>
-              <div className="faq-answer">
+              <div
+                className="faq-answer"
+                id={`faq-answer-${index}`}
+                role="region"
+                aria-labelledby={`faq-question-${index}`}
+                hidden={open !== index}
+              >
                 <p>{answer}</p>
               </div>
             </article>

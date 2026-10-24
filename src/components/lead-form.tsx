@@ -11,6 +11,7 @@ import {
   useState,
 } from "react";
 import Script from "next/script";
+import { usePathname } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { reachGoal } from "@/lib/analytics";
 import { prepareLeadRequest, acknowledgeLead } from "@/lib/lead-request";
@@ -27,6 +28,7 @@ function challenge() {
 }
 
 export function LeadForm({ compact = false }: { compact?: boolean }) {
+  const pathname = usePathname();
   const [sending, setSending] = useState(false);
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
   const [turnstileToken, setTurnstileToken] = useState("");
@@ -192,6 +194,8 @@ export function LeadForm({ compact = false }: { compact?: boolean }) {
 
   return (
     <form
+      method="post"
+      action="/api/leads"
       className={`lead-form ${compact ? "compact" : ""}`}
       noValidate
       data-lead-form
@@ -225,6 +229,8 @@ export function LeadForm({ compact = false }: { compact?: boolean }) {
         })(event);
       }}
     >
+      <input type="hidden" name="page" value={pathname} />
+      <input type="hidden" name="product" value="preliminary_review" />
       <p className="form-requirements" id={`${formId}-requirements`}>
         Имя, компания и контакт — обязательные поля.
       </p>

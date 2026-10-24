@@ -2,7 +2,10 @@ import type { Attribution } from "./lead-request";
 
 type StorageLike = Pick<Storage, "getItem" | "setItem">;
 type Visit = Pick<Attribution, "landingPage" | "referrer" | "utm">;
-type Intent = Pick<Attribution, "ctaPage" | "ctaLocation" | "direction">;
+type Intent = Pick<
+  Attribution,
+  "ctaPage" | "ctaLocation" | "direction" | "interest"
+>;
 const visitKey = "klinika_visit_v1";
 const intentKey = "klinika_cta_v1";
 const paths = new Set([
@@ -29,6 +32,7 @@ export const ctaLocations = new Set([
   "methodology",
   "page_hero",
   "not_found",
+  "crm_custom",
 ]);
 export function safePage(path: string) {
   return paths.has(path.replace(/\/$/, "") || "/")
@@ -117,18 +121,27 @@ export class AttributionTracker {
         typeof saved.ctaPage === "string"
       )
         this.intent = {
+          interest:
+            saved.ctaLocation === "crm_custom" ? "crm_custom" : undefined,
           ctaLocation: saved.ctaLocation,
           ctaPage: safePage(saved.ctaPage),
           direction: direction(safePage(saved.ctaPage)),
         };
     }
     const page = safePage(url.pathname);
+    const interest =
+      this.intent?.interest ||
+      (url.searchParams.get("interest") === "crm_custom"
+        ? "crm_custom"
+        : undefined);
     return {
       ...this.visit,
       page,
+      ...(interest ? { interest } : {}),
       product: "preliminary_review",
-      direction:
-        direction(page) !== "general"
+      direction: interest
+        ? "digital"
+        : direction(page) !== "general"
           ? direction(page)
           : this.intent?.direction || "general",
       ctaLocation: this.intent?.ctaLocation || "direct",
@@ -145,6 +158,7 @@ export class AttributionTracker {
     if (ctaLocations.has(location)) {
       const page = safePage(url.pathname);
       this.intent = {
+        interest: location === "crm_custom" ? "crm_custom" : undefined,
         ctaPage: page,
         ctaLocation: location,
         direction: direction(page),

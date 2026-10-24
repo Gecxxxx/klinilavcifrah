@@ -67,6 +67,19 @@ export function DirectionsSection({ compact = false }: { compact?: boolean }) {
           ))}
         </div>
         {!compact && (
+          <ol className="product-path" aria-label="Форматы работы">
+            {[
+              "Предварительный разбор",
+              "Коммерческая диагностика",
+              "Решение конкретной задачи",
+              "Клиника в цифрах — 90 дней",
+              "Постоянное внешнее коммерческое управление",
+            ].map((title) => (
+              <li key={title}>{title}</li>
+            ))}
+          </ol>
+        )}
+        {!compact && (
           <p className="section-note">
             <ShieldCheck size={23} /> Не обязательно передавать нам все
             направления. Состав работы определяется задачей и фактическим
@@ -115,10 +128,16 @@ export function TeamSection() {
                   }
                 >
                   {person.href.startsWith("http")
-                    ? "Перейти на сайт"
+                    ? `Сайт ${person.name === "Дарья Каминскене" ? "Дарьи Каминскене" : "Егора Гецевича"}`
                     : "О направлении"}
                   {person.href.startsWith("http") ? (
-                    <ArrowUpRight size={17} />
+                    <>
+                      <span className="visually-hidden">
+                        {" "}
+                        (откроется в новой вкладке)
+                      </span>
+                      <ArrowUpRight size={17} />
+                    </>
                   ) : (
                     <ArrowRight size={17} />
                   )}
@@ -191,11 +210,12 @@ export function PeopleAiSection() {
 
 export function StepsSection() {
   return (
-    <section className="section steps-section">
+    <section className="section steps-section" id="etapy">
       <div className="container">
         <SectionHeading
           eyebrow="Как начинаем"
           title="Не предлагаем большой договор до понимания задачи"
+          lead="Анализируем процессы и данные → определяем ограничения → согласовываем приоритеты и показатели → организуем внедрение → контролируем исполнение и результат"
         />
         <div className="steps-grid">
           {startSteps.map(([number, title, text]) => (
@@ -205,6 +225,21 @@ export function StepsSection() {
               <p>{text}</p>
             </Reveal>
           ))}
+        </div>
+        <div className="diagnostic-note">
+          <p>
+            <strong>Предварительный разбор</strong> — изучение открытых данных,
+            первичные наблюдения и гипотезы.
+          </p>
+          <p>
+            <strong>Коммерческая диагностика</strong> — анализ согласованных
+            внутренних данных, выявление ограничений, оценка приоритетов и
+            подготовка плана действий.
+          </p>
+          <p>
+            Далее согласуем формат: отдельная задача, программа «Клиника в
+            цифрах — 90 дней» или постоянное управление.
+          </p>
         </div>
       </div>
     </section>
@@ -245,7 +280,8 @@ export function OwnerResultsSection() {
         <SectionHeading
           light
           eyebrow="Результат для собственника"
-          title="В итоге собственник должен видеть"
+          title="Что получает собственник: прозрачность, приоритеты и контроль"
+          lead="Понимание состояния коммерческих процессов, согласованный план действий, ответственных исполнителей и контроль изменений по фактическим показателям"
         />
         <div className="owner-grid">
           {ownerResults.map((text, index) => {

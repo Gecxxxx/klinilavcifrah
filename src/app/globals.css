@@ -9,7 +9,7 @@
   --night: #040810;
   --night-2: #091321;
   --cyan: #0fd7cf;
-  --cyan-dark: #079f9a;
+  --cyan-dark: #076b68;
   --blue: #4285ff;
   --violet: #8f56ff;
   --pink: #ee4da5;
@@ -948,7 +948,7 @@ p {
   place-items: center;
   margin-bottom: 30px;
   border-radius: 50%;
-  color: #032c32;
+  color: #07111f;
   background: var(--step-accent);
 }
 .step-card h3 {
@@ -3241,3 +3241,32 @@ p {
 
 .lead-form .form-field small, .lead-form .form-note { color: #526371; }
 .lead-form :is(input, textarea, button):focus-visible { outline: 2px solid #087c78; outline-offset: 3px; }
+
+/* F20: only the patient-path graphic uses the approved restrained palette. */
+.hero .hero-stage { --stage-color: #38BDF8; }
+.hero .stage-card { background: linear-gradient(145deg, #101D33, #152B45); border-color: #38BDF8; box-shadow: none; }
+.hero .stage-card::after { border-color: #38BDF8; opacity: .3; }
+.hero .stage-card strong { color: #fff; }
+.hero .stage-card svg, .hero .stage-arrow { color: #38BDF8; filter: none; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.mobile-menu[hidden], .faq-answer[hidden] { display: none !important; }
+#etapy, #individualnaya-crm { scroll-margin-top: 110px; }
+.custom-crm-section { background: #f1f6f9; }
+.custom-crm-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 36px; }
+.custom-crm-grid h2 { font-size: clamp(32px, 4vw, 52px); line-height: 1.08; }
+.custom-crm-grid p { color: #43586c; }
+.custom-crm-grid .button { margin-top: 18px; }
+.custom-crm-card { padding: 28px; background: white; border: 1px solid #d6e1e5; border-radius: 18px; }
+.custom-crm-card h3, .crm-resilience h3 { font-size: 26px; }
+.custom-crm-card ul { padding-left: 22px; margin: 18px 0; }
+.custom-crm-card li { margin-bottom: 12px; }
+.crm-resilience { grid-column: 1 / -1; }
+.diagnostic-note { max-width: 1000px; margin-top: 30px; padding: 24px; border-left: 3px solid #38bdf8; background: #f1f6f9; }
+.product-path { margin-top: 32px; padding-left: 24px; }
+.product-path li { margin: 12px 0; }
+@media (max-width: 760px) { .custom-crm-grid { grid-template-columns: minmax(0,1fr); gap: 24px; } .custom-crm-card { padding: 20px; } }
+.custom-crm-section { color: var(--ink); }
+.step-card > span { color: #000; }
+@keyframes content-enter { from { transform: translateY(10px); opacity: .8; } to { transform: translateY(0); opacity: 1; } }
+.hero-stage, .journey-focus { animation: content-enter .3s ease-out both; }
+@media (prefers-reduced-motion: reduce) { .hero-stage, .journey-focus { animation: none; } }
