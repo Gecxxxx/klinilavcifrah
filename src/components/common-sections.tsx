@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import {
   ArrowRight,
   ArrowUpRight,
@@ -114,15 +113,6 @@ export function TeamSection() {
               key={person.name}
               className={`team-card tone-${person.tone}`}
             >
-              <div className="team-photo">
-                <Image
-                  src={person.image}
-                  alt={`${person.name}, ${person.role.toLowerCase()}`}
-                  width={960}
-                  height={960}
-                  sizes="(max-width: 640px) 100vw, (max-width: 980px) 50vw, 33vw"
-                />
-              </div>
               <div className="team-card-copy">
                 <h3>{person.name}</h3>
                 <strong>{person.role}</strong>
