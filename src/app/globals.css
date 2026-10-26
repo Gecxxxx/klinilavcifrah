@@ -2263,7 +2263,7 @@ p {
 }
 .service-hero {
   position: relative;
-  min-height: 720px;
+  min-height: 0;
   isolation: isolate;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   background-color: #040810;
@@ -2296,13 +2296,14 @@ p {
   color: var(--service-accent);
 }
 .service-hero-grid {
-  min-height: 660px;
+  min-height: 0;
   display: grid;
-  grid-template-columns: minmax(0, 1.06fr) minmax(420px, 0.94fr);
+  grid-template-columns: minmax(0, 1fr);
   align-items: center;
   gap: 32px;
 }
 .service-hero-copy {
+  max-width: 900px;
   position: relative;
   z-index: 3;
   padding: 46px 0 70px;
@@ -2372,59 +2373,6 @@ p {
   margin-top: 12px;
   color: color-mix(in srgb, var(--service-accent-2), white 28%);
   font-size: 15px;
-}
-.service-portrait-wrap {
-  position: relative;
-  align-self: end;
-  height: 625px;
-  min-width: 0;
-}
-.service-portrait-wrap::before {
-  content: "";
-  position: absolute;
-  inset: 13% 4% 7%;
-  border: 1px solid color-mix(in srgb, var(--service-accent), transparent 62%);
-  border-radius: 45% 45% 15% 15%;
-  box-shadow: 0 0 80px color-mix(in srgb, var(--service-accent), transparent 72%);
-}
-.service-portrait {
-  position: relative;
-  z-index: 1;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center 31%;
-  clip-path: inset(0 round 26px 26px 0 0);
-  filter: saturate(0.92) contrast(1.04);
-}
-.service-tone-marketing .service-portrait {
-  object-position: 46% 42%;
-}
-.service-tone-system .service-portrait {
-  object-position: center 20%;
-}
-.service-portrait-orbit {
-  position: absolute;
-  z-index: 2;
-  inset: 9% 0 auto auto;
-  display: grid;
-  gap: 16px;
-}
-.service-portrait-orbit svg {
-  box-sizing: content-box;
-  padding: 16px;
-  color: var(--service-accent-2);
-  border: 1px solid color-mix(in srgb, var(--service-accent-2), transparent 48%);
-  border-radius: 16px;
-  background: rgba(5, 11, 21, 0.78);
-  box-shadow: 0 0 26px color-mix(in srgb, var(--service-accent-2), transparent 74%);
-}
-.service-portrait-orbit svg:nth-child(2) {
-  color: var(--service-accent);
-  transform: translateX(-22px);
-}
-.service-portrait-orbit svg:nth-child(3) {
-  color: var(--service-warm);
 }
 .service-content {
   position: relative;
@@ -2916,25 +2864,11 @@ p {
 .cases-review-points span { display: inline-flex; align-items: center; gap: 7px; color: #d2dbe2; font-size: 16px; }
 .cases-review-points svg { color: var(--cyan); }
 
-/* Real team photography */
+/* Team cards */
 .team-card {
   overflow: hidden;
   padding: 0;
 }
-.team-photo {
-  position: relative;
-  aspect-ratio: 1;
-  overflow: hidden;
-  background: #07111f;
-}
-.team-photo img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-  transition: transform .45s ease;
-}
-.team-card:hover .team-photo img { transform: scale(1.025); }
 .team-card-copy { padding: 26px 28px 30px; }
 .team-card-link {
   display: inline-flex;
@@ -2957,9 +2891,8 @@ p {
 }
 
 @media (max-width: 1100px) {
-  .service-hero-grid { grid-template-columns: 1fr .72fr; }
+  .service-hero-grid { grid-template-columns: minmax(0, 1fr); }
   .service-hero h1 { font-size: clamp(52px, 6vw, 72px); }
-  .service-portrait-wrap { height: 560px; }
   .service-panel.panel-1,
   .service-panel.panel-2,
   .service-panel.panel-3,
@@ -2990,13 +2923,6 @@ p {
   }
   .service-hero-copy { width: 100%; padding: 58px 0 34px; }
   .service-hero h1 { max-width: 860px; font-size: clamp(54px, 7.6vw, 76px); }
-  .service-portrait-wrap {
-    width: min(100%, 720px);
-    height: auto;
-    aspect-ratio: 4 / 3;
-    margin-inline: auto;
-  }
-  .service-portrait { clip-path: inset(0 round 26px); }
   .service-section-grid { grid-template-columns: 1fr; }
   .service-panel.panel-1,
   .service-panel.panel-2,
@@ -3104,15 +3030,6 @@ p {
   .service-owner-line { font-size: 16px; }
   .service-hero-actions { flex-direction: column; }
   .service-hero-actions .button { width: 100%; }
-  .service-portrait-wrap {
-    width: 100%;
-    height: auto;
-    aspect-ratio: 1;
-    margin-top: 4px;
-  }
-  .service-portrait { clip-path: inset(0 round 22px); }
-  .service-portrait-orbit { top: 10%; right: 0; }
-  .service-portrait-orbit svg { width: 22px; height: 22px; padding: 12px; }
   .service-content { padding-top: 72px; }
   .service-section-grid { grid-template-columns: 1fr; }
   .service-panel.panel-1,
@@ -3158,7 +3075,6 @@ p {
   .cases-review-card { grid-template-columns: 1fr; padding: 14px; }
   .cases-review-mark { min-height: 230px; }
   .cases-review-card > div:last-child { padding: 22px 14px 24px; }
-  .team-photo { aspect-ratio: 1; }
   .brand span { display: none; }
 }
 
@@ -3168,7 +3084,6 @@ p {
     font-size: clamp(39px, 12.2vw, 54px);
     overflow-wrap: anywhere;
   }
-  .service-portrait-wrap { height: auto; }
   .service-panel { border-radius: 18px; }
   .service-panel header {
     grid-template-columns: auto auto minmax(0, 1fr);
