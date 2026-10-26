@@ -1,14 +1,11 @@
-import Image from "next/image";
 import Link from "next/link";
 import { Fragment } from "react";
 import {
   ArrowRight,
   ArrowUpRight,
-  Browser,
   ChartLineUp,
   Megaphone,
   Path,
-  PhoneCall,
 } from "@phosphor-icons/react/dist/ssr";
 import type { ServicePageData } from "@/lib/site-data";
 import { directionLinks } from "@/lib/site-data";
@@ -89,22 +86,6 @@ export function ServicePage({ data }: { data: ServicePageData }) {
                 {data.ownerSiteLabel} <ArrowUpRight size={15} />
               </a>
             )}
-          </div>
-          <div className="service-portrait-wrap">
-            <div className="service-portrait-orbit" aria-hidden="true">
-              <Browser size={30} weight="duotone" />
-              <PhoneCall size={30} weight="duotone" />
-              <ChartLineUp size={30} weight="duotone" />
-            </div>
-            <Image
-              className="service-portrait"
-              src={data.ownerImage}
-              alt={`${data.owner}, ${data.ownerRole.toLowerCase()}`}
-              width={900}
-              height={1100}
-              priority
-              sizes="(max-width: 760px) 92vw, 44vw"
-            />
           </div>
         </div>
       </section>
