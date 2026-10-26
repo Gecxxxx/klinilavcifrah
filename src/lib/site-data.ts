@@ -99,7 +99,6 @@ export const team = [
     role: "Проджект-менеджер",
     initials: "Т",
     tone: "cyan",
-    image: "/assets/team/timur-square.webp",
     href: "/kommercheskaya-sistema",
     text: "Коммерческая диагностика · экономика проекта · приоритеты · KPI · управление командой · взаимодействие с собственником · ответственность за итоговый результат.",
   },
@@ -108,7 +107,6 @@ export const team = [
     role: "Руководитель маркетингового направления",
     initials: "Д",
     tone: "violet",
-    image: "/assets/team/daria-square.webp",
     href: "https://daria-kamins.marketing/",
     text: "Стратегия · позиционирование · привлечение · рекламная логика · контент · анализ рынка · эффективность маркетинга.",
   },
@@ -117,7 +115,6 @@ export const team = [
     role: "Руководитель digital- и технического направления",
     initials: "Е",
     tone: "pink",
-    image: "/assets/team/egor-square.webp",
     href: "https://egordigital.site/",
     text: "Сайты · UX · CRM · аналитика · интеграции · автоматизация · техническая реализация.",
   },
@@ -247,7 +244,6 @@ export type ServicePageData = {
   ownerDative: string;
   ownerGenitive: string;
   ownerRole: string;
-  ownerImage: string;
   ownerSite?: string;
   ownerSiteLabel?: string;
   tone: "marketing" | "digital" | "system";
@@ -276,7 +272,6 @@ export const servicePages: Record<string, ServicePageData> = {
     ownerDative: "Дарье Каминскене",
     ownerGenitive: "Дарьи Каминскене",
     ownerRole: "Руководитель маркетингового направления",
-    ownerImage: "/assets/team/daria-square.webp",
     ownerSite: "https://daria-kamins.marketing/",
     ownerSiteLabel: "daria-kamins.marketing",
     tone: "marketing",
@@ -363,7 +358,6 @@ export const servicePages: Record<string, ServicePageData> = {
     ownerDative: "Егору Гецевичу",
     ownerGenitive: "Егора Гецевича",
     ownerRole: "Руководитель digital- и технического направления",
-    ownerImage: "/assets/team/egor-square.webp",
     ownerSite: "https://egordigital.site/",
     ownerSiteLabel: "egordigital.site",
     tone: "digital",
@@ -450,7 +444,6 @@ export const servicePages: Record<string, ServicePageData> = {
     ownerDative: "Тимуру Памарину",
     ownerGenitive: "Тимура Памарина",
     ownerRole: "Проджект-менеджер",
-    ownerImage: "/assets/team/timur-square.webp",
     tone: "system",
     when: [
       "Обращения есть, но пациенты не доходят до лечения",

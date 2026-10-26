@@ -147,31 +147,22 @@ test("клавиатурный фокус виден, а reduced motion подд
   expect(motionPreference).toBeTruthy();
 });
 
-test("страницы направлений используют реальные фото и корректные внешние ссылки", async ({
+test("страницы направлений без портретов сохраняют корректные внешние ссылки", async ({
   page,
 }) => {
   await page.goto("/marketing-i-privlechenie");
-  await expect(page.locator(".service-portrait")).toHaveAttribute(
-    "src",
-    /daria/,
-  );
+  await expect(page.locator('img[src*="/assets/team/"]')).toHaveCount(0);
   await expect(
     page.getByRole("link", { name: /Обратиться к Дарье/ }),
   ).toHaveAttribute("href", "https://daria-kamins.marketing/");
 
   await page.goto("/sajt-crm-analitika");
-  await expect(page.locator(".service-portrait")).toHaveAttribute(
-    "src",
-    /egor/,
-  );
+  await expect(page.locator('img[src*="/assets/team/"]')).toHaveCount(0);
   await expect(
     page.getByRole("link", { name: /Обратиться к Егору/ }),
   ).toHaveAttribute("href", "https://egordigital.site/");
 
   await page.goto("/kommercheskaya-sistema");
-  await expect(page.locator(".service-portrait")).toHaveAttribute(
-    "src",
-    /timur/,
-  );
+  await expect(page.locator('img[src*="/assets/team/"]')).toHaveCount(0);
   await expect(page.getByRole("link", { name: /Обратиться к/ })).toHaveCount(0);
 });
