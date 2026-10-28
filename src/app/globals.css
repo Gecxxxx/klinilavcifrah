@@ -3181,6 +3181,38 @@ p {
 .hero .stage-card::after { border-color: #38BDF8; opacity: .3; }
 .hero .stage-card strong { color: #fff; }
 .hero .stage-card svg, .hero .stage-arrow { color: #38BDF8; filter: none; }
+
+/* A soft light passes through the eight patient-path cards, one at a time. */
+.hero .stage-card::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  z-index: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  background:
+    radial-gradient(ellipse at 50% 15%, #38bdf86b, #38bdf824 72%),
+    linear-gradient(135deg, #38bdf833, #2563eb38);
+  box-shadow:
+    inset 0 0 0 1px #abe8ffe6,
+    inset 0 0 28px #38bdf833,
+    0 0 24px #38bdf840;
+}
+.hero .stage-card > :is(svg, strong) {
+  position: relative;
+  z-index: 1;
+}
+@keyframes stage-card-highlight {
+  0%, 12.5%, 100% { opacity: 0; }
+  3%, 8.5% { opacity: 1; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .hero .stage-card::before {
+    animation: stage-card-highlight 12.8s ease-in-out infinite;
+    animation-delay: var(--stage-highlight-delay, 0ms);
+  }
+}
 .visually-hidden { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .mobile-menu[hidden], .faq-answer[hidden] { display: none !important; }
 #etapy, #individualnaya-crm { scroll-margin-top: 110px; }
