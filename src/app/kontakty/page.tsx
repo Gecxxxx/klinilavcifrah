@@ -35,6 +35,19 @@ export default function Page() {
                 {x}
               </p>
             ))}
+            <div className="contact-direct">
+              <h3>Связаться напрямую</h3>
+              <a href="tel:+79690070865">+7 (969) 007-08-65</a>
+              <a href="mailto:revenue@klinikavcifrah.ru">revenue@klinikavcifrah.ru</a>
+              <div className="contact-messengers" aria-label="Написать в мессенджере">
+                <a className="button button-secondary" href="https://t.me/+79690070865" target="_blank" rel="noopener noreferrer">
+                  Telegram<span className="visually-hidden"> (откроется в новой вкладке)</span>
+                </a>
+                <a className="button button-secondary" href="https://wa.me/79690070865" target="_blank" rel="noopener noreferrer">
+                  WhatsApp<span className="visually-hidden"> (откроется в новой вкладке)</span>
+                </a>
+              </div>
+            </div>
             <p className="contact-note">
               В форме можно оставить телефон, email или Telegram-контакт.
               Опишите коммерческую задачу без сведений о пациентах.

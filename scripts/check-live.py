@@ -97,7 +97,8 @@ def audit(origin, revision=None, request=fetch):
     if status != 204 or api != live: errors.append('API readiness/revision mismatch')
     for path, page in pages.items():
         if len(page.forms) != (1 if path == '/kontakty' else 0): errors.append(f'{path}: expected single shared contact form')
-        if any(href.startswith(('http:', 'https:', 'tel:', 'mailto:')) and not href.startswith(origin + '/') for href in page.links):
+        approved_contacts = {'tel:+79690070865', 'mailto:revenue@klinikavcifrah.ru', 'https://t.me/+79690070865', 'https://wa.me/79690070865'} if path == '/kontakty' else set()
+        if any(href.startswith(('http:', 'https:', 'tel:', 'mailto:')) and not href.startswith(origin + '/') and href not in approved_contacts for href in page.links):
             errors.append(f'{path}: external contact remains')
     if not pages['/soglasheniya'].legal_approved: pending.append('Approved legal documents and data operator identity')
     if not any('crm_custom' in href for href in pages['/sajt-crm-analitika'].links): errors.append('CRM interest CTA missing')
