@@ -3199,3 +3199,20 @@ p {
 .contact-direct > a { width: fit-content; max-width: 100%; overflow-wrap: anywhere; text-decoration: underline; text-underline-offset: 4px; }
 .contact-messengers { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 6px; }
 .contact-messengers .button { min-width: 140px; }
+
+.contact-hero-messengers { display: flex; align-items: flex-start; flex-wrap: wrap; gap: 14px; margin-top: 32px; }
+.messenger-button { display: inline-flex; align-items: center; justify-content: center; gap: 12px; min-height: 58px; min-width: 176px; padding: 14px 24px; border: 1px solid #ffffff38; border-radius: 14px; color: #fff; font-size: 20px; font-weight: 700; line-height: 1.2; cursor: pointer; box-shadow: 0 8px 24px #0003; transition: transform .18s ease, border-color .18s ease; }
+.messenger-button:hover { transform: translateY(-2px); border-color: #ffffff99; }
+.messenger-button:focus-visible { outline: 3px solid #fff; outline-offset: 4px; }
+.messenger-telegram { background: #0875a5; }
+.messenger-whatsapp { background: #087443; }
+.messenger-max { background: linear-gradient(115deg, #345cd0, #7138b6); list-style: none; }
+.messenger-max::-webkit-details-marker { display: none; }
+.messenger-max-details { position: relative; }
+.messenger-max-help { position: absolute; top: calc(100% + 12px); left: 0; width: min(280px, calc(100vw - 48px)); z-index: 5; padding: 18px; border: 1px solid #ffffff45; border-radius: 14px; background: #142236; color: #fff; font-size: 17px; line-height: 1.5; box-shadow: 0 12px 30px #0006; }
+@media (max-width: 600px) {
+  .contact-hero-messengers { gap: 12px; }
+  .contact-hero-messengers > a, .messenger-max-details { flex: 1 1 100%; }
+  .messenger-button { width: 100%; min-width: 0; }
+  .messenger-max-help { position: static; width: 100%; margin-top: 10px; }
+}
