@@ -1194,9 +1194,13 @@ p {
 }
 .final-cta-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: start;
   gap: 80px;
+}
+.final-cta-grid > .button {
+  align-self: center;
+  justify-self: start;
 }
 .final-points {
   display: flex;
