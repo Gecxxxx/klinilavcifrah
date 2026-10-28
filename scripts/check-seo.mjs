@@ -50,7 +50,8 @@ for (const location of locations) {
     assert.equal(form.method?.toLowerCase(), "post", `unsafe native form method: ${path}`);
     assert.equal(form.action, "/api/leads", `unsafe native form action: ${path}`);
   }
-  assert(html.includes('https://vk.ru/klinika_v_cifrah'), `missing approved VK contact: ${path}`);
+  assert(!/daria-kamins\.marketing|egordigital\.site|vk\.ru\/klinika_v_cifrah/.test(html), `external contact remains: ${path}`);
+  assert.equal([...html.matchAll(/<form\b/g)].length, path === "/kontakty" ? 1 : 0, `single contact form required: ${path}`);
   if (path === "/soglasheniya") {
     const visible = html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/g, "").replace(/<[^>]*>/g, " ");
     assert(!/чернов|до production|заказчик должен предоставить/i.test(visible), "public legal page contains internal instructions");

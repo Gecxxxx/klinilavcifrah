@@ -3,7 +3,6 @@ import { Check } from "@phosphor-icons/react/dist/ssr";
 import { PageHero } from "@/components/page-hero";
 import { LeadForm } from "@/components/lead-form";
 import { pageMetadata } from "@/lib/seo";
-import { VK_URL } from "@/lib/site-data";
 
 export const metadata: Metadata = pageMetadata(
   "Контакты",
@@ -40,21 +39,6 @@ export default function Page() {
               В форме можно оставить телефон, email или Telegram-контакт.
               Опишите коммерческую задачу без сведений о пациентах.
             </p>
-            <p className="contact-note">
-              Дополнительный канал связи — наше сообщество VK.
-            </p>
-            <a
-              className="button button-secondary"
-              href={VK_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Открыть «Клиника в цифрах» в VK
-              <span className="visually-hidden">
-                {" "}
-                (откроется в новой вкладке)
-              </span>
-            </a>
           </div>
           <LeadForm />
         </div>

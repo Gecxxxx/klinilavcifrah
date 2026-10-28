@@ -1,7 +1,6 @@
 import Link from "next/link";
 import {
   ArrowRight,
-  ArrowUpRight,
   Brain,
   Check,
   CirclesThreePlus,
@@ -22,7 +21,6 @@ import {
   team,
 } from "@/lib/site-data";
 import { Reveal } from "./reveal";
-import { LeadForm } from "./lead-form";
 
 export function SectionHeading({
   eyebrow,
@@ -119,26 +117,10 @@ export function TeamSection() {
                 <p>{person.text}</p>
                 <Link
                   className="team-card-link"
-                  href={person.href}
-                  target={person.href.startsWith("http") ? "_blank" : undefined}
-                  rel={
-                    person.href.startsWith("http") ? "noreferrer" : undefined
-                  }
+                  href="/kontakty#forma"
+                  data-lead-cta="team"
                 >
-                  {person.href.startsWith("http")
-                    ? `Сайт ${person.name === "Дарья Каминскене" ? "Дарьи Каминскене" : "Егора Гецевича"}`
-                    : "О направлении"}
-                  {person.href.startsWith("http") ? (
-                    <>
-                      <span className="visually-hidden">
-                        {" "}
-                        (откроется в новой вкладке)
-                      </span>
-                      <ArrowUpRight size={17} />
-                    </>
-                  ) : (
-                    <ArrowRight size={17} />
-                  )}
+                  Обсудить задачу <ArrowRight size={17} />
                 </Link>
               </div>
             </Reveal>
@@ -330,7 +312,13 @@ export function FinalCta({
             </span>
           </div>
         </div>
-        <LeadForm />
+        <Link
+          className="button button-primary"
+          href="/kontakty#forma"
+          data-lead-cta="final"
+        >
+          Оставить заявку <ArrowRight size={18} />
+        </Link>
       </div>
     </section>
   );

@@ -13,7 +13,7 @@ class PublicChecksTest(unittest.TestCase):
         if method=='OPTIONS':return 204,b'',{'X-KVC-API-Revision':self.api}
         if path=='/__release.json':return 200,json.dumps({'commit':self.revision}).encode(),{}
         if path in checks.PATHS:
-            form='<form method="post" action="/api/leads"></form>' if path in ['/','/kontakty','/kak-rabotaem','/kejsy-i-razbory','/dlya-klinik'] else ''
+            form='<form method="post" action="/api/leads"></form>' if path == '/kontakty' else ''
             crm='<a href="/kontakty?interest=crm_custom#forma">CRM</a>' if path=='/sajt-crm-analitika' else ''
             body=f'<html><head><title>{path}</title><link rel="canonical" href="https://example.test{path}"><meta name="description" content="Page {path}"></head><body><main id="main"><h1>{path}</h1><section id="forma">{form}</section>{crm}</main></body></html>'
             if self.bad and path=='/kontakty':body=body.replace('method="post"','method="get"')
@@ -28,7 +28,7 @@ class PublicChecksTest(unittest.TestCase):
         self.revision='a'*40;self.api=self.revision;self.bad=False
     def test_expected_site_and_versions_pass_without_creating_a_lead(self):
         result,pages=checks.audit('https://example.test',self.revision,self.fetch)
-        self.assertEqual(result['errors'],[]);self.assertEqual(result['forms'],5);self.assertEqual(len(pages),9)
+        self.assertEqual(result['errors'],[]);self.assertEqual(result['forms'],1);self.assertEqual(len(pages),9)
         self.assertTrue(result['owner_inputs_pending'])
         self.assertIn('Approved legal documents and data operator identity', result['owner_inputs_pending'])
     def test_unsafe_native_form_is_a_hard_failure(self):

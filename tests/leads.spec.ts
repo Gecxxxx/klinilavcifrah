@@ -64,6 +64,9 @@ for (const route of routes) {
     page,
   }, testInfo) => {
     await page.goto(route + "?utm_source=qa&utm_campaign=durability");
+    if (route !== "/kontakty") {
+      await page.locator('.final-cta a[href="/kontakty#forma"]').click();
+    }
     const form = await fill(page, "Изолированная проверка страницы " + route);
     const response = page.waitForResponse(
       (r) => r.url().includes("/api/leads") && r.request().method() === "POST",
@@ -92,7 +95,7 @@ for (const route of routes) {
     if (route === "/kontakty")
       await form.screenshot({ path: testInfo.outputPath("saved-form.png") });
     const saved = record(payload.id);
-    expect(saved.page).toBe(route);
+    expect(saved.page).toBe("/kontakty");
     expect(saved.utm.utm_source).toBe("qa");
     expect(saved.consent).toBe(true);
   });

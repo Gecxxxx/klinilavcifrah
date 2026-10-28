@@ -147,22 +147,13 @@ test("клавиатурный фокус виден, а reduced motion подд
   expect(motionPreference).toBeTruthy();
 });
 
-test("страницы направлений без портретов сохраняют корректные внешние ссылки", async ({
-  page,
-}) => {
-  await page.goto("/marketing-i-privlechenie");
-  await expect(page.locator('img[src*="/assets/team/"]')).toHaveCount(0);
-  await expect(
-    page.getByRole("link", { name: /Обратиться к Дарье/ }),
-  ).toHaveAttribute("href", "https://daria-kamins.marketing/");
-
-  await page.goto("/sajt-crm-analitika");
-  await expect(page.locator('img[src*="/assets/team/"]')).toHaveCount(0);
-  await expect(
-    page.getByRole("link", { name: /Обратиться к Егору/ }),
-  ).toHaveAttribute("href", "https://egordigital.site/");
-
-  await page.goto("/kommercheskaya-sistema");
-  await expect(page.locator('img[src*="/assets/team/"]')).toHaveCount(0);
-  await expect(page.getByRole("link", { name: /Обратиться к/ })).toHaveCount(0);
+test("страницы направлений ведут только в общую форму без внешних контактов", async ({ page }) => {
+  for (const route of ["/marketing-i-privlechenie", "/sajt-crm-analitika", "/kommercheskaya-sistema"]) {
+    await page.goto(route);
+    await expect(page.locator('img[src*="/assets/team/"]')).toHaveCount(0);
+    await expect(page.locator('a[href^="http"], a[href^="mailto:"], a[href^="tel:"]')).toHaveCount(0);
+    await page.locator('.service-hero-actions a').click();
+    await expect(page).toHaveURL(/\/kontakty\/?#forma$/);
+    await expect(page.locator('[data-lead-form]')).toBeVisible();
+  }
 });

@@ -1,6 +1,5 @@
 export const SITE_NAME = "Клиника в цифрах";
 // Public community URL supplied in the approved specification (V13 / section 9.1).
-export const VK_URL = "https://vk.ru/klinika_v_cifrah";
 export { SITE_URL } from "./site-url";
 
 export const navItems = [
@@ -107,7 +106,7 @@ export const team = [
     role: "Руководитель маркетингового направления",
     initials: "Д",
     tone: "violet",
-    href: "https://daria-kamins.marketing/",
+    href: "/marketing-i-privlechenie",
     text: "Стратегия · позиционирование · привлечение · рекламная логика · контент · анализ рынка · эффективность маркетинга.",
   },
   {
@@ -115,7 +114,7 @@ export const team = [
     role: "Руководитель digital- и технического направления",
     initials: "Е",
     tone: "pink",
-    href: "https://egordigital.site/",
+    href: "/sajt-crm-analitika",
     text: "Сайты · UX · CRM · аналитика · интеграции · автоматизация · техническая реализация.",
   },
 ];
@@ -241,11 +240,8 @@ export type ServicePageData = {
   title: string;
   lead: string;
   owner: string;
-  ownerDative: string;
   ownerGenitive: string;
   ownerRole: string;
-  ownerSite?: string;
-  ownerSiteLabel?: string;
   tone: "marketing" | "digital" | "system";
   when: string[];
   checks: string[];
@@ -269,11 +265,8 @@ export const servicePages: Record<string, ServicePageData> = {
     title: "Маркетинговая стратегия и привлечение",
     lead: "Связываем позиционирование и каналы привлечения с качеством обращений, визитами и фактическим коммерческим результатом.",
     owner: "Дарья Каминскене",
-    ownerDative: "Дарье Каминскене",
     ownerGenitive: "Дарьи Каминскене",
     ownerRole: "Руководитель маркетингового направления",
-    ownerSite: "https://daria-kamins.marketing/",
-    ownerSiteLabel: "daria-kamins.marketing",
     tone: "marketing",
     when: [
       "Нет единой стратегии и понятных приоритетов",
@@ -355,11 +348,8 @@ export const servicePages: Record<string, ServicePageData> = {
     title: "Сайт, CRM и коммерческая аналитика",
     lead: "Собираем сайт, обращения, CRM и аналитику в один измеримый цифровой маршрут — от источника до оплаты.",
     owner: "Егор Гецевич",
-    ownerDative: "Егору Гецевичу",
     ownerGenitive: "Егора Гецевича",
     ownerRole: "Руководитель digital- и технического направления",
-    ownerSite: "https://egordigital.site/",
-    ownerSiteLabel: "egordigital.site",
     tone: "digital",
     when: [
       "Сайт не приводит качественные обращения",
@@ -441,7 +431,6 @@ export const servicePages: Record<string, ServicePageData> = {
     title: "Управление коммерческой системой клиники",
     lead: "Находим точки потерь, соединяем обработку обращений, пациентскую базу, команду и подрядчиков в единый контур управления.",
     owner: "Тимур Памарин",
-    ownerDative: "Тимуру Памарину",
     ownerGenitive: "Тимура Памарина",
     ownerRole: "Проджект-менеджер",
     tone: "system",
