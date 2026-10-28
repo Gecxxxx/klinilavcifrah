@@ -1,4 +1,6 @@
 export const SITE_NAME = "Клиника в цифрах";
+export const commercialScopeNote =
+  "Мы управляем коммерческими процессами и коммуникациями. Диагностика, назначения, план лечения и клинические решения остаются за врачами и клиникой.";
 // Public community URL supplied in the approved specification (V13 / section 9.1).
 export { SITE_URL } from "./site-url";
 
@@ -95,6 +97,7 @@ export const directions = [
 export const team = [
   {
     name: "Тимур Памарин",
+    direction: "commercial",
     role: "Проджект-менеджер",
     initials: "Т",
     tone: "cyan",
@@ -103,6 +106,7 @@ export const team = [
   },
   {
     name: "Дарья Каминскене",
+    direction: "marketing",
     role: "Руководитель маркетингового направления",
     initials: "Д",
     tone: "violet",
@@ -111,6 +115,7 @@ export const team = [
   },
   {
     name: "Егор Гецевич",
+    direction: "digital",
     role: "Руководитель digital- и технического направления",
     initials: "Е",
     tone: "pink",

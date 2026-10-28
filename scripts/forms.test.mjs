@@ -70,3 +70,31 @@ test('custom CRM CTA uses the same form and preserves its interest through reloa
  const direct=new AttributionTracker().capture(new URL('https://example.test/kontakty?interest=crm_custom'),'');
  assert.equal(direct.interest,'crm_custom');assert.equal(direct.direction,'digital');
 });
+
+test('each team direction survives the shared form and a reload without changing first-touch attribution', () => {
+ for (const direction of ['commercial','marketing','digital']) {
+  const store=storage(), tracker=new AttributionTracker();
+  tracker.capture(new URL('https://example.test/?utm_source=qr'),'https://partner.test/article',store);
+  const click=tracker.selectCta(new URL('https://example.test/'),'team','',store,direction);
+  assert.equal(click.direction,direction);
+  const form=new AttributionTracker().capture(new URL('https://example.test/kontakty'),'https://example.test/',store);
+  assert.equal(form.direction,direction);assert.equal(form.ctaLocation,'team');assert.equal(form.ctaPage,'/');
+  assert.equal(form.landingPage,'/');assert.equal(form.utm.utm_source,'qr');assert.equal(form.referrer,'https://partner.test/article');
+  const direct=new AttributionTracker().capture(new URL('https://example.test/kontakty?direction='+direction),'');
+  assert.equal(direct.direction,direction);
+ }
+});
+
+test('direction markers are allowlisted and cannot override custom CRM intent', () => {
+ const store=storage(),tracker=new AttributionTracker();
+ const invalid=tracker.selectCta(new URL('https://example.test/'),'team','',store,'private@example.test');
+ assert.equal(invalid.direction,'general');
+ assert.equal(new AttributionTracker().capture(new URL('https://example.test/kontakty?direction=private@example.test'),'').direction,'general');
+ store.setItem('klinika_cta_v1',JSON.stringify({ctaLocation:'team',ctaPage:'/',direction:'private@example.test'}));
+ assert.equal(new AttributionTracker().capture(new URL('https://example.test/kontakty'),'',store).direction,'general');
+ assert.equal(new AttributionTracker().capture(new URL('https://example.test/kontakty?interest=crm_custom&direction=marketing'),'').direction,'digital');
+ const previousCrm=storage();
+ new AttributionTracker().selectCta(new URL('https://example.test/sajt-crm-analitika'),'crm_custom','',previousCrm);
+ const selectedTeam=new AttributionTracker().capture(new URL('https://example.test/kontakty?direction=marketing'),'',previousCrm);
+ assert.equal(selectedTeam.direction,'marketing');assert.equal(selectedTeam.interest,undefined);
+});

@@ -39,11 +39,37 @@ class NativeFormTest(unittest.TestCase):
 
     def test_native_crm_interest_and_json_metadata_use_common_registry(self):
         data=fixture(consent='on');data.pop('utm')
-        status,_=self.native(data,referer='https://klinikavcifrah.ru/kontakty?interest=crm_custom')
+        status,_=self.native(data,referer='https://klinikavcifrah.ru/kontakty?interest=crm_custom&direction=marketing')
         self.assertEqual(status['status'],200)
         with self.store.connection() as con:lead=json.loads(con.execute('SELECT payload FROM leads').fetchone()[0])
         self.assertEqual(lead['interest'],'crm_custom');self.assertEqual(lead['direction'],'digital')
         self.assertIn('Индивидуальная CRM / интеграции',notification_text(self.store.claim()))
+
+    def test_native_team_directions_reach_the_common_registry_and_notification(self):
+        for direction, title in [('commercial', 'Коммерческая система'), ('marketing', 'Маркетинг и привлечение'), ('digital', 'Сайт, CRM и аналитика')]:
+            with self.subTest(direction=direction):
+                data=fixture(consent='on', requestId='native-team-request-'+direction);data.pop('utm')
+                status,_=self.native(data,referer='https://klinikavcifrah.ru/kontakty?direction='+direction+'&email=private@example.test')
+                self.assertEqual(status['status'],200)
+                with self.store.connection() as con:
+                    row=con.execute('SELECT id,payload FROM leads WHERE request_id=?',(data['requestId'],)).fetchone()
+                lead=json.loads(row['payload'])
+                self.assertEqual(lead['direction'],direction)
+                self.assertNotIn('private@example.test',row['payload'])
+                self.assertIn(title,notification_text({'lead_id':row['id'],'payload':row['payload']}))
+
+    def test_native_direction_rejects_untrusted_or_ambiguous_referrer_markers(self):
+        referers = ['https://evil.test/kontakty?direction=marketing',
+                    'https://klinikavcifrah.ru/kontakty?direction=private@example.test',
+                    'https://klinikavcifrah.ru/kontakty?direction=marketing&direction=digital']
+        for index, referer in enumerate(referers):
+            with self.subTest(referer=referer):
+                data=fixture(consent='on',requestId='native-untrusted-request-'+str(index),message='Case '+str(index));data.pop('utm')
+                self.assertEqual(self.native(data,referer=referer)[0]['status'],200)
+                with self.store.connection() as con:
+                    payload=con.execute('SELECT payload FROM leads WHERE request_id=?',(data['requestId'],)).fetchone()[0]
+                self.assertNotIn('direction',json.loads(payload))
+                self.assertNotIn('private@example.test',payload)
 
 
 

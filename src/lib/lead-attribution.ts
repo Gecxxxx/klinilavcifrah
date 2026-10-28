@@ -8,6 +8,10 @@ type Intent = Pick<
 >;
 const visitKey = "klinika_visit_v1";
 const intentKey = "klinika_cta_v1";
+const directions = new Set(["general", "marketing", "digital", "commercial"]);
+function safeDirection(value: unknown) {
+  return typeof value === "string" && directions.has(value) ? value : undefined;
+}
 const paths = new Set([
   "/",
   "/kontakty",
@@ -127,15 +131,21 @@ export class AttributionTracker {
             saved.ctaLocation === "crm_custom" ? "crm_custom" : undefined,
           ctaLocation: saved.ctaLocation,
           ctaPage: safePage(saved.ctaPage),
-          direction: direction(safePage(saved.ctaPage)),
+          direction:
+            safeDirection(saved.direction) || direction(safePage(saved.ctaPage)),
         };
     }
     const page = safePage(url.pathname);
+    const queryDirection =
+      page === "/kontakty"
+        ? safeDirection(url.searchParams.get("direction"))
+        : undefined;
     const interest =
-      this.intent?.interest ||
-      (url.searchParams.get("interest") === "crm_custom"
+      url.searchParams.get("interest") === "crm_custom"
         ? "crm_custom"
-        : undefined);
+        : queryDirection
+          ? undefined
+          : this.intent?.interest;
     return {
       ...this.visit,
       page,
@@ -143,9 +153,10 @@ export class AttributionTracker {
       product: "preliminary_review",
       direction: interest
         ? "digital"
-        : direction(page) !== "general"
-          ? direction(page)
-          : this.intent?.direction || "general",
+        : queryDirection ||
+          (direction(page) !== "general"
+            ? direction(page)
+            : this.intent?.direction || "general"),
       ctaLocation: this.intent?.ctaLocation || "direct",
       ctaPage: this.intent?.ctaPage || page,
     };
@@ -155,6 +166,7 @@ export class AttributionTracker {
     location: string,
     referrer: string,
     storage?: StorageLike,
+    selectedDirection?: string,
   ) {
     this.capture(url, referrer, storage);
     if (ctaLocations.has(location)) {
@@ -163,7 +175,7 @@ export class AttributionTracker {
         interest: location === "crm_custom" ? "crm_custom" : undefined,
         ctaPage: page,
         ctaLocation: location,
-        direction: direction(page),
+        direction: safeDirection(selectedDirection) || direction(page),
       };
       write(storage, intentKey, this.intent);
     }

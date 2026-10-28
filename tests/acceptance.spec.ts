@@ -34,6 +34,18 @@ for (const width of [320, 360, 390, 430, 1280, 1440]) {
           document.documentElement.clientWidth,
       );
       expect(overflow, `${path} at ${width}`).toBeLessThanOrEqual(1);
+      // overflow-x:hidden can conceal cut-off words without document overflow.
+      const clippedHeadings = await page.locator("h1, h2, h3").evaluateAll(
+        (headings) => headings.flatMap((heading) => {
+          const range = document.createRange();
+          range.selectNodeContents(heading);
+          const outside = [...range.getClientRects()].some(
+            (rect) => rect.left < -1 || rect.right > document.documentElement.clientWidth + 1,
+          );
+          return outside ? [heading.textContent] : [];
+        }),
+      );
+      expect(clippedHeadings, `${path} clipped text at ${width}`).toEqual([]);
       await page.screenshot({
         path: info.outputPath(
           `${width}-${path.replaceAll("/", "") || "home"}.png`,

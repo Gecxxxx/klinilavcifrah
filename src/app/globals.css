@@ -1365,6 +1365,7 @@ p {
 .page-hero-inner {
   position: relative;
   z-index: 1;
+  min-width: 0;
   padding-block: 80px;
 }
 .page-hero h1 {
@@ -1374,6 +1375,7 @@ p {
   line-height: 0.96;
   letter-spacing: -0.04em;
   text-wrap: balance;
+  overflow-wrap: anywhere;
 }
 .page-hero-inner > p:not(.eyebrow) {
   max-width: 780px;
@@ -2135,7 +2137,7 @@ p {
     padding-block: 70px;
   }
   .page-hero h1 {
-    font-size: 48px;
+    font-size: clamp(32px, 10vw, 48px);
   }
   .page-hero-inner > p:not(.eyebrow) {
     font-size: 19px;
@@ -2396,6 +2398,14 @@ p {
   display: grid;
   grid-template-columns: repeat(12, 1fr);
   gap: 22px;
+}
+.service-scope-note {
+  position: relative;
+  margin-top: 32px;
+  margin-bottom: 0;
+  color: #c9d2dc;
+  font-size: 18px;
+  line-height: 1.6;
 }
 .service-panel {
   --panel-accent: var(--service-accent);

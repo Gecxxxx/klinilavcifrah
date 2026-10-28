@@ -38,6 +38,7 @@ export function Analytics() {
         link.dataset.leadCta || "",
         document.referrer,
         storage,
+        link.dataset.leadDirection,
       );
       reachGoal("cta_click", {
         page: source.page,
