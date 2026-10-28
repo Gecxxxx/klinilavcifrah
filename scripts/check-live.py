@@ -95,7 +95,10 @@ def audit(origin, revision=None, request=fetch):
     status, _, headers = request(origin + '/api/leads', 'OPTIONS', origin)
     api = next((value for key, value in headers.items() if key.lower() == 'x-kvc-api-revision'), None)
     if status != 204 or api != live: errors.append('API readiness/revision mismatch')
-    if not any(href.startswith(('tel:', 'mailto:')) for href in pages['/kontakty'].links): pending.append('Approved direct contact and operator details')
+    for path, page in pages.items():
+        if len(page.forms) != (1 if path == '/kontakty' else 0): errors.append(f'{path}: expected single shared contact form')
+        if any(href.startswith(('http:', 'https:', 'tel:', 'mailto:')) and not href.startswith(origin + '/') for href in page.links):
+            errors.append(f'{path}: external contact remains')
     if not pages['/soglasheniya'].legal_approved: pending.append('Approved legal documents and data operator identity')
     if not any('crm_custom' in href for href in pages['/sajt-crm-analitika'].links): errors.append('CRM interest CTA missing')
     report = {'revision': live, 'api_revision': api, 'pages': len(pages), 'forms': sum(len(p.forms) for p in pages.values()), 'errors': errors, 'owner_inputs_pending': pending,
