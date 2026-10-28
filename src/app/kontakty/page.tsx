@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Check } from "@phosphor-icons/react/dist/ssr";
+import { Check, TelegramLogo, WhatsappLogo, ChatCircleDots } from "@phosphor-icons/react/dist/ssr";
 import { PageHero } from "@/components/page-hero";
 import { LeadForm } from "@/components/lead-form";
 import { pageMetadata } from "@/lib/seo";
@@ -15,10 +15,29 @@ export default function Page() {
       <PageHero
         path="/kontakty"
         eyebrow="Первый шаг без обязательств"
-        title="Связаться с нами"
+        title="Взаимодействовать с нами"
         lead="Расскажите о вашей клинике и коммерческой задаче. Мы уточним вводные данные и предложим подходящий следующий шаг."
         actions={false}
-      />
+      >
+        <div className="contact-hero-messengers" aria-label="Связаться в мессенджере">
+          <a className="messenger-button messenger-telegram" href="https://t.me/+79690070865" target="_blank" rel="noopener noreferrer">
+            <TelegramLogo size={26} weight="fill" aria-hidden="true" />
+            Telegram<span className="visually-hidden"> (откроется в новой вкладке)</span>
+          </a>
+          <a className="messenger-button messenger-whatsapp" href="https://wa.me/79690070865" target="_blank" rel="noopener noreferrer">
+            <WhatsappLogo size={26} weight="fill" aria-hidden="true" />
+            WhatsApp<span className="visually-hidden"> (откроется в новой вкладке)</span>
+          </a>
+          <details className="messenger-max-details">
+            <summary className="messenger-button messenger-max" aria-label="MAX — найти нас по номеру">
+              <ChatCircleDots size={26} weight="fill" aria-hidden="true" />MAX
+            </summary>
+            <div className="messenger-max-help">
+              В MAX откройте «Контакты» → «Найти по номеру» и введите <strong>+7 969 007-08-65</strong>.
+            </div>
+          </details>
+        </div>
+      </PageHero>
       <section className="section contact-section" id="forma">
         <div className="container contact-grid">
           <div>
@@ -39,14 +58,6 @@ export default function Page() {
               <h3>Связаться напрямую</h3>
               <a href="tel:+79690070865">+7 (969) 007-08-65</a>
               <a href="mailto:revenue@klinikavcifrah.ru">revenue@klinikavcifrah.ru</a>
-              <div className="contact-messengers" aria-label="Написать в мессенджере">
-                <a className="button button-secondary" href="https://t.me/+79690070865" target="_blank" rel="noopener noreferrer">
-                  Telegram<span className="visually-hidden"> (откроется в новой вкладке)</span>
-                </a>
-                <a className="button button-secondary" href="https://wa.me/79690070865" target="_blank" rel="noopener noreferrer">
-                  WhatsApp<span className="visually-hidden"> (откроется в новой вкладке)</span>
-                </a>
-              </div>
             </div>
             <p className="contact-note">
               В форме можно оставить телефон, email или Telegram-контакт.
