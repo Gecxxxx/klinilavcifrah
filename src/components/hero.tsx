@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { CSSProperties } from "react";
 import { preload } from "react-dom";
 import {
   Armchair,
@@ -65,7 +66,12 @@ export function Hero() {
               <li
                 className={`hero-stage stage-${index + 1} tone-${stage.tone}`}
                 key={stage.label}
-                style={{ animationDelay: `${index * 50}ms` }}
+                style={
+                  {
+                    animationDelay: `${index * 50}ms`,
+                    "--stage-highlight-delay": `${index * 1600}ms`,
+                  } as CSSProperties
+                }
               >
                 <div className="stage-card">
                   <Icon size={34} weight="duotone" aria-hidden="true" />
