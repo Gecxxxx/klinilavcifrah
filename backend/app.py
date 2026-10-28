@@ -191,13 +191,17 @@ class Application:
                 value = {key: items[0] for key, items in fields.items()}
                 value["consent"] = value.get("consent") in ("on", "true")
                 value["turnstileToken"] = value.get("cf-turnstile-response", "")
-                # Only a non-personal interest marker is recovered from our own
-                # page's referrer. Never store the raw header or its query string.
+                # Recover only allowlisted, non-personal intent markers from our
+                # own form page. Never store the raw referrer/query string.
                 referer = urllib.parse.urlsplit(environ.get("HTTP_REFERER", ""))
-                if (referer.scheme + "://" + referer.netloc in ORIGINS
-                        and urllib.parse.parse_qs(referer.query).get("interest") == ["crm_custom"]):
-                    value["interest"] = "crm_custom"
-                    value["direction"] = "digital"
+                if referer.scheme + "://" + referer.netloc in ORIGINS:
+                    query = urllib.parse.parse_qs(referer.query)
+                    selected = query.get("direction", [])
+                    if len(selected) == 1 and selected[0] in {"general", "marketing", "digital", "commercial"}:
+                        value["direction"] = selected[0]
+                    if query.get("interest") == ["crm_custom"]:
+                        value["interest"] = "crm_custom"
+                        value["direction"] = "digital"
         except (ValueError, UnicodeError):
             raise Rejected(400, "Проверьте заполненные поля.") from None
         lead, request_id, token = validated(value)

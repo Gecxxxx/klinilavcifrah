@@ -7,7 +7,7 @@ import {
   Path,
 } from "@phosphor-icons/react/dist/ssr";
 import type { ServicePageData } from "@/lib/site-data";
-import { directionLinks } from "@/lib/site-data";
+import { commercialScopeNote, directionLinks } from "@/lib/site-data";
 import { jsonLd } from "@/lib/seo";
 import { ServiceInlineCta } from "./contextual-ctas";
 import { CustomCrmSection } from "./crm-section";
@@ -84,6 +84,7 @@ export function ServicePage({ data }: { data: ServicePageData }) {
             );
           })}
         </div>
+        <p className="container service-scope-note">{commercialScopeNote}</p>
       </section>
 
       {data.tone === "digital" && <CustomCrmSection />}

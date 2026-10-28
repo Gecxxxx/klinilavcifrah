@@ -117,8 +117,9 @@ export function TeamSection() {
                 <p>{person.text}</p>
                 <Link
                   className="team-card-link"
-                  href="/kontakty#forma"
+                  href={`/kontakty?direction=${person.direction}#forma`}
                   data-lead-cta="team"
+                  data-lead-direction={person.direction}
                 >
                   Обсудить задачу <ArrowRight size={17} />
                 </Link>
