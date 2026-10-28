@@ -52,6 +52,11 @@ for (const location of locations) {
   }
   assert(!/daria-kamins\.marketing|egordigital\.site|vk\.ru\/klinika_v_cifrah/.test(html), `external contact remains: ${path}`);
   assert.equal([...html.matchAll(/<form\b/g)].length, path === "/kontakty" ? 1 : 0, `single contact form required: ${path}`);
+  if (path === "/kontakty") {
+    for (const href of ["tel:+79690070865", "mailto:revenue@klinikavcifrah.ru", "https://t.me/+79690070865", "https://wa.me/79690070865"]) {
+      assert(html.includes(`href="${href}"`), `missing approved contact: ${href}`);
+    }
+  }
   if (path === "/soglasheniya") {
     const visible = html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/g, "").replace(/<[^>]*>/g, " ");
     assert(!/чернов|до production|заказчик должен предоставить/i.test(visible), "public legal page contains internal instructions");
