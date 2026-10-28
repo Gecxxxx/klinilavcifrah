@@ -2,27 +2,33 @@ import Link from "next/link";
 import type { CSSProperties } from "react";
 import { preload } from "react-dom";
 import {
-  Armchair,
   ArrowRight,
-  Browser,
-  CalendarBlank,
-  ChatCircle,
+  ArrowsClockwise,
+  CalendarCheck,
+  ChatCircleDots,
+  Check,
   ClipboardText,
+  Clock,
   CreditCard,
+  Heartbeat,
   Megaphone,
-  UserCircle,
+  PaperPlaneTilt,
+  Plus,
+  Sparkle,
+  Stethoscope,
+  User,
 } from "@phosphor-icons/react/dist/ssr";
 import { heroStages } from "@/lib/site-data";
 
 const iconMap = {
-  browser: Browser,
-  megaphone: Megaphone,
-  chat: ChatCircle,
-  calendar: CalendarBlank,
-  chair: Armchair,
-  clipboard: ClipboardText,
-  card: CreditCard,
-  user: UserCircle,
+  megaphone: { icon: Megaphone, detail: Sparkle },
+  chat: { icon: ChatCircleDots, detail: PaperPlaneTilt },
+  calendar: { icon: CalendarCheck, detail: Check },
+  visit: { icon: Stethoscope, detail: User },
+  clipboard: { icon: ClipboardText, detail: Check },
+  treatment: { icon: Heartbeat, detail: Plus },
+  card: { icon: CreditCard, detail: Check },
+  return: { icon: ArrowsClockwise, detail: Clock },
 };
 
 export function Hero() {
@@ -61,7 +67,8 @@ export function Hero() {
         </div>
         <ol className="hero-chain" aria-label="Путь пациента">
           {heroStages.map((stage, index) => {
-            const Icon = iconMap[stage.icon as keyof typeof iconMap];
+            const { icon: Icon, detail: Detail } =
+              iconMap[stage.icon as keyof typeof iconMap];
             return (
               <li
                 className={`hero-stage stage-${index + 1} tone-${stage.tone}`}
@@ -74,7 +81,15 @@ export function Hero() {
                 }
               >
                 <div className="stage-card">
-                  <Icon size={34} weight="duotone" aria-hidden="true" />
+                  <span
+                    className={`stage-icon stage-icon-${stage.icon}`}
+                    aria-hidden="true"
+                  >
+                    <Icon className="stage-icon-main" size={36} weight="duotone" />
+                    <span className="stage-icon-detail">
+                      <Detail size={12} weight="bold" />
+                    </span>
+                  </span>
                   <strong>{stage.label}</strong>
                 </div>
                 {index < heroStages.length - 1 && (
