@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { ArrowRight } from "@phosphor-icons/react/dist/ssr";
 import { breadcrumbs, jsonLd } from "@/lib/seo";
 
@@ -8,12 +9,14 @@ export function PageHero({
   lead,
   actions = true,
   path,
+  children,
 }: {
   eyebrow: string;
   title: string;
   lead: string;
   actions?: boolean;
   path?: string;
+  children?: ReactNode;
 }) {
   return (
     <>
@@ -23,6 +26,7 @@ export function PageHero({
           <p className="eyebrow">{eyebrow}</p>
           <h1>{title}</h1>
           <p>{lead}</p>
+          {children}
           {actions && (
             <div className="hero-actions">
               <Link
