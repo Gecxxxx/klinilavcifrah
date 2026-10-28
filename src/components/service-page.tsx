@@ -2,7 +2,6 @@ import Link from "next/link";
 import { Fragment } from "react";
 import {
   ArrowRight,
-  ArrowUpRight,
   ChartLineUp,
   Megaphone,
   Path,
@@ -64,28 +63,7 @@ export function ServicePage({ data }: { data: ServicePageData }) {
               >
                 Получить разбор
               </Link>
-              {data.ownerSite && (
-                <a
-                  className="button service-external"
-                  href={data.ownerSite}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Обратиться к {data.ownerDative}
-                  <ArrowUpRight size={18} />
-                </a>
-              )}
             </div>
-            {data.ownerSiteLabel && (
-              <a
-                className="service-site-link"
-                href={data.ownerSite}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {data.ownerSiteLabel} <ArrowUpRight size={15} />
-              </a>
-            )}
           </div>
         </div>
       </section>
@@ -180,24 +158,6 @@ export function ServicePage({ data }: { data: ServicePageData }) {
             >
               Получить разбор
             </Link>
-            {data.ownerSite && (
-              <a
-                className="button service-external"
-                href={data.ownerSite}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Сайт{" "}
-                {data.tone === "marketing"
-                  ? "Дарьи Каминскене"
-                  : "Егора Гецевича"}{" "}
-                <ArrowUpRight size={18} aria-hidden="true" />
-                <span className="visually-hidden">
-                  {" "}
-                  (откроется в новой вкладке)
-                </span>
-              </a>
-            )}
           </div>
         </div>
       </section>
