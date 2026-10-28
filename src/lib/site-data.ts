@@ -23,11 +23,11 @@ export const heroStages = [
   { label: "Привлечение", tone: "cyan", icon: "megaphone" },
   { label: "Обращение", tone: "blue", icon: "chat" },
   { label: "Запись", tone: "violet", icon: "calendar" },
-  { label: "Визит", tone: "pink", icon: "chair" },
+  { label: "Визит", tone: "pink", icon: "visit" },
   { label: "План лечения", tone: "orange", icon: "clipboard" },
-  { label: "Начало лечения", tone: "lime", icon: "chair" },
+  { label: "Начало лечения", tone: "lime", icon: "treatment" },
   { label: "Оплата", tone: "cyan", icon: "card" },
-  { label: "Повторный визит", tone: "violet", icon: "user" },
+  { label: "Повторный визит", tone: "violet", icon: "return" },
 ];
 
 export const problemCards = [
