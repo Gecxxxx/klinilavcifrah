@@ -3193,3 +3193,9 @@ p {
 @keyframes content-enter { from { transform: translateY(10px); opacity: .8; } to { transform: translateY(0); opacity: 1; } }
 .hero-stage, .journey-focus { animation: content-enter .3s ease-out both; }
 @media (prefers-reduced-motion: reduce) { .hero-stage, .journey-focus { animation: none; } }
+
+.contact-direct { display: grid; gap: 14px; margin-top: 34px; }
+.contact-direct h3 { margin: 0; }
+.contact-direct > a { width: fit-content; max-width: 100%; overflow-wrap: anywhere; text-decoration: underline; text-underline-offset: 4px; }
+.contact-messengers { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 6px; }
+.contact-messengers .button { min-width: 140px; }
