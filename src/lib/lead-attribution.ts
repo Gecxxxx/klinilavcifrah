@@ -24,6 +24,8 @@ export const ctaLocations = new Set([
   "header",
   "mobile_menu",
   "footer",
+  "team",
+  "final",
   "service_hero",
   "service_footer",
   "service_inline",
