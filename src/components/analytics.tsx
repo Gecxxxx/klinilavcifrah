@@ -8,7 +8,7 @@ import {
   browserAttribution,
   safePage,
 } from "@/lib/lead-attribution";
-import { metrikaId, reachGoal, trackPage } from "@/lib/analytics";
+import { contactChannel, metrikaId, reachGoal, trackPage } from "@/lib/analytics";
 export { reachGoal } from "@/lib/analytics";
 
 export function Analytics() {
@@ -25,6 +25,19 @@ export function Analytics() {
   }, [pathname, search]);
   useEffect(() => {
     const handler = (event: MouseEvent) => {
+      const contact = (event.target as Element | null)?.closest?.(
+        "a[href], summary[data-contact-channel]",
+      );
+      const channel =
+        contact?.getAttribute("data-contact-channel") === "max"
+          ? "max"
+          : contactChannel(contact?.getAttribute("href") || "");
+      if (channel) {
+        reachGoal("contact_click", {
+          page: safePage(window.location.pathname),
+          channel,
+        });
+      }
       const link = (event.target as Element | null)?.closest?.(
         "a[data-lead-cta]",
       ) as HTMLAnchorElement | null;

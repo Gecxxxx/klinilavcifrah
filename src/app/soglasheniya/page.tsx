@@ -2,13 +2,23 @@ import type { Metadata } from "next";
 import { PageHero } from "@/components/page-hero";
 import { pageMetadata } from "@/lib/seo";
 import { metrikaId } from "@/lib/analytics";
+import type { ReactNode } from "react";
 
 export const metadata: Metadata = pageMetadata(
   "Соглашения и конфиденциальность",
   "Как сайт Клиника в цифрах принимает обращения, сохраняет их и использует технические данные.",
   "/soglasheniya",
 );
-const sections = [
+const sections: [string, ReactNode][] = [
+  [
+    "Оператор персональных данных",
+    <span key="operator">
+      Оператор персональных данных, поступающих через формы сайта klinikavcifrah.ru,
+      — Памарин Тимур Исаевич. По вопросам обработки данных, их уточнения,
+      удаления и отзыва согласия: {" "}
+      <a href="mailto:revenue@klinikavcifrah.ru">revenue@klinikavcifrah.ru</a>.
+    </span>,
+  ],
   [
     "Обращение и обратная связь",
     "Контактная форма предназначена для обсуждения коммерческой задачи клиники и подготовки предварительного разбора. Отправка обращения не создаёт обязательств заключить договор. Состав, стоимость и условия платной работы согласовываются отдельно.",

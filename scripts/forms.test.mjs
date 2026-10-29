@@ -71,6 +71,21 @@ test('custom CRM CTA uses the same form and preserves its interest through reloa
  assert.equal(direct.interest,'crm_custom');assert.equal(direct.direction,'digital');
 });
 
+test('contact clicks use a fixed channel without leaking phone numbers, addresses or URLs', async () => {
+ const {contactChannel,reachGoal}=await import('../src/lib/analytics.ts');
+ for (const [href,channel] of [
+  ['tel:+79990000000','phone'],['mailto:private@example.test','email'],
+  ['https://t.me/+79990000000','telegram'],['https://wa.me/79990000000','whatsapp'],
+  ['https://t.me.evil.test/person',undefined],['javascript:alert(1)',undefined],['/kontakty#forma',undefined],
+ ]) assert.equal(contactChannel(href),channel);
+ const events=[];
+ globalThis.window={location:{origin:'https://example.test'},dispatchEvent:e=>events.push(e.detail)};
+ try {
+  reachGoal('contact_click',{page:'/kontakty',channel:'telegram',href:'https://t.me/private',phone:'+79990000000',email:'private@example.test'});
+  assert.deepEqual(events,[{goal:'contact_click',params:{page:'/kontakty',channel:'telegram'}}]);
+ } finally { delete globalThis.window; }
+});
+
 test('each team direction survives the shared form and a reload without changing first-touch attribution', () => {
  for (const direction of ['commercial','marketing','digital']) {
   const store=storage(), tracker=new AttributionTracker();

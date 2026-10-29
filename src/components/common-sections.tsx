@@ -115,17 +115,19 @@ export function TeamSection() {
                 <h3>{person.name}</h3>
                 <strong>{person.role}</strong>
                 <p>{person.text}</p>
-                <Link
-                  className="team-card-link"
-                  href={`/kontakty?direction=${person.direction}#forma`}
-                  data-lead-cta="team"
-                  data-lead-direction={person.direction}
-                >
-                  Обсудить задачу <ArrowRight size={17} />
-                </Link>
               </div>
             </Reveal>
           ))}
+        </div>
+        <div className="team-contact">
+          <Link
+            className="button button-primary"
+            href="/kontakty#forma"
+            data-lead-cta="team"
+            data-lead-direction="general"
+          >
+            Обсудить задачу клиники <ArrowRight size={18} />
+          </Link>
         </div>
       </div>
     </section>
