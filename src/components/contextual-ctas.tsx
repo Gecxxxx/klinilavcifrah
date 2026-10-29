@@ -92,7 +92,7 @@ export function HomeDiagnosticCta() {
           <Link href="/kommercheskaya-sistema">
             <Path size={28} weight="duotone" />
             <span>03</span>
-            <strong>Пациенты теряются внутри клиники</strong>
+            <strong>Пациентский путь и коммерческие процессы</strong>
           </Link>
         </div>
       </div>

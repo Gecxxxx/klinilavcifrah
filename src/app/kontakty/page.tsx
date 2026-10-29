@@ -29,7 +29,7 @@ export default function Page() {
             WhatsApp<span className="visually-hidden"> (откроется в новой вкладке)</span>
           </a>
           <details className="messenger-max-details">
-            <summary className="messenger-button messenger-max" aria-label="MAX — найти нас по номеру">
+            <summary className="messenger-button messenger-max" aria-label="MAX — найти нас по номеру" data-contact-channel="max">
               <ChatCircleDots size={26} weight="fill" aria-hidden="true" />MAX
             </summary>
             <div className="messenger-max-help">

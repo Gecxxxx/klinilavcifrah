@@ -14,6 +14,7 @@ const goals = new Set([
   "form_success",
   "funnel_stage_open",
   "faq_open",
+  "contact_click",
 ]);
 const keys = new Set([
   "page",
@@ -24,7 +25,19 @@ const keys = new Set([
   "fields",
   "stage",
   "question",
+  "channel",
 ]);
+export function contactChannel(href: string) {
+  try {
+    const url = new URL(href);
+    if (url.protocol === "tel:") return "phone";
+    if (url.protocol === "mailto:") return "email";
+    if (url.protocol !== "https:") return undefined;
+    if (url.hostname === "t.me") return "telegram";
+    if (url.hostname === "wa.me") return "whatsapp";
+  } catch {}
+  return undefined;
+}
 function counter() {
   const target = window as unknown as { ym?: Ym };
   if (!target.ym) {

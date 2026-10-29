@@ -2884,6 +2884,8 @@ p {
   padding: 0;
 }
 .team-card-copy { padding: 26px 28px 30px; }
+.team-contact { display: flex; justify-content: center; margin-top: 32px; }
+.team-contact .button { max-width: 100%; text-align: center; }
 .team-card-link {
   display: inline-flex;
   align-items: center;
