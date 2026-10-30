@@ -39,6 +39,7 @@ export const ctaLocations = new Set([
   "page_hero",
   "not_found",
   "crm_custom",
+  "service_catalog",
 ]);
 export function safePage(path: string) {
   return paths.has(path.replace(/\/$/, "") || "/")

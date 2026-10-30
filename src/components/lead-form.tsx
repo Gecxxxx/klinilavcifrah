@@ -27,7 +27,10 @@ function challenge() {
   return (window as unknown as { turnstile?: Turnstile }).turnstile;
 }
 
-export function LeadForm({ compact = false }: { compact?: boolean }) {
+export function LeadForm({ compact = false, serviceOptions = [] }: {
+  compact?: boolean;
+  serviceOptions?: ReadonlyArray<{ id: string; title: string }>;
+}) {
   const pathname = usePathname();
   const [sending, setSending] = useState(false);
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
@@ -46,10 +49,16 @@ export function LeadForm({ compact = false }: { compact?: boolean }) {
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
+    setValue,
   } = useForm<LeadFormData>({
     resolver: zodResolver(leadSchema),
     defaultValues: { consent: false as true, website_check: "" },
   });
+  useEffect(() => {
+    const serviceId = new URL(window.location.href).searchParams.get("service");
+    const service = serviceOptions.find((item) => item.id === serviceId);
+    if (service) setValue("message", `Интересует услуга «${service.title}».`);
+  }, [pathname, serviceOptions, setValue]);
   const goal = (name: string, extra: Record<string, string> = {}) => {
     const source = browserAttribution();
     reachGoal(name, {

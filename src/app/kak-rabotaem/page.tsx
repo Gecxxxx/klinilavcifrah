@@ -10,6 +10,7 @@ import { KeepTeamSection } from "@/components/home-sections";
 import { startSteps } from "@/lib/site-data";
 import { pageMetadata } from "@/lib/seo";
 import { WorkStartCta } from "@/components/contextual-ctas";
+import { ServiceCatalog } from "@/components/service-catalog";
 
 export const metadata: Metadata = pageMetadata(
   "Как работаем",
@@ -55,6 +56,7 @@ export default function Page() {
       </section>
       <WorkStartCta />
       <FormatsSection />
+      <ServiceCatalog />
       <KeepTeamSection />
       <FinalCta
         title="Определим безопасный первый шаг"
