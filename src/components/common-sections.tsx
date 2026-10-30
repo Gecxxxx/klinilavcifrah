@@ -85,6 +85,11 @@ export function DirectionsSection({ compact = false }: { compact?: boolean }) {
           </ol>
         )}
         {!compact && (
+          <Link className="text-link catalog-overview-link" href="/kak-rabotaem#uslugi-i-formaty">
+            Все услуги и форматы <ArrowRight size={18} aria-hidden="true" />
+          </Link>
+        )}
+        {!compact && (
           <p className="section-note">
             <ShieldCheck size={23} /> Не обязательно передавать нам все
             направления. Состав работы определяется задачей и фактическим

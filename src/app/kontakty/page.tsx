@@ -3,6 +3,7 @@ import { Check, TelegramLogo, WhatsappLogo, ChatCircleDots } from "@phosphor-ico
 import { PageHero } from "@/components/page-hero";
 import { LeadForm } from "@/components/lead-form";
 import { pageMetadata } from "@/lib/seo";
+import { catalogServices } from "@/lib/service-catalog";
 
 export const metadata: Metadata = pageMetadata(
   "Контакты",
@@ -64,7 +65,7 @@ export default function Page() {
               Опишите коммерческую задачу без сведений о пациентах.
             </p>
           </div>
-          <LeadForm />
+          <LeadForm serviceOptions={catalogServices.map(({ id, title }) => ({ id, title }))} />
         </div>
       </section>
     </>
