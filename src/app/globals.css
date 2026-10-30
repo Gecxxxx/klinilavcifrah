@@ -3334,7 +3334,7 @@ p {
 /* Approved service catalogue; all purchase discussions use the shared form. */
 .catalog-overview-link { margin-top: 24px; }
 .service-catalog { background: #f3f8f9; }
-.service-catalog, .catalog-stage, .catalog-card { scroll-margin-top: 110px; }
+#uslugi-i-formaty, .catalog-stage, .catalog-card { scroll-margin-top: 20px; }
 .catalog-nav {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
@@ -3403,7 +3403,7 @@ p {
 }
 .catalog-card-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
 .catalog-service-icon { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 14px; background: #e0f5f3; color: var(--cyan-dark); }
-.catalog-service-number { color: #6c7c89; font-size: 15px; font-weight: 600; }
+.catalog-service-number { color: var(--muted); font-size: 15px; font-weight: 600; }
 .catalog-card h4 { margin: 0; font-size: clamp(24px, 2.2vw, 30px); line-height: 1.15; }
 .catalog-card .catalog-price { margin: 16px 0; color: var(--cyan-dark); font-size: 25px; font-weight: 700; line-height: 1.2; }
 .catalog-card .catalog-intro { margin: 0 0 20px; color: var(--muted); font-size: 18px; line-height: 1.5; }

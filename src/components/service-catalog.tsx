@@ -57,8 +57,8 @@ function ServiceCard({ service }: { service: CatalogService }) {
 
 export function ServiceCatalog() {
   return (
-    <section className="section service-catalog" id="uslugi-i-formaty" aria-label="Услуги и форматы">
-      <div className="container">
+    <section className="section service-catalog" aria-label="Услуги и форматы">
+      <div className="container" id="uslugi-i-formaty">
         <SectionHeading
           eyebrow="От разбора к управлению"
           title="Услуги и форматы"
