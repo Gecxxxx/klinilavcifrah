@@ -30,16 +30,16 @@ function ServiceCard({ service }: { service: CatalogService }) {
         </div>
       </div>
       <div className="catalog-card-body">
-      <h4>{service.title}</h4>
-      <p className="catalog-price">{service.price}</p>
-      <p className="catalog-intro">{service.intro}</p>
-      <p className="catalog-result"><strong>Результат</strong>{service.result}</p>
-      <details className="catalog-details">
-        <summary aria-label={`Состав и условия услуги «${service.title}»`}>Состав и условия <ArrowDown size={17} aria-hidden="true" /></summary>
-        <div>
-          <ul>{service.scope.map((item) => <li key={item}>{item}</li>)}</ul>
-          {service.conditions.map((item) => <p key={item}>{item}</p>)}
-        </div>
+        <h4>{service.title}</h4>
+        <p className="catalog-price">{service.price}</p>
+        <p className="catalog-intro">{service.intro}</p>
+        <p className="catalog-result"><strong>Результат</strong>{service.result}</p>
+        <details className="catalog-details">
+          <summary aria-label={`Состав и условия услуги «${service.title}»`}>Состав и условия <ArrowDown size={17} aria-hidden="true" /></summary>
+          <div>
+            <ul>{service.scope.map((item) => <li key={item}>{item}</li>)}</ul>
+            {service.conditions.map((item) => <p key={item}>{item}</p>)}
+          </div>
       </details>
       <Link
         className="text-link catalog-service-cta"
