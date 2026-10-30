@@ -1,36 +1,35 @@
 import Link from "next/link";
-import {
-  ArrowDown,
-  ArrowRight,
-  ChartLineUp,
-  ClipboardText,
-  Database,
-  Globe,
-  Heartbeat,
-  MagnifyingGlass,
-  Megaphone,
-  PhoneCall,
-  CalendarCheck,
-  Timer,
-  Briefcase,
-} from "@phosphor-icons/react/dist/ssr";
+import Image from "next/image";
+import { ArrowDown, ArrowRight } from "@phosphor-icons/react/dist/ssr";
 import { catalogServices, catalogStages, type CatalogService } from "@/lib/service-catalog";
 import { SectionHeading } from "./common-sections";
 
-const icons = [
-  MagnifyingGlass, ClipboardText, ChartLineUp, Megaphone, Globe, PhoneCall,
-  Heartbeat, CalendarCheck, Database, Timer, Briefcase,
-];
+const stageLabels: Record<CatalogService["stage"], string> = {
+  review: "Предварительный разбор",
+  diagnostics: "Диагностика",
+  task: "Точечное решение",
+  program: "90 дней",
+  management: "Внешнее управление",
+};
 
 function ServiceCard({ service }: { service: CatalogService }) {
   const index = catalogServices.indexOf(service);
-  const Icon = icons[index];
   return (
-    <article className="catalog-card" id={`service-${service.id}`} data-catalog-service={service.id}>
-      <div className="catalog-card-top">
-        <span className="catalog-service-icon" aria-hidden="true"><Icon size={27} weight="duotone" /></span>
-        <span className="catalog-service-number">{String(index + 1).padStart(2, "0")}</span>
+    <article className={`catalog-card${service.id === "crm-mis-commercial-data" ? " catalog-card-wide" : ""}`} id={`service-${service.id}`} data-catalog-service={service.id}>
+      <div className="catalog-card-visual">
+        <Image
+          src={`/images/services/${service.id}.webp`}
+          alt=""
+          width={1200}
+          height={800}
+          sizes="(max-width: 760px) 100vw, (max-width: 1100px) 50vw, 40vw"
+        />
+        <div className="catalog-card-badges">
+          <span className="catalog-service-number" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
+          <span className="catalog-service-kind">{stageLabels[service.stage]}</span>
+        </div>
       </div>
+      <div className="catalog-card-body">
       <h4>{service.title}</h4>
       <p className="catalog-price">{service.price}</p>
       <p className="catalog-intro">{service.intro}</p>
@@ -51,6 +50,7 @@ function ServiceCard({ service }: { service: CatalogService }) {
       >
         Обсудить услугу <ArrowRight size={18} aria-hidden="true" />
       </Link>
+      </div>
     </article>
   );
 }

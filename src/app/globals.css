@@ -3333,7 +3333,7 @@ p {
 
 /* Approved service catalogue; all purchase discussions use the shared form. */
 .catalog-overview-link { margin-top: 24px; }
-.service-catalog { background: #f3f8f9; }
+.service-catalog { background: #eaf1f6; }
 #uslugi-i-formaty, .catalog-stage, .catalog-card { scroll-margin-top: 20px; }
 .catalog-nav {
   display: grid;
@@ -3389,35 +3389,46 @@ p {
 .catalog-card-grid { display: grid; flex: 1; min-width: 0; gap: 20px; }
 .catalog-stage-task .catalog-card-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .catalog-stage-task .catalog-card:last-child { grid-column: 1 / -1; }
-.catalog-stage-task .catalog-card:last-child > p { max-width: 880px; }
 .catalog-card {
   display: flex;
   flex-direction: column;
   min-width: 0;
-  padding: 28px;
-  border: 1px solid #d0dfe5;
+  border: 1px solid #284863;
   border-radius: var(--radius);
-  background: #fff;
-  box-shadow: 0 12px 32px #07111f06;
+  background: #10243b;
+  color: #f6faff;
+  box-shadow: 0 16px 36px #071b3321;
+  overflow: hidden;
   overflow-wrap: anywhere;
 }
-.catalog-card-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
-.catalog-service-icon { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 14px; background: #e0f5f3; color: var(--cyan-dark); }
-.catalog-service-number { color: var(--muted); font-size: 15px; font-weight: 600; }
-.catalog-card h4 { margin: 0; font-size: clamp(24px, 2.2vw, 30px); line-height: 1.15; }
-.catalog-card .catalog-price { margin: 16px 0; color: var(--cyan-dark); font-size: 25px; font-weight: 700; line-height: 1.2; }
-.catalog-card .catalog-intro { margin: 0 0 20px; color: var(--muted); font-size: 18px; line-height: 1.5; }
+.catalog-card-visual { position: relative; aspect-ratio: 16 / 9; overflow: hidden; border-bottom: 1px solid #284863; background: #061526; }
+.catalog-card-visual > img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.catalog-card-badges { position: absolute; inset: 16px 16px auto; display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.catalog-service-number, .catalog-service-kind { border: 1px solid #78d9ee70; background: #082039ee; color: #e3faff; box-shadow: 0 4px 16px #0003; font-size: 13px; font-weight: 600; line-height: 1.3; }
+.catalog-service-number { display: grid; place-items: center; width: 34px; height: 34px; flex: none; border-radius: 50%; color: #7aebf1; }
+.catalog-service-kind { padding: 8px 12px; border-radius: 20px; text-align: right; }
+.catalog-card-body { display: flex; flex-direction: column; flex: 1; min-width: 0; padding: 28px; }
+.catalog-card h4 { margin: 0; color: #f6faff; font-size: clamp(24px, 2.2vw, 30px); line-height: 1.15; }
+.catalog-card .catalog-price { margin: 16px 0; color: #75e9ed; font-size: 25px; font-weight: 700; line-height: 1.2; }
+.catalog-card .catalog-intro { margin: 0 0 20px; color: #c0d0e1; font-size: 18px; line-height: 1.5; }
 .catalog-card .catalog-result { margin: 0; font-size: 18px; line-height: 1.5; }
-.catalog-result strong { display: block; margin-bottom: 6px; font-size: 14px; font-weight: 700; color: var(--cyan-dark); letter-spacing: .04em; text-transform: uppercase; }
-.catalog-details { margin: 20px 0 24px; border-top: 1px solid var(--line); }
+.catalog-result strong { display: block; margin-bottom: 6px; font-size: 14px; font-weight: 700; color: #75e9ed; letter-spacing: .04em; text-transform: uppercase; }
+.catalog-details { margin: 20px 0 24px; border-top: 1px solid #36516b; }
 .catalog-details summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; padding: 12px 0; cursor: pointer; list-style: none; font-size: 17px; font-weight: 600; }
 .catalog-details summary::-webkit-details-marker { display: none; }
 .catalog-details summary svg { flex: none; }
 .catalog-details[open] summary svg { transform: rotate(180deg); }
-.catalog-details > div { padding-top: 4px; color: var(--muted); font-size: 17px; line-height: 1.5; }
+.catalog-details summary:focus-visible { outline: 3px solid #75e9ed; outline-offset: 4px; border-radius: 6px; }
+.catalog-details > div { padding-top: 4px; color: #c0d0e1; font-size: 17px; line-height: 1.5; }
 .catalog-details ul { display: grid; gap: 10px; margin: 0; padding-left: 20px; list-style: disc; }
 .catalog-details p { margin: 16px 0 0; }
-.catalog-card .catalog-service-cta { align-self: flex-start; margin-top: auto; min-height: 44px; font-size: 18px; }
+.catalog-card .catalog-service-cta { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; margin-top: auto; min-height: 52px; padding: 14px 18px; border: 1px solid #7eeef1; border-radius: 12px; background: #75e9ed; color: #082039; font-size: 18px; font-weight: 700; line-height: 1.25; transition: background .18s ease; }
+.catalog-card .catalog-service-cta:hover { background: #a4f6f7; }
+.catalog-card .catalog-service-cta:focus-visible { outline: 3px solid #fff; outline-offset: 4px; }
+.catalog-service-cta svg { flex: none; }
+.catalog-card-wide { display: grid; grid-template-columns: .9fr 1.1fr; }
+.catalog-card-wide .catalog-card-visual { aspect-ratio: auto; border-bottom: 0; border-right: 1px solid #284863; }
+.catalog-card-wide .catalog-card-visual > img { object-fit: contain; }
 .catalog-terms { max-width: 980px; margin: 32px 0 0; color: var(--muted); font-size: 17px; line-height: 1.5; }
 @media (max-width: 1100px) {
   .catalog-stage-task .catalog-card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -3430,6 +3441,11 @@ p {
   .catalog-stages, .catalog-stage-task .catalog-card-grid { grid-template-columns: minmax(0, 1fr); }
   .catalog-stages { gap: 32px; }
   .catalog-stage-heading { min-height: auto; }
-  .catalog-card { padding: 22px; }
+  .catalog-card-body { padding: 22px; }
+  .catalog-card-wide { display: flex; }
+  .catalog-card-wide .catalog-card-visual { aspect-ratio: 16 / 9; border-right: 0; border-bottom: 1px solid #284863; }
+  .catalog-card-wide .catalog-card-visual > img { object-fit: cover; }
+  .catalog-card-badges { inset: 12px 12px auto; }
+  .catalog-service-kind { padding: 8px 10px; font-size: 12px; }
   .catalog-card .catalog-price { font-size: 23px; }
 }
