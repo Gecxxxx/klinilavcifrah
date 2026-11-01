@@ -235,6 +235,11 @@ textarea:focus-visible {
   background-image: image-set(url("/assets/hero-data-stream.avif") type("image/avif"), url("/assets/hero-data-stream.webp") type("image/webp"));
   opacity: 0.78;
 }
+@media (max-width: 480px) {
+  .hero-background {
+    background-image: image-set(url("/assets/hero-data-stream-mobile.avif") type("image/avif"), url("/assets/hero-data-stream.webp") type("image/webp"));
+  }
+}
 .hero-inner {
   position: relative;
   z-index: 1;

@@ -32,9 +32,16 @@ const iconMap = {
 };
 
 export function Hero() {
+  preload("/assets/hero-data-stream-mobile.avif", {
+    as: "image",
+    type: "image/avif",
+    media: "(max-width: 480px)",
+    fetchPriority: "high",
+  });
   preload("/assets/hero-data-stream.avif", {
     as: "image",
     type: "image/avif",
+    media: "(min-width: 481px)",
     fetchPriority: "high",
   });
   return (
