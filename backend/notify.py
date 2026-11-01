@@ -69,7 +69,7 @@ def drain(config, send=telegram, limit=5, now=None):
             store.record_delivery(job, "", "failed", "configuration_missing", now=now)
             store.finish(job, False, "configuration_missing", retry_after=600, now=now)
             continue
-        targets = store.subscriber_targets(job) if subscribed else [(x, None) for x in config.chat_ids]
+        targets = store.subscriber_targets(job, config.allowed_chat_ids) if subscribed else [(x, None) for x in config.chat_ids]
         if targets is None:
             store.defer(job, "waiting_subscribers", now=now)
             continue

@@ -29,6 +29,7 @@ class Config:
     revision: str = "development"
     recipient_mode: str = "fixed"
     webhook_secret: str = ""
+    allowed_chat_ids: tuple = ()
 
     @classmethod
     def environment(cls):
@@ -40,13 +41,17 @@ class Config:
                      Path(__file__).with_name("revision.txt").read_text().strip()
                      if Path(__file__).with_name("revision.txt").exists() else "development",
                      os.environ.get("TELEGRAM_RECIPIENT_MODE", "fixed"),
-                     os.environ.get("TELEGRAM_WEBHOOK_SECRET", ""))
+                     os.environ.get("TELEGRAM_WEBHOOK_SECRET", ""),
+                     tuple(filter(None, (x.strip() for x in os.environ.get("TELEGRAM_ALLOWED_CHAT_IDS", "").split(",")))))
         if len(config.ip_key) < 32:
             raise RuntimeError("KVC_IP_HASH_KEY must be configured")
         if config.recipient_mode == "fixed" and (len(config.chat_ids) > 5 or any(not re.fullmatch(r"-?[0-9]{1,20}", x) for x in config.chat_ids)):
             raise RuntimeError("Invalid Telegram recipient configuration")
         if config.recipient_mode not in ("fixed", "subscribers"):
             raise RuntimeError("Invalid Telegram recipient mode")
+        if (len(config.allowed_chat_ids) > 50
+                or any(not re.fullmatch(r"[1-9][0-9]{0,15}", x) or int(x) >= 2**52 for x in config.allowed_chat_ids)):
+            raise RuntimeError("Invalid Telegram approval configuration")
         if config.recipient_mode == "subscribers" and not re.fullmatch(r"[A-Za-z0-9_-]{32,256}", config.webhook_secret):
             raise RuntimeError("Telegram webhook secret must be configured")
         return config

@@ -269,7 +269,7 @@ def credentials():
     values.setdefault('KVC_IP_HASH_KEY', secrets.token_hex(32))
     values.setdefault('KVC_DB', '/var/lib/kvc-leads/leads.sqlite3')
     atomic_bytes(ENV, ''.join(f'{key}={value}\n' for key, value in values.items()).encode(), 0o600)
-    print('Bot token verified; recipients subscribe with /start (no chat IDs required)')
+    print('Bot token verified. Set TELEGRAM_ALLOWED_CHAT_IDS privately; approved recipients subscribe with /start.')
 
 
 def connect_bot(revision):

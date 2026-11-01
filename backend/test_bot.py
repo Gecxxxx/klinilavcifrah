@@ -25,7 +25,8 @@ class BotTest(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(); self.addCleanup(self.temp.cleanup)
         self.config = Config(Path(self.temp.name) / 'leads.sqlite3', 'x' * 64, 'fake-token',
-            recipient_mode='subscribers', webhook_secret='s' * 64)
+            recipient_mode='subscribers', webhook_secret='s' * 64,
+            allowed_chat_ids=tuple(str(x) for x in [*range(101, 110), 202, 303]))
         self.app = Application(self.config); self.store = self.app.store
 
     def call(self, value=None, secret=None, method='POST', content_type='application/json', raw=None):
@@ -68,6 +69,43 @@ class BotTest(unittest.TestCase):
         self.assertEqual(self.call(method='GET')[0], 404)
         self.app = Application(replace(self.config, recipient_mode='fixed'))
         self.assertEqual(self.call()[0], 404)
+
+    def test_unknown_account_cannot_subscribe_or_receive_a_reply(self):
+        for command in ['/start', '/status', '/stop']:
+            self.assertEqual(self.call(update(command, chat=999))[1], {'ok': True})
+        self.assertFalse(self.active(999))
+        with self.store.connection() as con:
+            self.assertEqual(con.execute('SELECT count(*) FROM telegram_subscribers').fetchone()[0], 0)
+
+    def test_legacy_unapproved_subscriber_is_excluded_from_delivery(self):
+        self.call()
+        self.store.bot_command('999', 'start', 1760000000, 1)
+        self.save(); calls = []
+        drain(self.config, send=lambda _, chat, text: calls.append(chat) or 1)
+        self.assertEqual(calls, ['101'])
+
+    def test_missing_allowlist_keeps_lead_queued_and_blocks_new_subscriptions(self):
+        self.call(); self.save()
+        closed = replace(self.config, allowed_chat_ids=())
+        self.app = Application(closed)
+        self.assertEqual(self.call(update(chat=202))[1], {'ok': True})
+        drain(closed, send=lambda *_: self.fail('Empty approval list must not send'))
+        self.assertEqual(self.store.stats(), {'leads': 1, 'notifications': {'retry': 1}})
+
+    def test_revoked_recipient_cannot_receive_retry(self):
+        self.call(); self.call(update(chat=202)); self.save(); now = int(time.time())
+        def failed(*_): raise DeliveryError('transport_error')
+        drain(self.config, send=failed, now=now)
+        restricted = replace(self.config, allowed_chat_ids=('101',))
+        calls = []
+        drain(restricted, send=lambda _, chat, text: calls.append(chat) or 1, now=now + 31)
+        self.assertEqual(calls, ['101'])
+
+    def test_environment_rejects_invalid_approval_ids(self):
+        for value in ['-100', '0', 'name', str(2**52), '101,' * 51]:
+            with self.subTest(value=value), patch.dict('os.environ',
+                    {'KVC_IP_HASH_KEY': 'x' * 64, 'TELEGRAM_ALLOWED_CHAT_IDS': value}, clear=True):
+                with self.assertRaises(RuntimeError): Config.environment()
 
     def test_group_channel_edited_bot_and_malformed_messages_do_not_subscribe(self):
         samples = [[], {}, {'edited_message': update()['message']}, update(chat=-100),
