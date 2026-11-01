@@ -12,7 +12,7 @@ const robotoCondensed = localFont({
   src: "../../public/fonts/RobotoCondensed-Web.woff2",
   variable: "--font-condensed",
   display: "swap",
-  weight: "100 900",
+  weight: "400 850",
 });
 
 export const metadata: Metadata = {
