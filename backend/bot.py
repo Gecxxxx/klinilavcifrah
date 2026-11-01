@@ -1,4 +1,4 @@
-"""Telegram-authenticated private-chat subscriptions; no manual chat IDs."""
+"""Telegram-authenticated private chats with an operator-controlled recipient allowlist."""
 import hmac
 import json
 import re
@@ -39,6 +39,10 @@ def webhook(config, store, environ):
         return 200, {"ok": True}
     command = re.fullmatch(r"/(start|stop|status)(?:@[A-Za-z0-9_]{5,32})?", text.strip().split()[0].lower())
     if not command:
+        return 200, {"ok": True}
+    # Telegram authentication proves the sender's identity, not their authority
+    # to receive private leads. Unknown accounts get neither a subscription nor PII.
+    if str(chat_id) not in config.allowed_chat_ids:
         return 200, {"ok": True}
     stamp, message_id = message.get("date"), message.get("message_id")
     if type(stamp) is not int or type(message_id) is not int or stamp <= 0 or message_id <= 0:

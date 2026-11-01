@@ -193,20 +193,25 @@ class Store:
                 return bool(active)
             return bool(row and row["active"])
 
-    def subscriber_targets(self, job):
+    def subscriber_targets(self, job, allowed_chat_ids):
         """Freeze recipients on first send; later subscribers do not receive retries of old leads."""
+        if not allowed_chat_ids:
+            return None
+        placeholders = ','.join('?' for _ in allowed_chat_ids)
         with self.connection(write=True) as con:
             if not con.execute("SELECT 1 FROM outbox WHERE lead_id=? AND lease_token=?", (job["lead_id"], job["lease_token"])).fetchone():
                 raise RuntimeError("Notification lease was replaced")
             if not con.execute("SELECT 1 FROM notification_recipients WHERE lead_id=?", (job["lead_id"],)).fetchone():
-                con.execute("""INSERT INTO notification_recipients SELECT ?,chat_id,generation
-                    FROM telegram_subscribers WHERE active=1""", (job["lead_id"],))
+                con.execute(f"""INSERT INTO notification_recipients SELECT ?,chat_id,generation
+                    FROM telegram_subscribers WHERE active=1 AND chat_id IN ({placeholders})""",
+                    (job["lead_id"], *allowed_chat_ids))
                 if not con.execute("SELECT 1 FROM notification_recipients WHERE lead_id=?", (job["lead_id"],)).fetchone():
                     return None
-            return con.execute("""SELECT r.chat_id,r.generation FROM notification_recipients r
+            return con.execute(f"""SELECT r.chat_id,r.generation FROM notification_recipients r
                 JOIN telegram_subscribers s ON s.chat_id=r.chat_id AND s.active=1 AND s.generation=r.generation
                 LEFT JOIN deliveries d ON d.lead_id=r.lead_id AND d.chat_id=r.chat_id
-                WHERE r.lead_id=? AND d.delivered_at IS NULL ORDER BY r.chat_id LIMIT 5""", (job["lead_id"],)).fetchall()
+                WHERE r.lead_id=? AND r.chat_id IN ({placeholders}) AND d.delivered_at IS NULL
+                ORDER BY r.chat_id LIMIT 5""", (job["lead_id"], *allowed_chat_ids)).fetchall()
 
     def subscriber_active(self, chat_id, generation):
         with self.connection() as con:
