@@ -32,8 +32,9 @@ const iconMap = {
 };
 
 export function Hero() {
-  preload("/assets/hero-data-stream.webp", {
+  preload("/assets/hero-data-stream.avif", {
     as: "image",
+    type: "image/avif",
     fetchPriority: "high",
   });
   return (

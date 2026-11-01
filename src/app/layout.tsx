@@ -9,7 +9,7 @@ import { SITE_NAME, SITE_URL } from "@/lib/site-data";
 import { jsonLd } from "@/lib/seo";
 
 const robotoCondensed = localFont({
-  src: "../../public/fonts/RobotoCondensed-Variable.woff2",
+  src: "../../public/fonts/RobotoCondensed-Web.woff2",
   variable: "--font-condensed",
   display: "swap",
   weight: "100 900",

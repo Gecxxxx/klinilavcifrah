@@ -62,6 +62,14 @@ class ApiOpsTest(unittest.TestCase):
             import shutil
             shutil.rmtree(self.root / 'releases' / (self.revision + '-123-1'))
 
+    def test_legacy_cleanup_permission_error_does_not_fail_healthy_release(self):
+        for index in range(6):
+            (self.root / 'releases' / ('a' * 40 + f'-{index + 1}-1')).mkdir()
+        with patch.object(api.shutil, 'rmtree', side_effect=PermissionError('Legacy bytecode cache')):
+            self.publish(lambda _: True)
+        self.assertEqual((self.root / 'current/backend/revision.txt').read_text().strip(), self.revision)
+        self.assertEqual(self.db.read_bytes(), b'new records must survive code rollback')
+
     def test_corrupt_or_symlink_archive_is_never_activated(self):
         self.digest = '0' * 64
         with self.assertRaises(ValueError): self.publish(lambda _: True)

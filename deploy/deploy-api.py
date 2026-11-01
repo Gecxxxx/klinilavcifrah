@@ -108,10 +108,15 @@ def deploy(archive, digest, revision, run_id, root, probe=health, pause=time.sle
             # Keep an activated failed release for diagnosis; never touch the DB.
             raise
         print(f'API DEPLOYED {revision}')
-        releases = sorted((p for p in (root / 'releases').iterdir() if p.is_dir() and re.fullmatch(r'[0-9a-f]{40}-[0-9]+-[0-9]+', p.name)), key=lambda p: p.stat().st_mtime, reverse=True)
+        releases = sorted((p for p in (root / 'releases').iterdir() if p.is_dir() and not p.is_symlink() and re.fullmatch(r'[0-9a-f]{40}-[0-9]+-[0-9]+', p.name)), key=lambda p: p.stat().st_mtime, reverse=True)
         for old in releases[5:]:
             if old not in (previous, destination):
-                shutil.rmtree(old)
+                try:
+                    shutil.rmtree(old)
+                except OSError:
+                    # The new API is already healthy. A legacy root-owned cache
+                    # must not abort the workflow before publishing matching HTML.
+                    print(f'WARNING: old API release retained: {old.name}')
 
 
 if __name__ == '__main__':
