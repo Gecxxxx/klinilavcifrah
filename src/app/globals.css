@@ -232,6 +232,7 @@ textarea:focus-visible {
   position: absolute;
   inset: 0;
   background: url("/assets/hero-data-stream.webp") center/cover no-repeat;
+  background-image: image-set(url("/assets/hero-data-stream.avif") type("image/avif"), url("/assets/hero-data-stream.webp") type("image/webp"));
   opacity: 0.78;
 }
 .hero-inner {
