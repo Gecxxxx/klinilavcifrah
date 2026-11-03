@@ -49,10 +49,11 @@ function counter() {
   }
   if (!initialized) {
     target.ym(metrikaId, "init", {
+      ssr: true,
       defer: true,
-      webvisor: false,
+      webvisor: true,
       clickmap: true,
-      trackLinks: false,
+      trackLinks: true,
       accurateTrackBounce: true,
     });
     initialized = true;

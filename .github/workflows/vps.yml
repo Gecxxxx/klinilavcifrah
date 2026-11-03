@@ -22,7 +22,7 @@ jobs:
       NEXT_TELEMETRY_DISABLED: '1'
       NEXT_PUBLIC_SITE_URL: https://klinikavcifrah.ru
       NEXT_PUBLIC_LEADS_API_URL: /api/leads
-      NEXT_PUBLIC_YANDEX_METRIKA_ID: ${{ vars.NEXT_PUBLIC_YANDEX_METRIKA_ID }}
+      NEXT_PUBLIC_YANDEX_METRIKA_ID: '114039537'
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
