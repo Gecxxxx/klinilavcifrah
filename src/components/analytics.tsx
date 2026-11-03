@@ -67,7 +67,7 @@ export function Analytics() {
   return (
     <Script
       id="yandex-metrika"
-      src="https://mc.yandex.ru/metrika/tag.js"
+      src={`https://mc.yandex.ru/metrika/tag.js?id=${metrikaId}`}
       strategy="afterInteractive"
     />
   );

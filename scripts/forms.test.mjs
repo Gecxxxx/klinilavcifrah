@@ -53,9 +53,11 @@ test('analytics queues initialization before early goals; drops contact paramete
  globalThis.window={location:{origin:'https://example.test'},dispatchEvent:e=>events.push(e.detail)};
  try {
   reachGoal('form_start',{page:'/kontakty',phone:'+79990000000',message:'Private message'});
-  assert.equal(window.ym.a[0][1],'init'); assert.equal(window.ym.a[0][2].webvisor,false);
+  assert.equal(window.ym.a[0][1],'init');
+  assert.deepEqual(window.ym.a[0][2],{ssr:true,defer:true,webvisor:true,clickmap:true,trackLinks:true,accurateTrackBounce:true});
   assert.equal(window.ym.a[1][1],'reachGoal');assert.deepEqual(events[0].params,{page:'/kontakty'});
   trackPage('/kontakty');assert.equal(window.ym.a[2][1],'hit');
+  assert.equal(window.ym.a.filter(call=>call[1]==='init').length,1);
   window.ym=()=>{throw Error('blocked counter')};
   assert.doesNotThrow(()=>reachGoal('lead_saved',{direction:'digital'}));
   assert.doesNotThrow(()=>trackPage('/kontakty'));

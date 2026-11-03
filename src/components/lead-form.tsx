@@ -209,7 +209,7 @@ export function LeadForm({ compact = false, serviceOptions = [] }: {
     <form
       method="post"
       action="/api/leads"
-      className={`lead-form ${compact ? "compact" : ""}`}
+      className={`lead-form ym-hide-content ${compact ? "compact" : ""}`}
       noValidate
       data-lead-form
       aria-describedby={`${formId}-requirements`}
